@@ -168,3 +168,136 @@ func (o *ErrorMap) UnmarshalJSON(b []byte) error {
 	*o = ErrorMap(*xo)
 	return nil
 }
+
+//GetManifestLabel returns the seed.manifest.json as LABEL
+//  com.ngageoint.seed.manifest contents
+func GetManifestLabel(seedFileName string) string {
+	// read the seed.manifest.json into a string
+	seedbytes, err := ioutil.ReadFile(seedFileName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Eror reading %s. %s\n", seedFileName,
+			err.Error())
+		os.Exit(1)
+	}
+	var seedbuff bytes.Buffer
+	json.Compact(&seedbuff, seedbytes)
+	seedbytes, err = json.Marshal(seedbuff.String())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error marshalling seed manifest. %s\n",
+			err.Error())
+	}
+
+	// Escape forward slashes and dollar signs
+	seed := string(seedbytes)
+	seed = strings.Replace(seed, "$", "\\$", -1)
+	seed = strings.Replace(seed, "/", "\\/", -1)
+
+	return seed
+}
+
+
+
+//SeedFromImageLabel returns seed parsed from the docker image LABEL
+func SeedFromImageLabel(imageName string) objects.Seed {
+	cmdStr := "inspect -f '{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'" + imageName
+	fmt.Fprintf(os.Stderr,
+		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
+		imageName)
+
+	inspctCmd := exec.Command("docker", "inspect", "-f",
+		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
+
+	errPipe, errr := inspctCmd.StderrPipe()
+	if errr != nil {
+		fmt.Fprintf(os.Stderr,
+			"ERROR: error attaching to docker inspect command stderr. %s\n",
+			errr.Error())
+	}
+
+	// Attach stdout pipe
+	outPipe, errr := inspctCmd.StdoutPipe()
+	if errr != nil {
+		fmt.Fprintf(os.Stderr,
+			"ERROR: error attaching to docker inspect command stdout. %s\n",
+			errr.Error())
+	}
+
+	// Run docker inspect
+	if err := inspctCmd.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: error executing docker %s. %s\n", cmdStr,
+			err.Error())
+	}
+
+	// Print out any std out
+	seedBytes, err := ioutil.ReadAll(outPipe)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+			cmdStr, err.Error())
+	}
+
+	// check for errors on stderr
+	slurperr, _ := ioutil.ReadAll(errPipe)
+	if string(slurperr) != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker %s:\n%s\n",
+			cmdStr, string(slurperr))
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		os.Exit(1)
+	}
+
+	// un-escape special characters
+	seedStr := string(seedBytes)
+	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1)
+	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1) //extra replace to fix extra back slashes added by docker build command
+	seedStr = strings.Replace(seedStr, "\\$", "$", -1)
+	seedStr = strings.Replace(seedStr, "\\/", "/", -1)
+	seedStr = strings.TrimSpace(seedStr)
+	seedStr = strings.TrimSuffix(strings.TrimPrefix(seedStr, "'\""), "\"'")
+
+	seed := &objects.Seed{}
+
+	err = json.Unmarshal([]byte(seedStr), &seed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error unmarshalling seed: %s\n", err.Error())
+	}
+
+	return *seed
+}
+
+//SeedFromManifestFile returns seed struct parsed from seed file
+func SeedFromManifestFile(seedFileName string) objects.Seed {
+
+	// Open and parse seed file into struct
+	seedFile, err := os.Open(seedFileName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error opening %s. Error received is: %s\n",
+			seedFileName, err.Error())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		os.Exit(1)
+	}
+	jsonParser := json.NewDecoder(seedFile)
+	var seed objects.Seed
+	if err = jsonParser.Decode(&seed); err != nil {
+		fmt.Fprintf(os.Stderr,
+			"ERROR: A valid %s must be present in the working directory. Error parsing %s.\nError received is: %s\n",
+			constants.SeedFileName, seedFileName, err.Error())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		os.Exit(1)
+	}
+
+	return seed
+}
+
+//BuildImageName extracts the Docker Image name from the seed.json
+// 	jobName-algVersion-seed:pkgVersion
+func BuildImageName(seed *objects.Seed) string {
+	var buffer bytes.Buffer
+
+	buffer.WriteString(seed.Job.Name)
+	buffer.WriteString("-")
+	buffer.WriteString(seed.Job.AlgorithmVersion)
+	buffer.WriteString("-seed")
+	buffer.WriteString(":")
+	buffer.WriteString(seed.Job.PackageVersion)
+
+	return buffer.String()
+}
