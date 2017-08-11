@@ -1,5 +1,12 @@
 package commands
 
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"os/exec"
+)
+
 //DockerList lists all seed compliant images (ending with -seed) on the local
 //	system
 func DockerList() {

@@ -1,13 +1,27 @@
 package commands
 
 import (
+	"bytes"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strings"
 
+	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/objects"
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(imageName string) {
+func DockerBuild(imageName string, buildCmd flag.FlagSet) {
 
-	seedFileName := SeedFileName()
+	dir := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+
+	seedFileName := util.SeedFileName(dir)
 
 	// Validate seed file
 	err := ValidateSeedFile("", seedFileName, constants.SchemaManifest)
@@ -19,11 +33,11 @@ func DockerBuild(imageName string) {
 	}
 
 	// retrieve seed from seed manifest
-	seed := SeedFromManifestFile(seedFileName)
+	seed := objects.SeedFromManifestFile(seedFileName)
 
 	// Retrieve docker image name
 	if imageName == "" {
-		imageName = BuildImageName(&seed)
+		imageName = objects.BuildImageName(&seed)
 	}
 
 	jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
@@ -31,18 +45,18 @@ func DockerBuild(imageName string) {
 	// Build Docker image
 	fmt.Fprintf(os.Stderr, "INFO: Building %s\n", imageName)
 	buildArgs := []string{"build", "-t", imageName, jobDirectory}
-	if DockerVersionHasLabel() {
+	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label
-		label := "com.ngageoint.seed.manifest=" + GetManifestLabel(seedFileName)
+		label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
 		buildArgs = append(buildArgs, "--label", label)
 	}
-	buildCmd := exec.Command("docker", buildArgs...)
+	cmd := exec.Command("docker", buildArgs...)
 	var errs bytes.Buffer
-	buildCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	buildCmd.Stdout = os.Stderr
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stderr
 
 	// Run docker build
-	if err := buildCmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker build. %s\n",
 			err.Error())
 	}
@@ -56,36 +70,11 @@ func DockerBuild(imageName string) {
 	}
 }
 
-//GetManifestLabel returns the seed.manifest.json as LABEL
-//  com.ngageoint.seed.manifest contents
-func GetManifestLabel(seedFileName string) string {
-	// read the seed.manifest.json into a string
-	seedbytes, err := ioutil.ReadFile(seedFileName)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Eror reading %s. %s\n", seedFileName,
-			err.Error())
-		os.Exit(1)
-	}
-	var seedbuff bytes.Buffer
-	json.Compact(&seedbuff, seedbytes)
-	seedbytes, err = json.Marshal(seedbuff.String())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error marshalling seed manifest. %s\n",
-			err.Error())
-	}
-
-	// Escape forward slashes and dollar signs
-	seed := string(seedbytes)
-	seed = strings.Replace(seed, "$", "\\$", -1)
-	seed = strings.Replace(seed, "/", "\\/", -1)
-
-	return seed
-}
-
 //DefineBuildFlags defines the flags for the seed build command
-func DefineBuildFlags() {
+func DefineBuildFlags(buildCmd *flag.FlagSet) {
 	// build command flags
 	buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	var directory string
 	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",

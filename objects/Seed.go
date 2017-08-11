@@ -2,6 +2,13 @@ package objects
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"fmt"
+	"os"
+	"bytes"
+	"strings"
+	"os/exec"
+	"github.com/ngageoint/seed-cli/constants"
 )
 
 //Seed represents a seed.manifest.json object.
@@ -198,7 +205,7 @@ func GetManifestLabel(seedFileName string) string {
 
 
 //SeedFromImageLabel returns seed parsed from the docker image LABEL
-func SeedFromImageLabel(imageName string) objects.Seed {
+func SeedFromImageLabel(imageName string) Seed {
 	cmdStr := "inspect -f '{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'" + imageName
 	fmt.Fprintf(os.Stderr,
 		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
@@ -253,7 +260,7 @@ func SeedFromImageLabel(imageName string) objects.Seed {
 	seedStr = strings.TrimSpace(seedStr)
 	seedStr = strings.TrimSuffix(strings.TrimPrefix(seedStr, "'\""), "\"'")
 
-	seed := &objects.Seed{}
+	seed := &Seed{}
 
 	err = json.Unmarshal([]byte(seedStr), &seed)
 	if err != nil {
@@ -264,7 +271,7 @@ func SeedFromImageLabel(imageName string) objects.Seed {
 }
 
 //SeedFromManifestFile returns seed struct parsed from seed file
-func SeedFromManifestFile(seedFileName string) objects.Seed {
+func SeedFromManifestFile(seedFileName string) Seed {
 
 	// Open and parse seed file into struct
 	seedFile, err := os.Open(seedFileName)
@@ -275,7 +282,7 @@ func SeedFromManifestFile(seedFileName string) objects.Seed {
 		os.Exit(1)
 	}
 	jsonParser := json.NewDecoder(seedFile)
-	var seed objects.Seed
+	var seed Seed
 	if err = jsonParser.Decode(&seed); err != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: A valid %s must be present in the working directory. Error parsing %s.\nError received is: %s\n",
@@ -289,7 +296,7 @@ func SeedFromManifestFile(seedFileName string) objects.Seed {
 
 //BuildImageName extracts the Docker Image name from the seed.json
 // 	jobName-algVersion-seed:pkgVersion
-func BuildImageName(seed *objects.Seed) string {
+func BuildImageName(seed *Seed) string {
 	var buffer bytes.Buffer
 
 	buffer.WriteString(seed.Job.Name)

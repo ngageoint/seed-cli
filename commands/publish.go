@@ -1,12 +1,31 @@
 package commands
 
+import (
+	"bytes"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
+
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
+)
+
 //DockerPublish executes the seed publish command
-func DockerPublish() {
+func DockerPublish(publishCmd flag.FlagSet) {
 
 	//1. Check names and verify it doesn't conflict
 	registry := publishCmd.Lookup(constants.RegistryFlag).Value.String()
 	org := publishCmd.Lookup(constants.OrgFlag).Value.String()
 	origImg := publishCmd.Arg(0)
+	dir := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+
 	tag := ""
 	img := origImg
 
@@ -29,9 +48,9 @@ func DockerPublish() {
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
-		seedFileName := SeedFileName()
+		seedFileName := util.SeedFileName(dir)
 		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
-		seed := SeedFromManifestFile(seedFileName)
+		seed := objects.SeedFromManifestFile(seedFileName)
 
 		fmt.Fprintf(os.Stderr, "INFO: An image with the name %s already exists. ", img)
 		// Bump the package minor version
@@ -85,7 +104,7 @@ func DockerPublish() {
 			os.Exit(1)
 		}
 
-		img = BuildImageName(&seed)
+		img = objects.BuildImageName(&seed)
 		fmt.Fprintf(os.Stderr, "\nNew image name: %s\n", img)
 
 		// write version back to the seed manifest
@@ -102,7 +121,7 @@ func DockerPublish() {
 		// Build Docker image
 		fmt.Fprintf(os.Stderr, "INFO: Building %s\n", img)
 		buildArgs := []string{"build", "-t", img, jobDirectory}
-		if DockerVersionHasLabel() {
+		if util.DockerVersionHasLabel() {
 			// Set the seed.manifest.json contents as an image label
 			label := "com.ngageoint.seed.manifest=" + GetManifestLabel(seedFileName)
 			buildArgs = append(buildArgs, "--label", label)
@@ -190,7 +209,7 @@ func DockerPublish() {
 }
 
 //DefinePublishFlags defines the flags for the seed publish command
-func DefinePublishFlags() {
+func DefinePublishFlags(publishCmd *flag.FlagSet) {
 	publishCmd = flag.NewFlagSet(constants.PublishCommand, flag.ExitOnError)
 	var registry string
 	publishCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
