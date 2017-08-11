@@ -1,7 +1,18 @@
 package commands
 
+import (
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/dockerHubRegistry"
+
+	"github.com/heroku/docker-registry-client/registry"
+)
 //DockerSearch executes the seed search command
-func DockerSearch() {
+func DockerSearch(searchCmd flag.FlagSet) {
 
 	url := searchCmd.Lookup(constants.RegistryFlag).Value.String()
 	org := searchCmd.Lookup(constants.OrgFlag).Value.String()
@@ -62,7 +73,7 @@ func DockerSearch() {
 }
 
 //DefineSearchFlags defines the flags for the seed search command
-func DefineSearchFlags() {
+func DefineSearchFlags(searchCmd *flag.FlagSet) {
 	// Search command
 	searchCmd = flag.NewFlagSet(constants.SearchCommand, flag.ExitOnError)
 	var registry string

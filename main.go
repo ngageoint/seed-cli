@@ -50,82 +50,64 @@ usage is as folllows:
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"math"
-	"mime"
 	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"time"
 
-	"github.com/ngageoint/seed/cli/constants"
-	"github.com/ngageoint/seed/cli/objects"
-	"github.com/ngageoint/seed/cli/dockerHubRegistry"
-	"github.com/xeipuuv/gojsonschema"
-	
-	"github.com/heroku/docker-registry-client/registry"
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/commands"
+	"github.com/ngageoint/seed-cli/util"
 )
 
-var buildCmd *flag.FlagSet
-var listCmd *flag.FlagSet
-var publishCmd *flag.FlagSet
-var runCmd *flag.FlagSet
-var searchCmd *flag.FlagSet
-var validateCmd *flag.FlagSet
+var buildCmd flag.FlagSet
+var listCmd flag.FlagSet
+var publishCmd flag.FlagSet
+var runCmd flag.FlagSet
+var searchCmd flag.FlagSet
+var validateCmd flag.FlagSet
 var versionCmd *flag.FlagSet
-var directory string
 var version string
 
 func main() {
-
 	// Parse input flags
 	DefineFlags()
 
 	// seed validate: Validate seed.manifest.json. Does not require docker
 	if validateCmd.Parsed() {
-		Validate()
+		commands.Validate(validateCmd)
 		os.Exit(0)
 	}
 
 	// Checks if Docker requires sudo access. Prints error message if so.
-	CheckSudo()
+	util.CheckSudo()
 
 	// seed list: Lists all seed compliant images on (default) local machine
 	if listCmd.Parsed() {
-		DockerList()
+		commands.DockerList()
 		os.Exit(0)
 	}
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
-		DockerBuild("")
+		commands.DockerBuild(buildCmd)
 		os.Exit(0)
 	}
 
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
-		DockerRun()
+		commands.DockerRun(runCmd)
 		os.Exit(0)
 	}
 	
 	// seed search: Searches registry for seed images
 	if searchCmd.Parsed() {
-		DockerSearch()
+		commands.DockerSearch(searchCmd)
 		os.Exit(0)
 	}
 
 	// seed publish: Publishes a seed compliant image
 	if publishCmd.Parsed() {
-		DockerPublish()
+		commands.DockerPublish(publishCmd)
 		os.Exit(0)
 	}
 }
@@ -134,25 +116,23 @@ func main() {
 func DefineFlags() {
 
 	// seed build flags
-	DefineBuildFlags()
+	commands.DefineBuildFlags(&buildCmd)
 
 	// seed run flags
-	DefineRunFlags()
+	commands.DefineRunFlags(&runCmd)
+	fmt.Println(runCmd)
 
 	// seed list flags
-	listCmd = flag.NewFlagSet("list", flag.ExitOnError)
-	listCmd.Usage = func() {
-		PrintListUsage()
-	}
+	commands.DefineListFlags(&listCmd)
 
 	// seed search flags
-	DefineSearchFlags()
+	commands.DefineSearchFlags(&searchCmd)
 
 	// seed publish flags
-	DefinePublishFlags()
+	commands.DefinePublishFlags(&publishCmd)
 
 	// seed validate flags
-	DefineValidateFlags()
+	commands.DefineValidateFlags(&validateCmd)
 
 	// seed version flags
 	versionCmd = flag.NewFlagSet(constants.VersionCommand, flag.ExitOnError)
@@ -166,42 +146,31 @@ func DefineFlags() {
 		PrintUsage()
 	}
 
+	var cmd flag.FlagSet
+
 	// Parse commands
 	switch os.Args[1] {
 	case constants.BuildCommand:
 		buildCmd.Parse(os.Args[2:])
-		if len(buildCmd.Args()) == 1 {
-			directory = buildCmd.Args()[0]
+		cmd = buildCmd
+		cmd.Usage = func() {
+			commands.PrintBuildUsage()
 		}
 
 	case constants.RunCommand:
-		runCmd.Parse(os.Args[2:])
-		if len(runCmd.Args()) == 0 {
-			PrintRunUsage()
-		} else if len(runCmd.Args()) == 1 {
-			directory = runCmd.Args()[0]
-		}
+		cmd = runCmd
 
 	case constants.SearchCommand:
-		searchCmd.Parse(os.Args[2:])
+		cmd = searchCmd
 
 	case constants.ListCommand:
-		listCmd.Parse(os.Args[2:])
+		cmd = listCmd
 
 	case constants.PublishCommand:
-		publishCmd.Parse(os.Args[2:])
-
-		if len(publishCmd.Args()) == 0 {
-			PrintPublishUsage()
-		} else if len(publishCmd.Args()) == 1 {
-			directory = publishCmd.Args()[0]
-		}
+		cmd = publishCmd
 
 	case constants.ValidateCommand:
-		validateCmd.Parse(os.Args[2:])
-		if len(validateCmd.Args()) == 1 {
-			directory = validateCmd.Args()[0]
-		}
+		cmd = validateCmd
 
 	case constants.VersionCommand:
 		versionCmd.Parse(os.Args[2:])
@@ -212,25 +181,11 @@ func DefineFlags() {
 		PrintUsage()
 		os.Exit(0)
 	}
-}
 
-//PrintCommandUsage prints usage of parsed command, or seed usage if no command
-// parsed
-func PrintCommandUsage() {
-	if buildCmd.Parsed() {
-		PrintBuildUsage()
-	} else if listCmd.Parsed() {
-		PrintListUsage()
-	} else if publishCmd.Parsed() {
-		PrintPublishUsage()
-	} else if runCmd.Parsed() {
-		PrintRunUsage()
-	} else if searchCmd.Parsed() {
-		PrintSearchUsage()
-	} else if validateCmd.Parsed() {
-		PrintValidateUsage()
-	} else {
-		PrintUsage()
+	cmd.Parse(os.Args[2:])
+	fmt.Println(cmd.Usage)
+	if len(cmd.Args()) == 0 {
+		cmd.Usage()
 	}
 }
 

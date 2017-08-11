@@ -1,26 +1,42 @@
 package commands
 
 import (
+	"bytes"
+	"errors"
+	"flag"
 	"fmt"
+	"os"
+	"strings"
+
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/objects"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(){
-	seedFileName := SeedFileName()
+func Validate(validateCmd flag.FlagSet){
 	schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
+	dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 
-	if schemaFile != "" {
-		schemaFile = "file://" + GetFullPath(schemaFile)
+	seedFileName, err := util.SeedFileName(dir)
+	if err != nil {
+		os.Exit(1)
 	}
 
-	err := ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
+	if schemaFile != "" {
+		schemaFile = "file://" + util.GetFullPath(schemaFile, dir)
+	}
+
+	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
 	}
 }
 
 //DefineValidateFlags defines the flags for the validate command
-func DefineValidateFlags() {
+func DefineValidateFlags(validateCmd *flag.FlagSet) {
+	var directory string
 	validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
 	validateCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Location of the seed.manifest.json spec to validate")
@@ -100,7 +116,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	//Identify any name collisions for the follwing reserved variables:
 	//		OUTPUT_DIR, ALLOCATED_CPUS, ALLOCATED_MEM, ALLOCATED_SHARED_MEM, ALLOCATED_STORAGE
 	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
-	seed := SeedFromManifestFile(seedFileName)
+	seed := objects.SeedFromManifestFile(seedFileName)
 
 	// Grab all sclar resource names (verify none are set to OUTPUT_DIR)
 	var allocated []string
@@ -108,81 +124,81 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	vars := make(map[string][]string)
 	if seed.Job.Interface.Resources.Scalar != nil {
 		for _, s := range seed.Job.Interface.Resources.Scalar {
-			name := GetNormalizedVariable(s.Name)
+			name := util.GetNormalizedVariable(s.Name)
 			allocated = append(allocated, "ALLOCATED_"+strings.ToUpper(name))
-			if IsReserved(s.Name, nil) {
+			if util.IsReserved(s.Name, nil) {
 				buffer.WriteString("ERROR: job.interface.resources.scalar Name " +
 					s.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			IsInUse(s.Name, "job.interface.resources.scalar", vars)
+			util.IsInUse(s.Name, "job.interface.resources.scalar", vars)
 		}
 	}
 
 	if seed.Job.Interface.InputData.Files != nil {
 		for _, f := range seed.Job.Interface.InputData.Files {
 			// check against the ALLOCATED_* and OUTPUT_DIR
-			if IsReserved(f.Name, allocated) {
+			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.inputData.files Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			IsInUse(f.Name, "job.interface.inputData.files", vars)
+			util.IsInUse(f.Name, "job.interface.inputData.files", vars)
 		}
 	}
 
 	if seed.Job.Interface.InputData.Json != nil {
 		for _, f := range seed.Job.Interface.InputData.Json {
-			if IsReserved(f.Name, allocated) {
+			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.inputData.json Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			IsInUse(f.Name, "job.interface.inputData.json", vars)
+			util.IsInUse(f.Name, "job.interface.inputData.json", vars)
 		}
 	}
 
 	if seed.Job.Interface.OutputData.Files != nil {
 		for _, f := range seed.Job.Interface.OutputData.Files {
 			// check against the ALLOCATED_* and OUTPUT_DIR
-			if IsReserved(f.Name, allocated) {
+			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.outputData.files Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
-			IsInUse(f.Name, "job.interface.outputData.files", vars)
+			util.IsInUse(f.Name, "job.interface.outputData.files", vars)
 		}
 	}
 
 	if seed.Job.Interface.OutputData.JSON != nil {
 		for _, f := range seed.Job.Interface.OutputData.JSON {
 			// check against the ALLOCATED_* and OUTPUT_DIR
-			if IsReserved(f.Name, allocated) {
+			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.outputData.json Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
-			IsInUse(f.Name, "job.interface.outputData.json", vars)
+			util.IsInUse(f.Name, "job.interface.outputData.json", vars)
 		}
 	}
 
 	if seed.Job.Interface.Mounts != nil {
 		for _, m := range seed.Job.Interface.Mounts {
 			// check against the ALLOCATED_* and OUTPUT_DIR
-			if IsReserved(m.Name, allocated) {
+			if util.IsReserved(m.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.mounts Name " + m.Name +
 					" is a reserved variable. Please choose a different name value.\n")
 			}
-			IsInUse(m.Name, "job.interface.mounts", vars)
+			util.IsInUse(m.Name, "job.interface.mounts", vars)
 		}
 	}
 
 	if seed.Job.Interface.Settings != nil {
 		for _, s := range seed.Job.Interface.Settings {
 			// check against the ALLOCATED_* and OUTPUT_DIR
-			if IsReserved(s.Name, allocated) {
+			if util.IsReserved(s.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.settings Name " + s.Name +
 					" is a reserved variable. Please choose a different name value.\n")
 			}
-			IsInUse(s.Name, "job.interface.settings", vars)
+			util.IsInUse(s.Name, "job.interface.settings", vars)
 		}
 	}
 

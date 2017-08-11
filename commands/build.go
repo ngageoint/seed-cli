@@ -2,14 +2,11 @@ package commands
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/ngageoint/seed-cli/util"
 	"github.com/ngageoint/seed-cli/constants"
@@ -17,16 +14,19 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(imageName string, buildCmd flag.FlagSet) {
+func DockerBuild(buildCmd flag.FlagSet) {
 
-	dir := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+	jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 
-	seedFileName := util.SeedFileName(dir)
+	seedFileName, err := util.SeedFileName(jobDirectory)
+	if err != nil {
+		os.Exit(1)
+	}
 
 	// Validate seed file
-	err := ValidateSeedFile("", seedFileName, constants.SchemaManifest)
+	err = ValidateSeedFile("", seedFileName, constants.SchemaManifest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: seed file could not be validated. See errors for details.\n")
+		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 		os.Exit(1)
@@ -36,11 +36,7 @@ func DockerBuild(imageName string, buildCmd flag.FlagSet) {
 	seed := objects.SeedFromManifestFile(seedFileName)
 
 	// Retrieve docker image name
-	if imageName == "" {
-		imageName = objects.BuildImageName(&seed)
-	}
-
-	jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+	imageName := objects.BuildImageName(&seed)
 
 	// Build Docker image
 	fmt.Fprintf(os.Stderr, "INFO: Building %s\n", imageName)

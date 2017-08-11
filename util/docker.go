@@ -1,5 +1,14 @@
 package util
 
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
+)
+
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
 func CheckSudo() {
 	cmd := exec.Command("docker", "info")

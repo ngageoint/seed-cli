@@ -1,5 +1,7 @@
 package util
 
+import "strings"
+
 //GetNormalizedVariable transforms an input name into the spec required environment variable
 func GetNormalizedVariable(inputName string) string {
 	// Remove all non-alphabetic runes, except dash and underscore

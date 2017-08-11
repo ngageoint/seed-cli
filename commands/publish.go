@@ -48,7 +48,10 @@ func DockerPublish(publishCmd flag.FlagSet) {
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
-		seedFileName := util.SeedFileName(dir)
+		seedFileName, err := util.SeedFileName(dir)
+		if err != nil {
+			os.Exit(1)
+		}
 		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
 
@@ -109,7 +112,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 
 		// write version back to the seed manifest
 		seedJSON, _ := json.Marshal(&seed)
-		err := ioutil.WriteFile(seedFileName, seedJSON, os.ModePerm)
+		err = ioutil.WriteFile(seedFileName, seedJSON, os.ModePerm)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing updated seed version to %s.\n%s\n",
 				seedFileName, err.Error())
@@ -123,7 +126,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 		buildArgs := []string{"build", "-t", img, jobDirectory}
 		if util.DockerVersionHasLabel() {
 			// Set the seed.manifest.json contents as an image label
-			label := "com.ngageoint.seed.manifest=" + GetManifestLabel(seedFileName)
+			label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
 			buildArgs = append(buildArgs, "--label", label)
 		}
 		rebuildCmd := exec.Command("docker", buildArgs...)

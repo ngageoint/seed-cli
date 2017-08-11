@@ -3,12 +3,14 @@ package util
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"github.com/ngageoint/seed-cli/constants"
 )
 
 //GetFullPath returns the full path of the given file. This expands relative file
 // paths and verifes non-relative paths
 // Validate path for file existance??
-func GetFullPath(rFile string) string {
+func GetFullPath(rFile, directory string) string {
 
 	// Normalize
 	rFile = filepath.Clean(filepath.ToSlash(rFile))
@@ -46,19 +48,7 @@ func GetFullPath(rFile string) string {
 }
 
 //SeedFileName Finds and returns the full filepath to the seed.manifest.json
-func SeedFileName(dir string) string {
-/*
-	// Get the proper job directory flag
-	if runCmd.Parsed() {
-		dir = runCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-	} else if buildCmd.Parsed() {
-		dir = buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-	} else if validateCmd.Parsed() {
-		dir = validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-	} else if publishCmd.Parsed() {
-		dir = publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-	}*/
-
+func SeedFileName(dir string) (string, error) {
 	// Define the current working directory
 	curDirectory, _ := os.Getwd()
 
@@ -77,21 +67,14 @@ func SeedFileName(dir string) string {
 	}
 
 	// Verify seed.json exists within specified directory.
-	// If not, error and exit
-	if _, err := os.Stat(seedFileName); os.IsNotExist(err) {
-
-		// If no seed.manifest.json found, print the command usage and exit
-		if len(os.Args) == 2 {
-			PrintCommandUsage()
-			os.Exit(0)
-		} else {
-			fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found. Exiting seed...\n",
-				seedFileName)
-			os.Exit(1)
-		}
+	_, err := os.Stat(seedFileName)
+	if os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
+			seedFileName)
+		fmt.Println(os.Stderr, "Make sure you have specified the correct directory")
 	}
 
-	return seedFileName
+	return seedFileName, err
 }
 
 func RemoveAll(v string) {
