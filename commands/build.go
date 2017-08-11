@@ -67,17 +67,17 @@ func DockerBuild(buildCmd flag.FlagSet) {
 }
 
 //DefineBuildFlags defines the flags for the seed build command
-func DefineBuildFlags(buildCmd *flag.FlagSet) {
+func DefineBuildFlags(buildCmd **flag.FlagSet) {
 	// build command flags
-	buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	*buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
 	var directory string
-	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+	(*buildCmd).StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
-	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+	(*buildCmd).StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
 
 	// Print usage function
-	buildCmd.Usage = func() {
+	(*buildCmd).Usage = func() {
 		PrintBuildUsage()
 	}
 }

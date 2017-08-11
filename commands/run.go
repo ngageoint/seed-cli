@@ -618,77 +618,53 @@ func CheckRunOutput(seed *objects.Seed, outDir string, diskLimit float64, runCmd
 }
 
 //DefineRunFlags defines the flags for the seed run command
-func DefineRunFlags(runCmd *flag.FlagSet) {
-	runCmd = flag.NewFlagSet(constants.RunCommand, flag.ContinueOnError)
-	fmt.Println(runCmd)
+func DefineRunFlags(runCmd **flag.FlagSet) {
+	*runCmd = flag.NewFlagSet(constants.RunCommand, flag.ContinueOnError)
 
-	var imgNameFlag *string
-	imgNameFlag = new(string)
-	runCmd.StringVar(imgNameFlag, constants.ImgNameFlag, "",
+	var imgNameFlag string
+	(*runCmd).StringVar(&imgNameFlag, constants.ImgNameFlag, "",
 		"Name of Docker image to run")
-	runCmd.StringVar(imgNameFlag, constants.ShortImgNameFlag, "",
+	(*runCmd).StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
 		"Name of Docker image to run")
 
 	var settings objects.ArrayFlags
-	runCmd.Var(&settings, constants.SettingFlag,
+	(*runCmd).Var(&settings, constants.SettingFlag,
 		"Defines the value to be applied to setting")
-	runCmd.Var(&settings, constants.ShortSettingFlag,
+	(*runCmd).Var(&settings, constants.ShortSettingFlag,
 		"Defines the value to be applied to setting")
 
 	var mounts objects.ArrayFlags
-	runCmd.Var(&mounts, constants.MountFlag,
+	(*runCmd).Var(&mounts, constants.MountFlag,
 		"Defines the full path to be mapped via mount")
-	runCmd.Var(&mounts, constants.ShortMountFlag,
+	(*runCmd).Var(&mounts, constants.ShortMountFlag,
 		"Defines the full path to be mapped via mount")
 
 	var inputs objects.ArrayFlags
-	runCmd.Var(&inputs, constants.InputDataFlag,
+	(*runCmd).Var(&inputs, constants.InputDataFlag,
 		"Defines the full path to any input data arguments")
-	runCmd.Var(&inputs, constants.ShortInputDataFlag,
+	(*runCmd).Var(&inputs, constants.ShortInputDataFlag,
 		"Defines the full path to input data arguments")
 
 	var outdir string
-	runCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
+	(*runCmd).StringVar(&outdir, constants.JobOutputDirFlag, "",
 		"Full path to the algorithm output directory")
-	runCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
+	(*runCmd).StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
 		"Full path to the algorithm output directory")
 
 	var metadataSchema string
-	runCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
+	(*runCmd).StringVar(&metadataSchema, constants.SchemaFlag, "",
 		"Metadata schema file to override built in schema in validating side-car metadata files")
-	runCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
+	(*runCmd).StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
 		"Metadata schema file to override built in schema in validating side-car metadata files")
 
 	var rmVar bool
-	runCmd.BoolVar(&rmVar, constants.RmFlag, false,
+	(*runCmd).BoolVar(&rmVar, constants.RmFlag, false,
 		"Specifying the -rm flag automatically removes the image after executing docker run")
 
 	// Run usage function
-	runCmd.Usage = func() {
-		fmt.Fprintf(os.Stderr,
-			"\nUsage:\tseed run -in IMAGE_NAME [-i INPUT_KEY=INPUT_FILE ...] [-e SETTING_KEY=VALUE] -o OUTPUT_DIRECTORY \n")
-
-		fmt.Fprintf(os.Stderr, "\nRuns Docker image defined by seed spec.\n")
-
-		fmt.Fprintf(os.Stderr, "\nOptions:\n")
-		fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
-			constants.ShortSettingFlag, constants.SettingFlag)
-		fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
-			constants.ShortInputDataFlag, constants.InputDataFlag)
-		fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
-			constants.ShortImgNameFlag, constants.ImgNameFlag)
-		fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
-			constants.ShortMountFlag, constants.MountFlag)
-		fmt.Fprintf(os.Stderr, "  -%s  -%s \t Job Output Directory Location\n",
-			constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
-		fmt.Fprintf(os.Stderr, "  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
-			constants.RmFlag)
-		fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
-			constants.ShortSchemaFlag, constants.SchemaFlag)
-		os.Exit(0)
+	(*runCmd).Usage = func() {
+		PrintRunUsage()
 	}
-
-	fmt.Println(runCmd)
 }
 
 //PrintRunUsage prints the seed run usage arguments, then exits the program

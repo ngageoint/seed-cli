@@ -212,39 +212,39 @@ func DockerPublish(publishCmd flag.FlagSet) {
 }
 
 //DefinePublishFlags defines the flags for the seed publish command
-func DefinePublishFlags(publishCmd *flag.FlagSet) {
-	publishCmd = flag.NewFlagSet(constants.PublishCommand, flag.ExitOnError)
+func DefinePublishFlags(publishCmd **flag.FlagSet) {
+	*publishCmd = flag.NewFlagSet(constants.PublishCommand, flag.ExitOnError)
 	var registry string
-	publishCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
-	publishCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
+	(*publishCmd).StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
+	(*publishCmd).StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
 
 	var org string
-	publishCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
-	publishCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
+	(*publishCmd).StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
+	(*publishCmd).StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
 
 	var d string
-	publishCmd.StringVar(&d, constants.JobDirectoryFlag, ".",
+	(*publishCmd).StringVar(&d, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
-	publishCmd.StringVar(&d, constants.ShortJobDirectoryFlag, ".",
+	(*publishCmd).StringVar(&d, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
 
 	var b bool
-	publishCmd.BoolVar(&b, constants.ForcePublishFlag, false,
+	(*publishCmd).BoolVar(&b, constants.ForcePublishFlag, false,
 		"Force publish, do not deconflict")
 	var pMin bool
-	publishCmd.BoolVar(&pMin, constants.PkgVersionMinor, false,
+	(*publishCmd).BoolVar(&pMin, constants.PkgVersionMinor, false,
 		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
 	var pMaj bool
-	publishCmd.BoolVar(&pMaj, constants.PkgVersionMajor, false,
+	(*publishCmd).BoolVar(&pMaj, constants.PkgVersionMajor, false,
 		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
 	var aMin bool
-	publishCmd.BoolVar(&aMin, constants.AlgVersionMinor, false,
+	(*publishCmd).BoolVar(&aMin, constants.AlgVersionMinor, false,
 		"Minor version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
 	var aMaj bool
-	publishCmd.BoolVar(&aMaj, constants.AlgVersionMajor, false,
+	(*publishCmd).BoolVar(&aMaj, constants.AlgVersionMajor, false,
 		"Major version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
 
-	publishCmd.Usage = func() {
+	(*publishCmd).Usage = func() {
 		PrintPublishUsage()
 	}
 }

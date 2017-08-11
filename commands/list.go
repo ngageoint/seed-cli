@@ -47,9 +47,9 @@ func DockerList() {
 }
 
 //DefineListFlags defines the flags for the seed list command
-func DefineListFlags(listCmd *flag.FlagSet) {
-	listCmd = flag.NewFlagSet("list", flag.ExitOnError)
-	listCmd.Usage = func() {
+func DefineListFlags(listCmd **flag.FlagSet) {
+	*listCmd = flag.NewFlagSet("list", flag.ExitOnError)
+	(*listCmd).Usage = func() {
 		PrintListUsage()
 	}
 }

@@ -59,12 +59,12 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
-var buildCmd flag.FlagSet
-var listCmd flag.FlagSet
-var publishCmd flag.FlagSet
-var runCmd flag.FlagSet
-var searchCmd flag.FlagSet
-var validateCmd flag.FlagSet
+var buildCmd *flag.FlagSet
+var listCmd *flag.FlagSet
+var publishCmd *flag.FlagSet
+var runCmd *flag.FlagSet
+var searchCmd *flag.FlagSet
+var validateCmd *flag.FlagSet
 var versionCmd *flag.FlagSet
 var version string
 
@@ -74,7 +74,7 @@ func main() {
 
 	// seed validate: Validate seed.manifest.json. Does not require docker
 	if validateCmd.Parsed() {
-		commands.Validate(validateCmd)
+		commands.Validate(*validateCmd)
 		os.Exit(0)
 	}
 
@@ -89,38 +89,36 @@ func main() {
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
-		commands.DockerBuild(buildCmd)
+		commands.DockerBuild(*buildCmd)
 		os.Exit(0)
 	}
 
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
-		commands.DockerRun(runCmd)
+		commands.DockerRun(*runCmd)
 		os.Exit(0)
 	}
 	
 	// seed search: Searches registry for seed images
 	if searchCmd.Parsed() {
-		commands.DockerSearch(searchCmd)
+		commands.DockerSearch(*searchCmd)
 		os.Exit(0)
 	}
 
 	// seed publish: Publishes a seed compliant image
 	if publishCmd.Parsed() {
-		commands.DockerPublish(publishCmd)
+		commands.DockerPublish(*publishCmd)
 		os.Exit(0)
 	}
 }
 
 //DefineFlags defines the flags available for the seed runner.
 func DefineFlags() {
-
 	// seed build flags
 	commands.DefineBuildFlags(&buildCmd)
 
 	// seed run flags
 	commands.DefineRunFlags(&runCmd)
-	fmt.Println(runCmd)
 
 	// seed list flags
 	commands.DefineListFlags(&listCmd)
@@ -146,16 +144,19 @@ func DefineFlags() {
 		PrintUsage()
 	}
 
-	var cmd flag.FlagSet
+	var cmd *flag.FlagSet
 
 	// Parse commands
 	switch os.Args[1] {
 	case constants.BuildCommand:
-		buildCmd.Parse(os.Args[2:])
-		cmd = buildCmd
-		cmd.Usage = func() {
-			commands.PrintBuildUsage()
-		}
+		cmd = buildCmd/*
+		err := buildCmd.Parse(os.Args[2:])
+		if err != nil { fmt.Println(err.Error()) }
+		fmt.Println(os.Args)
+		fmt.Println(buildCmd.Args())
+		buildCmd.PrintDefaults()
+		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		fmt.Println(jobDirectory)*/
 
 	case constants.RunCommand:
 		cmd = runCmd
@@ -183,8 +184,7 @@ func DefineFlags() {
 	}
 
 	cmd.Parse(os.Args[2:])
-	fmt.Println(cmd.Usage)
-	if len(cmd.Args()) == 0 {
+	if len(os.Args) < 3 {
 		cmd.Usage()
 	}
 }

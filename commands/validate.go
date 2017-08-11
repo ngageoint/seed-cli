@@ -35,20 +35,20 @@ func Validate(validateCmd flag.FlagSet){
 }
 
 //DefineValidateFlags defines the flags for the validate command
-func DefineValidateFlags(validateCmd *flag.FlagSet) {
+func DefineValidateFlags(validateCmd **flag.FlagSet) {
 	var directory string
-	validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
-	validateCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+	*validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
+	(*validateCmd).StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Location of the seed.manifest.json spec to validate")
-	validateCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+	(*validateCmd).StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Location of the seed.manifest.json spec to validate")
 	var schema string
-	validateCmd.StringVar(&schema, constants.SchemaFlag, "",
+	(*validateCmd).StringVar(&schema, constants.SchemaFlag, "",
 		"JSON schema file to validate seed against.")
-	validateCmd.StringVar(&schema, constants.ShortSchemaFlag, "",
+	(*validateCmd).StringVar(&schema, constants.ShortSchemaFlag, "",
 		"JSON schema file to validate seed against.")
 
-	validateCmd.Usage = func() {
+	(*validateCmd).Usage = func() {
 		PrintValidateUsage()
 	}
 }
