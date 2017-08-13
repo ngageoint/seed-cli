@@ -144,34 +144,34 @@ func DefineFlags() {
 		PrintUsage()
 	}
 
-	var cmd *flag.FlagSet
+	var cmd *flag.FlagSet = nil
+	minArgs := 2
 
 	// Parse commands
 	switch os.Args[1] {
 	case constants.BuildCommand:
-		cmd = buildCmd/*
-		err := buildCmd.Parse(os.Args[2:])
-		if err != nil { fmt.Println(err.Error()) }
-		fmt.Println(os.Args)
-		fmt.Println(buildCmd.Args())
-		buildCmd.PrintDefaults()
-		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		fmt.Println(jobDirectory)*/
+		cmd = buildCmd
+		minArgs = 3
 
 	case constants.RunCommand:
 		cmd = runCmd
+		minArgs = 3
 
 	case constants.SearchCommand:
 		cmd = searchCmd
+		minArgs = 2
 
 	case constants.ListCommand:
 		cmd = listCmd
+		minArgs = 2
 
 	case constants.PublishCommand:
 		cmd = publishCmd
+		minArgs = 3
 
 	case constants.ValidateCommand:
 		cmd = validateCmd
+		minArgs = 3
 
 	case constants.VersionCommand:
 		versionCmd.Parse(os.Args[2:])
@@ -183,9 +183,11 @@ func DefineFlags() {
 		os.Exit(0)
 	}
 
-	cmd.Parse(os.Args[2:])
-	if len(os.Args) < 3 {
-		cmd.Usage()
+	if cmd != nil {
+		cmd.Parse(os.Args[2:])
+		if len(os.Args) < minArgs {
+			cmd.Usage()
+		}
 	}
 }
 

@@ -162,8 +162,6 @@ func DockerRun(runCmd flag.FlagSet) {
 // 	[]string: docker command args for input files in the format:
 //	"-v /path/to/file1:/path/to/file1 -v /path/to/file2:/path/to/file2 etc"
 func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, map[string]string, error) {
-	jobDirectory := runCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-
 	// Validate inputs given vs. inputs defined in manifest
 	
 	var mountArgs []string
@@ -196,7 +194,7 @@ func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, m
 			os.Mkdir(tempDir, os.ModePerm)
 			tempDirectories[f.Name] = tempDir
 			mountArgs = append(mountArgs, "-v")
-			mountArgs = append(mountArgs, util.GetFullPath(tempDir, jobDirectory)+":/"+tempDir)
+			mountArgs = append(mountArgs, util.GetFullPath(tempDir, "")+":/"+tempDir)
 		}
 		if f.Required == false {
 			unrequired = append(unrequired, f.Name)
@@ -233,7 +231,7 @@ func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, m
 		val := x[1]
 
 		// Expand input VALUE
-		val = util.GetFullPath(val, jobDirectory)
+		val = util.GetFullPath(val, "")
 
 		//get total size of input files in MiB
 		info, err := os.Stat(val)
@@ -286,8 +284,6 @@ func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, m
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
 func SetOutputDir(imageName string, seed *objects.Seed, runCmd flag.FlagSet) string {
-	jobDirectory := runCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-
 	if !strings.Contains(seed.Job.Interface.Cmd, "OUTPUT_DIR") {
 		return ""
 	}
@@ -302,7 +298,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, runCmd flag.FlagSet) str
 		outputDir = strings.Replace(outputDir, ":", "_", -1)
 	}
 
-	outdir := util.GetFullPath(outputDir, jobDirectory)
+	outdir := util.GetFullPath(outputDir, "")
 
 	// Check if outputDir exists. Create if not
 	if _, err := os.Stat(outdir); os.IsNotExist(err) {
