@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -12,14 +11,9 @@ import (
 	"github.com/heroku/docker-registry-client/registry"
 )
 //DockerSearch executes the seed search command
-func DockerSearch(searchCmd flag.FlagSet) {
+func DockerSearch(url, org, filter, username, password string) {
+	_ = filter //TODO: add filter
 
-	url := searchCmd.Lookup(constants.RegistryFlag).Value.String()
-	org := searchCmd.Lookup(constants.OrgFlag).Value.String()
-	//filter := searchCmd.Lookup(constants.FilterFlag).Value.String()
-	username := searchCmd.Lookup(constants.UserFlag).Value.String()
-	password := searchCmd.Lookup(constants.PassFlag).Value.String()
-	
 	if url == "" {
 		url = constants.DefaultRegistry
 	}
@@ -69,35 +63,6 @@ func DockerSearch(searchCmd flag.FlagSet) {
 		if strings.HasSuffix(repo, "-seed") {
 			fmt.Println(repo)
 		}
-	}
-}
-
-//DefineSearchFlags defines the flags for the seed search command
-func DefineSearchFlags(searchCmd **flag.FlagSet) {
-	// Search command
-	*searchCmd = flag.NewFlagSet(constants.SearchCommand, flag.ExitOnError)
-	var registry string
-	(*searchCmd).StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to search (default is index.docker.io).")
-	(*searchCmd).StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to search (default is index.docker.io).")
-
-	var org string
-	(*searchCmd).StringVar(&org, constants.OrgFlag, "", "Specifies organization to filter (default is no filter, search all orgs).")
-	(*searchCmd).StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to filter (default is no filter, search all orgs).")
-	
-	var filter string
-	(*searchCmd).StringVar(&filter, constants.FilterFlag, "", "Specifies filter to apply (default is no filter).")
-	(*searchCmd).StringVar(&filter, constants.ShortFilterFlag, "", "Specifies filter to apply (default is no filter).")
-	
-	var user string
-	(*searchCmd).StringVar(&user, constants.UserFlag, "", "Specifies filter to apply (default is no filter).")
-	(*searchCmd).StringVar(&user, constants.ShortUserFlag, "", "Specifies filter to apply (default is no filter).")
-	
-	var password string
-	(*searchCmd).StringVar(&password, constants.PassFlag, "", "Specifies filter to apply (default is no filter).")
-	(*searchCmd).StringVar(&password, constants.ShortPassFlag, "", "Specifies filter to apply (default is no filter).")
-
-	(*searchCmd).Usage = func() {
-		PrintSearchUsage()
 	}
 }
 

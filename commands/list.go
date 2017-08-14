@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"flag"
 )
 
 //DockerList lists all seed compliant images (ending with -seed) on the local
@@ -43,14 +42,6 @@ func DockerList() {
 		fmt.Fprintf(os.Stderr, "No Seed Images found!\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "%s\n", string(o))
-	}
-}
-
-//DefineListFlags defines the flags for the seed list command
-func DefineListFlags(listCmd **flag.FlagSet) {
-	*listCmd = flag.NewFlagSet("list", flag.ExitOnError)
-	(*listCmd).Usage = func() {
-		PrintListUsage()
 	}
 }
 

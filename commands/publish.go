@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,14 +17,10 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(publishCmd flag.FlagSet) {
+func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
+	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) {
 
 	//1. Check names and verify it doesn't conflict
-	registry := publishCmd.Lookup(constants.RegistryFlag).Value.String()
-	org := publishCmd.Lookup(constants.OrgFlag).Value.String()
-	origImg := publishCmd.Arg(0)
-	dir := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-
 	tag := ""
 	img := origImg
 
@@ -43,12 +38,12 @@ func DockerPublish(publishCmd flag.FlagSet) {
 
 	// Check for image confliction.
 	conflict := false //TODO - Need to call seed search when implemented
-	deconflict := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
+
 
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
-		seedFileName, err := util.SeedFileName(dir)
+		seedFileName, err := util.SeedFileName(jobDirectory)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -57,8 +52,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 
 		fmt.Fprintf(os.Stderr, "INFO: An image with the name %s already exists. ", img)
 		// Bump the package minor version
-		if publishCmd.Lookup(constants.PkgVersionMinor).Value.String() ==
-			constants.TrueString {
+		if increasePkgMinor {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			minorVersion, _ := strconv.Atoi(pkgVersion[1])
 			pkgVersion[1] = strconv.Itoa(minorVersion + 1)
@@ -68,9 +62,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 				seed.Job.PackageVersion)
 
 			// Bump the package major version
-		} else if publishCmd.Lookup(constants.PkgVersionMajor).Value.String() ==
-			constants.TrueString {
-
+		} else if increasePkgMajor {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			majorVersion, _ := strconv.Atoi(pkgVersion[0])
 			pkgVersion[0] = strconv.Itoa(majorVersion + 1)
@@ -80,8 +72,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 				seed.Job.PackageVersion)
 
 			// Bump the algorithm minor version
-		} else if publishCmd.Lookup(constants.AlgVersionMinor).Value.String() ==
-			constants.TrueString {
+		} else if increaseAlgMinor {
 
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
 			minorVersion, _ := strconv.Atoi(algVersion[1])
@@ -92,8 +83,7 @@ func DockerPublish(publishCmd flag.FlagSet) {
 				seed.Job.AlgorithmVersion)
 
 			// Bump the algorithm major verion
-		} else if publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
-			constants.TrueString {
+		} else if increaseAlgMajor {
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
 			majorVersion, _ := strconv.Atoi(algVersion[0])
 			algVersion[0] = strconv.Itoa(majorVersion + 1)
@@ -117,9 +107,6 @@ func DockerPublish(publishCmd flag.FlagSet) {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing updated seed version to %s.\n%s\n",
 				seedFileName, err.Error())
 		}
-
-		// Rebuild
-		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 
 		// Build Docker image
 		fmt.Fprintf(os.Stderr, "INFO: Building %s\n", img)
@@ -208,44 +195,6 @@ func DockerPublish(publishCmd flag.FlagSet) {
 			errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 		os.Exit(1)
-	}
-}
-
-//DefinePublishFlags defines the flags for the seed publish command
-func DefinePublishFlags(publishCmd **flag.FlagSet) {
-	*publishCmd = flag.NewFlagSet(constants.PublishCommand, flag.ExitOnError)
-	var registry string
-	(*publishCmd).StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
-	(*publishCmd).StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
-
-	var org string
-	(*publishCmd).StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
-	(*publishCmd).StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
-
-	var d string
-	(*publishCmd).StringVar(&d, constants.JobDirectoryFlag, ".",
-		"Directory of seed spec and Dockerfile (default is current directory).")
-	(*publishCmd).StringVar(&d, constants.ShortJobDirectoryFlag, ".",
-		"Directory of seed spec and Dockerfile (default is current directory).")
-
-	var b bool
-	(*publishCmd).BoolVar(&b, constants.ForcePublishFlag, false,
-		"Force publish, do not deconflict")
-	var pMin bool
-	(*publishCmd).BoolVar(&pMin, constants.PkgVersionMinor, false,
-		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
-	var pMaj bool
-	(*publishCmd).BoolVar(&pMaj, constants.PkgVersionMajor, false,
-		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
-	var aMin bool
-	(*publishCmd).BoolVar(&aMin, constants.AlgVersionMinor, false,
-		"Minor version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
-	var aMaj bool
-	(*publishCmd).BoolVar(&aMaj, constants.AlgVersionMajor, false,
-		"Major version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
-
-	(*publishCmd).Usage = func() {
-		PrintPublishUsage()
 	}
 }
 

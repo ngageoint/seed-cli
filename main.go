@@ -57,6 +57,8 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/objects"
+	"strings"
 )
 
 var buildCmd *flag.FlagSet
@@ -74,7 +76,20 @@ func main() {
 
 	// seed validate: Validate seed.manifest.json. Does not require docker
 	if validateCmd.Parsed() {
-		commands.Validate(*validateCmd)
+		schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
+		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		commands.Validate(schemaFile, dir)
+		os.Exit(0)
+	}
+
+	// seed search: Searches registry for seed images. Does not require docker
+	if searchCmd.Parsed() {
+		url := searchCmd.Lookup(constants.RegistryFlag).Value.String()
+		org := searchCmd.Lookup(constants.OrgFlag).Value.String()
+		filter := searchCmd.Lookup(constants.FilterFlag).Value.String()
+		username := searchCmd.Lookup(constants.UserFlag).Value.String()
+		password := searchCmd.Lookup(constants.PassFlag).Value.String()
+		commands.DockerSearch(url, org, filter, username, password)
 		os.Exit(0)
 	}
 
@@ -89,48 +104,226 @@ func main() {
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
-		commands.DockerBuild(*buildCmd)
+		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		commands.DockerBuild(jobDirectory)
 		os.Exit(0)
 	}
 
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
-		commands.DockerRun(*runCmd)
-		os.Exit(0)
-	}
-	
-	// seed search: Searches registry for seed images
-	if searchCmd.Parsed() {
-		commands.DockerSearch(*searchCmd)
+		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
+		inputs := strings.Split(runCmd.Lookup(constants.InputDataFlag).Value.String(), ",")
+		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
+		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
+		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
+		rmFlag := runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
+		commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
 		os.Exit(0)
 	}
 
 	// seed publish: Publishes a seed compliant image
 	if publishCmd.Parsed() {
-		commands.DockerPublish(*publishCmd)
+		registry := publishCmd.Lookup(constants.RegistryFlag).Value.String()
+		org := publishCmd.Lookup(constants.OrgFlag).Value.String()
+		origImg := publishCmd.Arg(0)
+		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		deconflict := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
+
+		increasePkgMinor := publishCmd.Lookup(constants.PkgVersionMinor).Value.String() ==
+			constants.TrueString
+		increasePkgMajor := publishCmd.Lookup(constants.PkgVersionMajor).Value.String() ==
+			constants.TrueString
+		increaseAlgMinor := publishCmd.Lookup(constants.AlgVersionMinor).Value.String() ==
+			constants.TrueString
+		increaseAlgMajor := publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
+			constants.TrueString
+
+		commands.DockerPublish(origImg, registry, org, jobDirectory, deconflict,
+			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
 		os.Exit(0)
+	}
+}
+
+//DefineBuildFlags defines the flags for the seed build command
+func DefineBuildFlags() {
+	// build command flags
+	buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	var directory string
+	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Directory of seed spec and Dockerfile (default is current directory).")
+	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	// Print usage function
+	buildCmd.Usage = func() {
+		commands.PrintBuildUsage()
+	}
+}
+
+//DefineRunFlags defines the flags for the seed run command
+func DefineRunFlags() {
+	runCmd = flag.NewFlagSet(constants.RunCommand, flag.ContinueOnError)
+
+	var imgNameFlag string
+	runCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to run")
+	runCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to run")
+
+	var inputs objects.ArrayFlags
+	runCmd.Var(&inputs, constants.InputDataFlag,
+		"Defines the full path to any input data arguments")
+	runCmd.Var(&inputs, constants.ShortInputDataFlag,
+		"Defines the full path to input data arguments")
+
+	var settings objects.ArrayFlags
+	runCmd.Var(&settings, constants.SettingFlag,
+		"Defines the value to be applied to setting")
+	runCmd.Var(&settings, constants.ShortSettingFlag,
+		"Defines the value to be applied to setting")
+
+	var mounts objects.ArrayFlags
+	runCmd.Var(&mounts, constants.MountFlag,
+		"Defines the full path to be mapped via mount")
+	runCmd.Var(&mounts, constants.ShortMountFlag,
+		"Defines the full path to be mapped via mount")
+
+	var outdir string
+	runCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
+		"Full path to the algorithm output directory")
+	runCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
+		"Full path to the algorithm output directory")
+
+	var rmVar bool
+	runCmd.BoolVar(&rmVar, constants.RmFlag, false,
+		"Specifying the -rm flag automatically removes the image after executing docker run")
+
+	var metadataSchema string
+	runCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+	runCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	// Run usage function
+	runCmd.Usage = func() {
+		commands.PrintRunUsage()
+	}
+}
+
+//DefineListFlags defines the flags for the seed list command
+func DefineListFlags() {
+	listCmd = flag.NewFlagSet("list", flag.ExitOnError)
+	listCmd.Usage = func() {
+		commands.PrintListUsage()
+	}
+}
+
+//DefineSearchFlags defines the flags for the seed search command
+func DefineSearchFlags() {
+	// Search command
+	searchCmd = flag.NewFlagSet(constants.SearchCommand, flag.ExitOnError)
+	var registry string
+	searchCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to search (default is index.docker.io).")
+	searchCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to search (default is index.docker.io).")
+
+	var org string
+	searchCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to filter (default is no filter, search all orgs).")
+	searchCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to filter (default is no filter, search all orgs).")
+
+	var filter string
+	searchCmd.StringVar(&filter, constants.FilterFlag, "", "Specifies filter to apply (default is no filter).")
+	searchCmd.StringVar(&filter, constants.ShortFilterFlag, "", "Specifies filter to apply (default is no filter).")
+
+	var user string
+	searchCmd.StringVar(&user, constants.UserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+	searchCmd.StringVar(&user, constants.ShortUserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+
+	var password string
+	searchCmd.StringVar(&password, constants.PassFlag, "", "Specifies password to use for authorization (default is empty).")
+	searchCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
+
+	searchCmd.Usage = func() {
+		commands.PrintSearchUsage()
+	}
+}
+
+//DefinePublishFlags defines the flags for the seed publish command
+func DefinePublishFlags() {
+	publishCmd = flag.NewFlagSet(constants.PublishCommand, flag.ExitOnError)
+	var registry string
+	publishCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
+	publishCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
+
+	var org string
+	publishCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
+	publishCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
+
+	var d string
+	publishCmd.StringVar(&d, constants.JobDirectoryFlag, ".",
+		"Directory of seed spec and Dockerfile (default is current directory).")
+	publishCmd.StringVar(&d, constants.ShortJobDirectoryFlag, ".",
+		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var b bool
+	publishCmd.BoolVar(&b, constants.ForcePublishFlag, false,
+		"Force publish, do not deconflict")
+	var pMin bool
+	publishCmd.BoolVar(&pMin, constants.PkgVersionMinor, false,
+		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var pMaj bool
+	publishCmd.BoolVar(&pMaj, constants.PkgVersionMajor, false,
+		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var aMin bool
+	publishCmd.BoolVar(&aMin, constants.AlgVersionMinor, false,
+		"Minor version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
+	var aMaj bool
+	publishCmd.BoolVar(&aMaj, constants.AlgVersionMajor, false,
+		"Major version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
+
+	publishCmd.Usage = func() {
+		commands.PrintPublishUsage()
+	}
+}
+
+//DefineValidateFlags defines the flags for the validate command
+func DefineValidateFlags() {
+	var directory string
+	validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
+	validateCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Location of the seed.manifest.json spec to validate")
+	validateCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Location of the seed.manifest.json spec to validate")
+	var schema string
+	validateCmd.StringVar(&schema, constants.SchemaFlag, "",
+		"JSON schema file to validate seed against.")
+	validateCmd.StringVar(&schema, constants.ShortSchemaFlag, "",
+		"JSON schema file to validate seed against.")
+
+	validateCmd.Usage = func() {
+		commands.PrintValidateUsage()
 	}
 }
 
 //DefineFlags defines the flags available for the seed runner.
 func DefineFlags() {
 	// seed build flags
-	commands.DefineBuildFlags(&buildCmd)
+	DefineBuildFlags()
 
 	// seed run flags
-	commands.DefineRunFlags(&runCmd)
+	DefineRunFlags()
 
 	// seed list flags
-	commands.DefineListFlags(&listCmd)
+	DefineListFlags()
 
 	// seed search flags
-	commands.DefineSearchFlags(&searchCmd)
+	DefineSearchFlags()
 
 	// seed publish flags
-	commands.DefinePublishFlags(&publishCmd)
+	DefinePublishFlags()
 
 	// seed validate flags
-	commands.DefineValidateFlags(&validateCmd)
+	DefineValidateFlags()
 
 	// seed version flags
 	versionCmd = flag.NewFlagSet(constants.VersionCommand, flag.ExitOnError)

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"flag"
 	"github.com/ngageoint/seed-cli/constants"
 	"fmt"
 	"os"
@@ -23,10 +22,11 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(runCmd flag.FlagSet) {
-	imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) {
+
 	if imageName == "" {
 		fmt.Fprintf(os.Stderr, "ERROR: No input image specified\n")
+		os.Exit(1)
 	}
 
 	// Parse seed information off of the label
@@ -35,7 +35,7 @@ func DockerRun(runCmd flag.FlagSet) {
 	// build docker run command
 	dockerArgs := []string{"run"}
 
-	if runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString {
+	if rmDir {
 		dockerArgs = append(dockerArgs, "--rm")
 	}
 
@@ -47,7 +47,7 @@ func DockerRun(runCmd flag.FlagSet) {
 
 	// expand INPUT_FILEs to specified inputData files
 	if seed.Job.Interface.InputData.Files != nil {
-		inMounts, size, temp, err := DefineInputs(&seed, runCmd)
+		inMounts, size, temp, err := DefineInputs(&seed, inputs)
 		for _, v := range temp {
 			defer util.RemoveAll(v)
 		}
@@ -62,7 +62,7 @@ func DockerRun(runCmd flag.FlagSet) {
 	}
 
 	if len(seed.Job.Interface.Resources.Scalar) > 0 {
-		inResources, diskSize, err := DefineResources(&seed, inputSize, runCmd)
+		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing resources\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
@@ -76,7 +76,7 @@ func DockerRun(runCmd flag.FlagSet) {
 	// mount the JOB_OUTPUT_DIR (outDir flag)
 	var outDir string
 	if strings.Contains(seed.Job.Interface.Cmd, "OUTPUT_DIR") {
-		outDir = SetOutputDir(imageName, &seed, runCmd)
+		outDir = SetOutputDir(imageName, &seed, outputDir)
 		if outDir != "" {
 			mountsArgs = append(mountsArgs, "-v")
 			mountsArgs = append(mountsArgs, outDir+":"+outDir)
@@ -85,7 +85,7 @@ func DockerRun(runCmd flag.FlagSet) {
 
 	// Settings
 	if seed.Job.Interface.Settings != nil {
-		inSettings, err := DefineSettings(&seed, runCmd)
+		inSettings, err := DefineSettings(&seed, settings)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing settings arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
@@ -97,7 +97,7 @@ func DockerRun(runCmd flag.FlagSet) {
 
 	// Additional Mounts defined in seed.json
 	if seed.Job.Interface.Mounts != nil {
-		inMounts, err := DefineMounts(&seed, runCmd)
+		inMounts, err := DefineMounts(&seed, mounts)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing mount arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
@@ -153,7 +153,7 @@ func DockerRun(runCmd flag.FlagSet) {
 	// Validate output against pattern
 	if seed.Job.Interface.OutputData.Files != nil ||
 		seed.Job.Interface.OutputData.JSON != nil {
-		CheckRunOutput(&seed, outDir, outputSize, runCmd)
+		CheckRunOutput(&seed, outDir, metadataSchema, outputSize)
 	}
 }
 
@@ -161,14 +161,14 @@ func DockerRun(runCmd flag.FlagSet) {
 // flags 'inputData' and sets the path in the json object. Returns:
 // 	[]string: docker command args for input files in the format:
 //	"-v /path/to/file1:/path/to/file1 -v /path/to/file2:/path/to/file2 etc"
-func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, map[string]string, error) {
+func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[string]string, error) {
 	// Validate inputs given vs. inputs defined in manifest
 	
 	var mountArgs []string
 	var sizeMiB float64
 
 	// Ingest inputs into a map key = inputkey, value=inputpath
-	inputs := strings.Split(runCmd.Lookup(constants.InputDataFlag).Value.String(), ",")
+
 	inMap := make(map[string]string)
 	for _, f := range inputs {
 		x := strings.Split(f, "=")
@@ -283,12 +283,10 @@ func DefineInputs(seed *objects.Seed, runCmd flag.FlagSet) ([]string, float64, m
 
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
-func SetOutputDir(imageName string, seed *objects.Seed, runCmd flag.FlagSet) string {
+func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string {
 	if !strings.Contains(seed.Job.Interface.Cmd, "OUTPUT_DIR") {
 		return ""
 	}
-
-	outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 
 	// #37: if -o is not specified, and OUTPUT_DIR is in the command args,
 	//	auto create a time-stamped subdirectory with the name of the form:
@@ -335,9 +333,8 @@ func SetOutputDir(imageName string, seed *objects.Seed, runCmd flag.FlagSet) str
 }
 
 //DefineMounts defines any seed specified mounts. TODO
-func DefineMounts(seed *objects.Seed, runCmd flag.FlagSet) ([]string, error) {
-	// Ingest inputs into a map key = inputkey, value=inputpath
-	inputs := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
+func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
+	// Ingest mounts into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
 		x := strings.Split(f, "=")
@@ -394,9 +391,8 @@ func DefineMounts(seed *objects.Seed, runCmd flag.FlagSet) ([]string, error) {
 //DefineSettings defines any seed specified docker settings. TODO
 // Return []string of docker command arguments in form of:
 //	"-?? setting1=val1 -?? setting2=val2 etc"
-func DefineSettings(seed *objects.Seed, runCmd flag.FlagSet) ([]string, error) {
+func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest inputs into a map key = inputkey, value=inputpath
-	inputs := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 	inMap := make(map[string]string)
 	for _, f := range inputs {
 		x := strings.Split(f, "=")
@@ -445,7 +441,7 @@ func DefineSettings(seed *objects.Seed, runCmd flag.FlagSet) ([]string, error) {
 //based on the seed spec and the size of the input in MiB
 // returns array of arguments to pass to docker to restrict/specify the resources required
 // returns the total disk space requirement to be checked when validating output
-func DefineResources(seed *objects.Seed, inputSizeMiB float64, runCmd flag.FlagSet) ([]string, float64, error) {
+func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float64, error) {
 	var resources []string
 	var disk float64
 
@@ -468,7 +464,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64, runCmd flag.FlagS
 
 //CheckRunOutput validates the output of the docker run command. Output data is
 // validated as defined in the seed.Job.Interface.OutputData.
-func CheckRunOutput(seed *objects.Seed, outDir string, diskLimit float64, runCmd flag.FlagSet) {
+func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit float64) {
 	// Validate any OutputData.Files
 	if seed.Job.Interface.OutputData.Files != nil {
 		fmt.Fprintf(os.Stderr, "INFO: Validating output files found under %s...\n",
@@ -508,7 +504,7 @@ func CheckRunOutput(seed *objects.Seed, outDir string, diskLimit float64, runCmd
 					matchList = append(matchList, "\t"+match+"\n")
 					metadata := match + ".metadata.json"
 					if _, err := os.Stat(metadata); err == nil {
-						err := ValidateSeedFile("", metadata, constants.SchemaMetadata)
+						err := ValidateSeedFile(util.GetFullPath(metadataSchema, ""), metadata, constants.SchemaMetadata)
 						if err != nil {
 							fmt.Fprintf(os.Stderr, "ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}
@@ -613,70 +609,20 @@ func CheckRunOutput(seed *objects.Seed, outDir string, diskLimit float64, runCmd
 	}
 }
 
-//DefineRunFlags defines the flags for the seed run command
-func DefineRunFlags(runCmd **flag.FlagSet) {
-	*runCmd = flag.NewFlagSet(constants.RunCommand, flag.ContinueOnError)
-
-	var imgNameFlag string
-	(*runCmd).StringVar(&imgNameFlag, constants.ImgNameFlag, "",
-		"Name of Docker image to run")
-	(*runCmd).StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
-		"Name of Docker image to run")
-
-	var settings objects.ArrayFlags
-	(*runCmd).Var(&settings, constants.SettingFlag,
-		"Defines the value to be applied to setting")
-	(*runCmd).Var(&settings, constants.ShortSettingFlag,
-		"Defines the value to be applied to setting")
-
-	var mounts objects.ArrayFlags
-	(*runCmd).Var(&mounts, constants.MountFlag,
-		"Defines the full path to be mapped via mount")
-	(*runCmd).Var(&mounts, constants.ShortMountFlag,
-		"Defines the full path to be mapped via mount")
-
-	var inputs objects.ArrayFlags
-	(*runCmd).Var(&inputs, constants.InputDataFlag,
-		"Defines the full path to any input data arguments")
-	(*runCmd).Var(&inputs, constants.ShortInputDataFlag,
-		"Defines the full path to input data arguments")
-
-	var outdir string
-	(*runCmd).StringVar(&outdir, constants.JobOutputDirFlag, "",
-		"Full path to the algorithm output directory")
-	(*runCmd).StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
-		"Full path to the algorithm output directory")
-
-	var metadataSchema string
-	(*runCmd).StringVar(&metadataSchema, constants.SchemaFlag, "",
-		"Metadata schema file to override built in schema in validating side-car metadata files")
-	(*runCmd).StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
-		"Metadata schema file to override built in schema in validating side-car metadata files")
-
-	var rmVar bool
-	(*runCmd).BoolVar(&rmVar, constants.RmFlag, false,
-		"Specifying the -rm flag automatically removes the image after executing docker run")
-
-	// Run usage function
-	(*runCmd).Usage = func() {
-		PrintRunUsage()
-	}
-}
-
 //PrintRunUsage prints the seed run usage arguments, then exits the program
 func PrintRunUsage() {
 	fmt.Fprintf(os.Stderr,
-		"\nUsage:\tseed run -in IMAGE_NAME [-i INPUT_KEY=INPUT_FILE ...] [-e SETTING_KEY=VALUE] -o OUTPUT_DIRECTORY \n")
+		"\nUsage:\tseed run -in IMAGE_NAME [-i INPUT_KEY=INPUT_FILE ...] [-e SETTING_KEY=VALUE] [-m MOUNT_KEY=PATH] -o OUTPUT_DIRECTORY \n")
 
 	fmt.Fprintf(os.Stderr, "\nRuns Docker image defined by seed spec.\n")
 
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
-		constants.ShortSettingFlag, constants.SettingFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
-		constants.ShortInputDataFlag, constants.InputDataFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
+	fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
+		constants.ShortInputDataFlag, constants.InputDataFlag)
+	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
+		constants.ShortSettingFlag, constants.SettingFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
 		constants.ShortMountFlag, constants.MountFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Job Output Directory Location\n",

@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -15,9 +14,7 @@ import (
 )
 
 // seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(validateCmd flag.FlagSet){
-	schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
-	dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+func Validate(schemaFile, dir string){
 
 	seedFileName, err := util.SeedFileName(dir)
 	if err != nil {
@@ -31,25 +28,6 @@ func Validate(validateCmd flag.FlagSet){
 	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
-	}
-}
-
-//DefineValidateFlags defines the flags for the validate command
-func DefineValidateFlags(validateCmd **flag.FlagSet) {
-	var directory string
-	*validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
-	(*validateCmd).StringVar(&directory, constants.JobDirectoryFlag, ".",
-		"Location of the seed.manifest.json spec to validate")
-	(*validateCmd).StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
-		"Location of the seed.manifest.json spec to validate")
-	var schema string
-	(*validateCmd).StringVar(&schema, constants.SchemaFlag, "",
-		"JSON schema file to validate seed against.")
-	(*validateCmd).StringVar(&schema, constants.ShortSchemaFlag, "",
-		"JSON schema file to validate seed against.")
-
-	(*validateCmd).Usage = func() {
-		PrintValidateUsage()
 	}
 }
 
