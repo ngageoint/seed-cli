@@ -10,14 +10,15 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
+	"errors"
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory string) {
+func DockerBuild(jobDirectory string) (bool, error) {
 
 	seedFileName, err := util.SeedFileName(jobDirectory)
 	if err != nil {
-		os.Exit(1)
+		return false, err
 	}
 
 	// Validate seed file
@@ -26,7 +27,7 @@ func DockerBuild(jobDirectory string) {
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		return false, err
 	}
 
 	// retrieve seed from seed manifest
@@ -52,6 +53,7 @@ func DockerBuild(jobDirectory string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker build. %s\n",
 			err.Error())
+		return false, err
 	}
 
 	// check for errors on stderr
@@ -59,8 +61,10 @@ func DockerBuild(jobDirectory string) {
 		fmt.Fprintf(os.Stderr, "ERROR: Error building image '%s':\n%s\n",
 			imageName, errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		return false, errors.New(errs.String())
 	}
+
+	return true, nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program

@@ -14,11 +14,13 @@ import (
 )
 
 // seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(schemaFile, dir string){
+func Validate(schemaFile, dir string) error {
+	var err error = nil
+	var seedFileName = ""
 
-	seedFileName, err := util.SeedFileName(dir)
+	seedFileName, err = util.SeedFileName(dir)
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
 
 	if schemaFile != "" {
@@ -29,6 +31,8 @@ func Validate(schemaFile, dir string){
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
 	}
+
+	return err
 }
 
 //PrintValidateUsage prints the seed validate usage, then exits the program
@@ -66,9 +70,9 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		schemaBytes, _ := constants.Asset("./schema/seed.manifest.schema.json")
+		schemaBytes, _ := constants.Asset("schema/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("./schema/seed.metadata.schema.json")
+			schemaBytes, _ = constants.Asset("schema/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
