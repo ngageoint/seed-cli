@@ -1,24 +1,25 @@
 package commands
 
 import (
-	"github.com/ngageoint/seed-cli/constants"
-	"fmt"
-	"os"
-	"strings"
 	"bytes"
-	"os/exec"
-	"io"
-	"github.com/ngageoint/seed-cli/objects"
-	"time"
 	"errors"
-	"path/filepath"
-	"math"
-	"path"
-	"mime"
-	"strconv"
+	"fmt"
+	"io"
 	"io/ioutil"
-	"github.com/xeipuuv/gojsonschema"
+	"math"
+	"mime"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 //DockerRun Runs image described by Seed spec
@@ -163,7 +164,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 //	"-v /path/to/file1:/path/to/file1 -v /path/to/file2:/path/to/file2 etc"
 func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[string]string, error) {
 	// Validate inputs given vs. inputs defined in manifest
-	
+
 	var mountArgs []string
 	var sizeMiB float64
 
@@ -244,7 +245,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		// Handle replacing KEY or ${KEY} or $KEY
 		value := val
 		if directory, ok := tempDirectories[key]; ok {
-			value = directory  //replace with the temp directory if multiple files
+			value = directory //replace with the temp directory if multiple files
 		}
 		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd,
 			"${"+key+"}", value, -1)
@@ -265,7 +266,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			}
 		}
 	}
-	
+
 	//remove unspecified unrequired inputs from cmd string
 	for _, k := range unrequired {
 		key := k
