@@ -27,13 +27,13 @@ type Job struct {
 	AuthorEmail      string     `json:"authorEmail,omitempty"`
 	AuthorUrl        string     `json:"authorUrl,omitempty"`
 	Timeout          int        `json:"timeout,omitempty"`
+	Resources        Resources  `json:"resources,omitempty"`
 	Interface        Interface  `json:"interface"`
 	ErrorMapping     []ErrorMap `json:"errorMapping,omitempty"`
 }
 
 type Interface struct {
 	Cmd        string     `json:"cmd"`
-	Resources  Resources  `json:"resources,omitempty"`
 	InputData  InputData  `json:"inputData,omitempty"`
 	OutputData OutputData `json:"outputData,omitempty"`
 	Mounts     []Mount    `json:"mounts,omitempty"`

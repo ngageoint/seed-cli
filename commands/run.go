@@ -62,7 +62,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		}
 	}
 
-	if len(seed.Job.Interface.Resources.Scalar) > 0 {
+	if len(seed.Job.Resources.Scalar) > 0 {
 		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing resources\n%s", err.Error())
@@ -446,7 +446,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 	var resources []string
 	var disk float64
 
-	for _, s := range seed.Job.Interface.Resources.Scalar {
+	for _, s := range seed.Job.Resources.Scalar {
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value

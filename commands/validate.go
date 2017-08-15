@@ -104,16 +104,16 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	var allocated []string
 	// var vars map[string]string
 	vars := make(map[string][]string)
-	if seed.Job.Interface.Resources.Scalar != nil {
-		for _, s := range seed.Job.Interface.Resources.Scalar {
+	if seed.Job.Resources.Scalar != nil {
+		for _, s := range seed.Job.Resources.Scalar {
 			name := util.GetNormalizedVariable(s.Name)
 			allocated = append(allocated, "ALLOCATED_"+strings.ToUpper(name))
 			if util.IsReserved(s.Name, nil) {
-				buffer.WriteString("ERROR: job.interface.resources.scalar Name " +
+				buffer.WriteString("ERROR: job.resources.scalar Name " +
 					s.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			util.IsInUse(s.Name, "job.interface.resources.scalar", vars)
+			util.IsInUse(s.Name, "job.resources.scalar", vars)
 		}
 	}
 
