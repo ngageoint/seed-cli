@@ -9,9 +9,9 @@ import (
 
 //DockerList lists all seed compliant images (ending with -seed) on the local
 //	system
-func DockerList() error {
+func DockerList() (string, error) {
 	dCmd := exec.Command("docker", "images")
-	gCmd := exec.Command("grep", "seed")
+	gCmd := exec.Command("grep", "-seed")
 	var dErr bytes.Buffer
 	dCmd.Stderr = &dErr
 	dOut, err := dCmd.StdoutPipe()
@@ -44,7 +44,7 @@ func DockerList() error {
 		fmt.Fprintf(os.Stderr, "%s\n", string(o))
 	}
 
-	return err
+	return string(o), err
 }
 
 //PrintListUsage prints the seed list usage information, then exits the program

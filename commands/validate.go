@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/util"
 	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -100,7 +100,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 
-	// Grab all sclar resource names (verify none are set to OUTPUT_DIR)
+	// Grab all scalar resource names (verify none are set to OUTPUT_DIR)
 	var allocated []string
 	// var vars map[string]string
 	vars := make(map[string][]string)

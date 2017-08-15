@@ -1,13 +1,14 @@
 package objects
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"fmt"
-	"os"
 	"bytes"
-	"strings"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"os/exec"
+	"strings"
+
 	"github.com/ngageoint/seed-cli/constants"
 )
 
@@ -201,8 +202,6 @@ func GetManifestLabel(seedFileName string) string {
 
 	return seed
 }
-
-
 
 //SeedFromImageLabel returns seed parsed from the docker image LABEL
 func SeedFromImageLabel(imageName string) Seed {

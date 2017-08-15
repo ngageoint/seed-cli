@@ -1,21 +1,30 @@
 package commands
 
 import (
+	"os/exec"
+	"strings"
 	"testing"
 )
 
 func TestDockerList(t *testing.T) {
 	cases := []struct {
-		expected error
+		directory        string
+		imageName        string
 		expectedErrorMsg string
 	}{
-		{ nil, ""},
+		{"../testdata/dummy-scratch/", "test-seed", ""},
 	}
 
 	for _, c := range cases {
-		err := DockerList()
-		if (err != c.expected ) {
-			t.Errorf("DockerBuild() == %v, expected %v", err, c.expected)
+		buildArgs := []string{"build", "-t", c.imageName, c.directory}
+		cmd := exec.Command("docker", buildArgs...)
+		cmd.Run()
+		output, err := DockerList()
+		if err != nil {
+			t.Errorf("DockerList returned an error: %v", err)
+		}
+		if !strings.Contains(output, c.imageName) {
+			t.Errorf("DockerList() did not return expected image %v", c.imageName)
 		}
 	}
 }
