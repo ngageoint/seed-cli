@@ -8,17 +8,19 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/util"
 	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 // seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(schemaFile, dir string){
+func Validate(schemaFile, dir string) error {
+	var err error = nil
+	var seedFileName = ""
 
-	seedFileName, err := util.SeedFileName(dir)
+	seedFileName, err = util.SeedFileName(dir)
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
 
 	if schemaFile != "" {
@@ -29,6 +31,8 @@ func Validate(schemaFile, dir string){
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err.Error())
 	}
+
+	return err
 }
 
 //PrintValidateUsage prints the seed validate usage, then exits the program
@@ -66,9 +70,9 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		schemaBytes, _ := constants.Asset("./schema/seed.manifest.schema.json")
+		schemaBytes, _ := constants.Asset("schema/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("./schema/seed.metadata.schema.json")
+			schemaBytes, _ = constants.Asset("schema/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
@@ -96,20 +100,20 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 
-	// Grab all sclar resource names (verify none are set to OUTPUT_DIR)
+	// Grab all scalar resource names (verify none are set to OUTPUT_DIR)
 	var allocated []string
 	// var vars map[string]string
 	vars := make(map[string][]string)
-	if seed.Job.Interface.Resources.Scalar != nil {
-		for _, s := range seed.Job.Interface.Resources.Scalar {
+	if seed.Job.Resources.Scalar != nil {
+		for _, s := range seed.Job.Resources.Scalar {
 			name := util.GetNormalizedVariable(s.Name)
 			allocated = append(allocated, "ALLOCATED_"+strings.ToUpper(name))
 			if util.IsReserved(s.Name, nil) {
-				buffer.WriteString("ERROR: job.interface.resources.scalar Name " +
+				buffer.WriteString("ERROR: job.resources.scalar Name " +
 					s.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			util.IsInUse(s.Name, "job.interface.resources.scalar", vars)
+			util.IsInUse(s.Name, "job.resources.scalar", vars)
 		}
 	}
 

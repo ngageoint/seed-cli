@@ -31,11 +31,11 @@ usage is as folllows:
 	seed search [OPTIONS]
 		Options:
 			-r, -registry	The registry to search
-			
+
 			-o, -org		Limit results to this organization/user (for docker hub, this arg is required as images cannot be listed except by org
-			
+
 			-u, -user		Optional username to use for authentication
-			
+
 			-p, -password	Optional password to use for authentication
 
 	seed validate [OPTIONS]
@@ -54,10 +54,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/commands"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
 	"strings"
 )
 
@@ -331,7 +331,6 @@ func DefineFlags() {
 		PrintVersionUsage()
 	}
 
-
 	// Print usage if no command given
 	if len(os.Args) == 1 {
 		PrintUsage()
@@ -399,7 +398,6 @@ func PrintUsage() {
 	fmt.Fprintf(os.Stderr, "\nRun 'seed COMMAND --help' for more information on a command.\n")
 	os.Exit(0)
 }
-
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
