@@ -1,0 +1,52 @@
+{
+  "seedVersion":"SEED_VERSION",
+  "job":{
+    "name":"reserved-name",
+    "algorithmVersion":"0.1.0",
+    "packageVersion":"0.1.0",
+    "title":"Duplicate names",
+    "description":"Processes an input PNG and outputs watermarked PNG.",
+    "authorName":"John Doe",
+    "timeout":30,
+    "resources":{},
+    "interface":{
+      "cmd":"app/job.sh ${INPUT_IMAGE} ${JOB_OUTPUT_DIR}",
+      "inputData":{
+        "files":[
+          {
+            "name": "INPUT",
+            "required": true,
+            "mediaType": [
+              "application/png"
+            ]
+          },
+          {
+            "name": "INPUT",
+            "required": false,
+            "multiple": true,
+            "mediaType": [
+              "text"
+            ]
+          }
+        ]
+      },
+      "outputData":{
+        "files":[
+          {
+            "name":"OUTPUT_IMAGE",
+            "mediaType":"image/png",
+            "pattern":"*_watermark.png"
+          }
+        ]
+      }
+    },
+    "errorMapping":[
+      {
+        "code":1,
+        "title":"Image Corrupt",
+        "description":"Image input is not recognized as a valid PNG.",
+        "category":"data"
+      }
+    ]
+  }
+}
