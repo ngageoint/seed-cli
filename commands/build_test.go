@@ -1,14 +1,14 @@
 package commands
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestDockerBuild(t *testing.T) {
 	cases := []struct {
-		directory string
-		expected bool
+		directory        string
+		expected         bool
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-algorithm/", true, ""},
@@ -17,9 +17,10 @@ func TestDockerBuild(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		result, err := DockerBuild(c.directory)
-		if (result != c.expected ) {
-			t.Errorf("DockerBuild(%q) == %v, expected %v", c.directory, result, c.expected)
+		err := DockerBuild(c.directory)
+		success := err == nil
+		if success != c.expected {
+			t.Errorf("DockerBuild(%q) == %v, expected %v", c.directory, success, c.expected)
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {

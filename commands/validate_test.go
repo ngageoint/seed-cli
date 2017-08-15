@@ -1,16 +1,17 @@
 package commands
 
 import (
-	"testing"
 	"strings"
+	"testing"
+
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/util"
 )
 
 func TestValidate(t *testing.T) {
 	cases := []struct {
-		seedFileName string
-		expected error
+		seedFileName     string
+		expected         error
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-algorithm/seed.manifest.json", nil, ""},
@@ -19,8 +20,8 @@ func TestValidate(t *testing.T) {
 
 	for _, c := range cases {
 		name := util.GetFullPath(c.seedFileName, "")
-		err := ValidateSeedFile( "", name, constants.SchemaManifest)
-		if (err != c.expected ) {
+		err := ValidateSeedFile("", name, constants.SchemaManifest)
+		if err != c.expected {
 			t.Errorf("ValidateSeedFile(%q, %q, %q) == %v, expected %v", "", name, constants.SchemaManifest, err, c.expected)
 		}
 		if err != nil {
