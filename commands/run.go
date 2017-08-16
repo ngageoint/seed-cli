@@ -335,7 +335,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 	return outdir
 }
 
-//DefineMounts defines any seed specified mounts. TODO
+//DefineMounts defines any seed specified mounts.
 func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest mounts into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
@@ -391,7 +391,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	return mounts, nil
 }
 
-//DefineSettings defines any seed specified docker settings. TODO
+//DefineSettings defines any seed specified docker settings.
 // Return []string of docker command arguments in form of:
 //	"-?? setting1=val1 -?? setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
@@ -452,6 +452,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
+			mem = math.Max(mem, 4.0)  //docker memory requirement must be > 4MiB
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
