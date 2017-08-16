@@ -24,13 +24,20 @@ type Job struct {
 	PackageVersion   string     `json:"packageVersion"`
 	Title            string     `json:"title,omitempty"`
 	Description      string     `json:"description,omitempty"`
-	AuthorName       string     `json:"authorName,omitempty"`
-	AuthorEmail      string     `json:"authorEmail,omitempty"`
-	AuthorUrl        string     `json:"authorUrl,omitempty"`
+	Tags             []string   `json:"tags,omitempty"`
+	Maintainer       Maintainer `json:"maintainer"`
 	Timeout          int        `json:"timeout,omitempty"`
-	Resources        Resources  `json:"resources,omitempty"`
 	Interface        Interface  `json:"interface"`
+	Resources        Resources  `json:"resources,omitempty"`
 	ErrorMapping     []ErrorMap `json:"errorMapping,omitempty"`
+}
+
+type Maintainer struct {
+	Name         string `json:"name"`
+	Organization string `json:"organization,omitempty"`
+	Email        string `json:"email"`
+	Url          string `json:"url,omitempty"`
+	Phone        string `json:"phone,omitempty"`
 }
 
 type Interface struct {
@@ -57,10 +64,10 @@ type InputData struct {
 }
 
 type InFile struct {
-	Name      string   `json:"name"`
-	MediaType []string `json:"mediaType"`
-	Multiple  bool     `json:"multiple"`
-	Required  bool     `json:"required"`
+	Name       string   `json:"name"`
+	MediaTypes []string `json:"mediaTypes"`
+	Multiple   bool     `json:"multiple"`
+	Required   bool     `json:"required"`
 }
 
 func (o *InFile) UnmarshalJSON(b []byte) error {
