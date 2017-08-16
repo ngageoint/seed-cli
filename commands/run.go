@@ -23,11 +23,10 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) error {
 
 	if imageName == "" {
-		fmt.Fprintf(os.Stderr, "ERROR: No input image specified\n")
-		os.Exit(1)
+		return errors.New("ERROR: No input image specified")
 	}
 
 	// Parse seed information off of the label
@@ -139,7 +138,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	dockerRun.Stdout = os.Stderr
 
 	// Run docker run
-	if err := dockerRun.Run(); err != nil {
+	err := dockerRun.Run()
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
 			err.Error())
 	}
@@ -148,7 +148,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
 			imageName, errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		return errors.New(errs.String())
 	}
 
 	// Validate output against pattern
@@ -156,6 +156,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		seed.Job.Interface.OutputData.JSON != nil {
 		CheckRunOutput(&seed, outDir, metadataSchema, outputSize)
 	}
+
+	return err
 }
 
 //DefineInputs extracts the paths to any input data given by the 'run' command
@@ -345,7 +347,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 				x)
 			continue
 		}
-		inMap[x[0]] = x[1]
+		inMap[x[0]] = util.GetFullPath(x[1], "")
 	}
 
 	// Valid by default
