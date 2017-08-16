@@ -217,10 +217,10 @@ func SeedFromImageLabel(imageName string) Seed {
 		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
 		imageName)
 
-	inspctCmd := exec.Command("docker", "inspect", "-f",
+	inspectCmd := exec.Command("docker", "inspect", "-f",
 		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
 
-	errPipe, errr := inspctCmd.StderrPipe()
+	errPipe, errr := inspectCmd.StderrPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stderr. %s\n",
@@ -228,7 +228,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Attach stdout pipe
-	outPipe, errr := inspctCmd.StdoutPipe()
+	outPipe, errr := inspectCmd.StdoutPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stdout. %s\n",
@@ -236,7 +236,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Run docker inspect
-	if err := inspctCmd.Start(); err != nil {
+	if err := inspectCmd.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker %s. %s\n", cmdStr,
 			err.Error())
 	}

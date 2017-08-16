@@ -1,8 +1,12 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
 )
 
 func TestDockerRun(t *testing.T) {
@@ -44,36 +48,61 @@ func TestDockerRun(t *testing.T) {
 		}
 	}
 }
-/*
+
 func TestDefineInputs(t *testing.T) {
 	cases := []struct {
-		directory        string
-		imageName        string
+		seedFileName     string
+		inputs           []string
+		expectedVol      string
+		expectedSize     float64
+		expectedTempDir  string
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/", "addition-algorithm-0.0.1-seed:1.0.0", true, ""},
-		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0", true, ""},
+		{"../examples/addition-algorithm/seed.manifest.json",
+			[]string{"INPUT_FILE=../examples/addition-algorithm/inputs.txt"},
+			"[-v INPUT_FILE:INPUT_FILE]", 2.288818359375e-05,
+			"map[]", true, ""},
+		{"../examples/extractor/seed.manifest.json",
+			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
+			"[-v ZIP:ZIP -v MULTIPLE:MULTIPLE]", 0.0762338638305664,
+			"map[MULTIPLE:temp-2017-08-16T15_06_32-04_00]", true, ""},
 	}
 
 	for _, c := range cases {
-		DockerBuild(c.directory)
-		seedFileName, _ := util.SeedFileName(c.directory)
-
-		// retrieve seed from seed manifest
+		seedFileName := util.GetFullPath(c.seedFileName, "")
 		seed := objects.SeedFromManifestFile(seedFileName)
+		volumes, size, tempDir, err := DefineInputs(&seed, c.inputs)
 
-		seed2 := objects.SeedFromImageLabel(c.imageName)
-		seedStr1 := fmt.Sprintf("%v", seed)
-		seedStr2 := fmt.Sprintf("%v", seed2)
-
-		success := seedStr1 != "" && seedStr1 == seedStr2
-		if success != c.expected {
-			t.Errorf("SeedFromImageLabel(%q) == %v, expected %v", seedFileName, seedStr1, seedStr2)
+		if c.expected != (err == nil) {
+			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, err, nil)
 		}
+
+		expectedVol := c.expectedVol
+		for _, f := range c.inputs {
+			x := strings.Split(f, "=")
+			path := util.GetFullPath(x[1], "")
+			expectedVol = strings.Replace(expectedVol, x[0], path, -1)
+		}
+		tempStr := fmt.Sprintf("%v", volumes)
+		if expectedVol != tempStr {
+			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, tempStr, expectedVol)
+		}
+
+		if c.expectedSize != size {
+			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, size, c.expectedSize)
+		}
+//tempdir uses time string which will change
+		/*
+		tempStr = fmt.Sprintf("%v", tempDir)
+		if c.expectedTempDir != tempStr {
+			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, tempStr, c.expectedTempDir)
+		}*/
+
 	}
 }
 
+/*
 func TestSetOutputDir(t *testing.T) {
 	cases := []struct {
 		filename         string
