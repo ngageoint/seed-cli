@@ -112,82 +112,83 @@ func TestDefineInputs(t *testing.T) {
 	}
 }
 
-/*
-func TestSetOutputDir(t *testing.T) {
-	cases := []struct {
-		filename         string
-		expected         string
-		expectedErrorMsg string
-	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
-		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
-	}
-
-	for _, c := range cases {
-
-		seedFileName := util.GetFullPath(c.filename, "")
-		// retrieve seed from seed manifest
-		seed := objects.SeedFromManifestFile(seedFileName)
-
-		// Retrieve docker image name
-		imageName := objects.BuildImageName(&seed)
-
-		if imageName != c.expected {
-			t.Errorf("BuildImageName(%q) == %v, expected %v", seedFileName, imageName, c.expected)
-		}
-	}
-}
-
 func TestDefineMounts(t *testing.T) {
 	cases := []struct {
-		filename         string
-		expected         string
+		seedFileName     string
+		mounts           []string
+		expectedVol      string
+		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
-		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
+		{"../examples/addition-algorithm/seed.manifest.json",
+			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
+			"[-v MOUNT_BIN:/usr/bin/:ro -v MOUNT_TMP:/tmp/:rw]", true, ""},
+		{"../examples/extractor/seed.manifest.json",
+			[]string{"MOUNTAIN=../examples/"},
+			"[-v MOUNTAIN:/the/mountain:ro]", true, ""},
 	}
 
 	for _, c := range cases {
-
-		seedFileName := util.GetFullPath(c.filename, "")
-		// retrieve seed from seed manifest
+		seedFileName := util.GetFullPath(c.seedFileName, "")
 		seed := objects.SeedFromManifestFile(seedFileName)
+		volumes, err := DefineMounts(&seed, c.mounts)
 
-		// Retrieve docker image name
-		imageName := objects.BuildImageName(&seed)
+		if c.expected != (err == nil) {
+			t.Errorf("DefineMounts(%q, %q) == %v, expected %v", seedFileName, c.mounts, err, nil)
+		}
 
-		if imageName != c.expected {
-			t.Errorf("BuildImageName(%q) == %v, expected %v", seedFileName, imageName, c.expected)
+		expectedVol := c.expectedVol
+		for _, f := range c.mounts {
+			x := strings.Split(f, "=")
+			path := util.GetFullPath(x[1], "")
+			expectedVol = strings.Replace(expectedVol, x[0], path, -1)
+		}
+		tempStr := fmt.Sprintf("%v", volumes)
+		if expectedVol != tempStr {
+			t.Errorf("DefineMounts(%q, %q) == \n%v, expected \n%v", seedFileName, c.mounts, tempStr, expectedVol)
 		}
 	}
 }
 
 func TestDefineResources(t *testing.T) {
 	cases := []struct {
-		filename         string
-		expected         string
+		seedFileName     string
+		inputSize        float64
+		expectedResource string
+		expectedOutSize  float64
+		expectedResult   bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
-		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
+		{"../examples/addition-algorithm/seed.manifest.json",
+			4.0, "[-m 4m]", 5.0, true, ""},
+		{"../examples/extractor/seed.manifest.json",
+			1.0, "[-m 16m]", 1.01, true, ""},
+		{"../examples/extractor/seed.manifest.json",
+			16.0, "[-m 16m]", 16.01, true, ""},
 	}
 
 	for _, c := range cases {
-
-		seedFileName := util.GetFullPath(c.filename, "")
-		// retrieve seed from seed manifest
+		seedFileName := util.GetFullPath(c.seedFileName, "")
 		seed := objects.SeedFromManifestFile(seedFileName)
+		resources, outSize, err := DefineResources(&seed, c.inputSize)
 
-		// Retrieve docker image name
-		imageName := objects.BuildImageName(&seed)
+		if c.expectedResult != (err == nil) {
+			t.Errorf("DefineResources(%q, %q) == %v, expected %v", seedFileName, c.inputSize, err, nil)
+		}
 
-		if imageName != c.expected {
-			t.Errorf("BuildImageName(%q) == %v, expected %v", seedFileName, imageName, c.expected)
+		tempStr := fmt.Sprintf("%v", resources)
+		if c.expectedResource != tempStr {
+			t.Errorf("DefineResources(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputSize, tempStr, c.expectedResource)
+		}
+
+		if c.expectedOutSize != outSize {
+			t.Errorf("DefineResources(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputSize, outSize, c.expectedOutSize)
+
 		}
 	}
 }
 
+/*
 func TestDefineSettings(t *testing.T) {
 	cases := []struct {
 		filename         string

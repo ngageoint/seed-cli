@@ -76,7 +76,7 @@
     "resources": {
       "scalar": [
         { "name": "cpu", "value": 0.1 },
-        { "name": "mem", "value": 4.0 },
+        { "name": "mem", "value": 1.0 },
         { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 }
       ]
     },
