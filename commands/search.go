@@ -10,6 +10,7 @@ import (
 
 	"github.com/heroku/docker-registry-client/registry"
 )
+
 //DockerSearch executes the seed search command
 func DockerSearch(url, org, filter, username, password string) {
 	_ = filter //TODO: add filter
@@ -17,17 +18,16 @@ func DockerSearch(url, org, filter, username, password string) {
 	if url == "" {
 		url = constants.DefaultRegistry
 	}
-	
+
 	if org == "" {
 		org = constants.DefaultOrg
 	}
-	
+
 	dockerHub := false
 	if strings.Contains(url, "hub.docker.com") || strings.Contains(url, "index.docker.io") || strings.Contains(url, "registry-1.docker.io") {
 		url = "https://hub.docker.com"
 		dockerHub = true
 	}
-	
 
 	var repositories []string
 	var err error
@@ -35,30 +35,30 @@ func DockerSearch(url, org, filter, username, password string) {
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 		repositories, err = hub.UserRepositories(org)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 		repositories, err = hub.Repositories()
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 	}
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		panic(util.Exit{1})
 	}
-	
+
 	for _, repo := range repositories {
 		if strings.HasSuffix(repo, "-seed") {
 			fmt.Println(repo)
@@ -77,5 +77,5 @@ func PrintSearchUsage() {
 		constants.ShortOrgFlag, constants.OrgFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a filter to apply (default is no filter).\n",
 		constants.ShortFilterFlag, constants.FilterFlag)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

@@ -39,13 +39,13 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	// Check for image confliction.
 	conflict := false //TODO - Need to call seed search when implemented
 
-
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
 		seedFileName, err := util.SeedFileName(jobDirectory)
 		if err != nil {
-			os.Exit(1)
+			fmt.Fprintf(os.Stderr, "ERROR: no %s found in %s.\nExiting seed...\n", constants.SeedFileName, jobDirectory)
+			panic(util.Exit{1})
 		}
 		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
@@ -94,7 +94,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		} else {
 			fmt.Fprintf(os.Stderr, "ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 
 		img = objects.BuildImageName(&seed)
@@ -129,7 +129,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 			fmt.Fprintf(os.Stderr, "ERROR: Error re-building image '%s':\n%s\n",
 				img, errs.String())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 
 		// Set final image name to tag + image
@@ -152,7 +152,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		if errs.String() != "" {
 			fmt.Fprintf(os.Stderr, "ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 	}
 
@@ -174,7 +174,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		fmt.Fprintf(os.Stderr, "ERROR: Error pushing image '%s':\n%s\n", img,
 			errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		panic(util.Exit{1})
 	}
 
 	// docker rmi
@@ -194,7 +194,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		fmt.Fprintf(os.Stderr, "ERROR: Error removing image '%s':\n%s\n", img,
 			errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		panic(util.Exit{1})
 	}
 }
 
@@ -217,5 +217,5 @@ func PrintPublishUsage() {
 		constants.AlgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

@@ -74,5 +74,5 @@ func PrintBuildUsage() {
 	fmt.Fprintf(os.Stderr,
 		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

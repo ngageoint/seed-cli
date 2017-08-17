@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/ngageoint/seed-cli/util"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -32,7 +34,7 @@ func CheckSudo() {
 		if strings.Contains(er, "Cannot connect to the Docker daemon. Is the docker daemon running on this host?") ||
 			strings.Contains(er, "dial unix /var/run/docker.sock: connect: permission denied") {
 			fmt.Fprintf(os.Stderr, "Elevated permissions are required by seed to run Docker. Try running the seed command again as sudo.\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
 	}
 }
@@ -100,4 +102,12 @@ func ImageExists(imageName string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func ImageCpuUsage(imageName string) {
+
+}
+
+func ImageMemoryUsage(imageName string) {
+
 }

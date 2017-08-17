@@ -13,7 +13,7 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// seed validate: Validate seed.manifest.json. Does not require docker
+//Validate seed validate: Validate seed.manifest.json. Does not require docker
 func Validate(schemaFile, dir string) error {
 	var err error = nil
 	var seedFileName = ""
@@ -45,7 +45,7 @@ func PrintValidateUsage() {
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	os.Exit(0)
+	panic(util.Exit{0})
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema

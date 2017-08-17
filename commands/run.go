@@ -26,8 +26,8 @@ import (
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) {
 
 	if imageName == "" {
-		fmt.Fprintf(os.Stderr, "ERROR: No input image specified\n")
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, "ERROR: No input image specified.\nExiting seed...\n")
+		panic(util.Exit{1})
 	}
 
 	// Parse seed information off of the label
@@ -55,7 +55,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
@@ -67,7 +67,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing resources\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inResources != nil {
 			resourceArgs = append(resourceArgs, inResources...)
 			outputSize = diskSize
@@ -90,7 +90,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing settings arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inSettings != nil {
 			envArgs = append(envArgs, inSettings...)
 		}
@@ -102,7 +102,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing mount arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 		}
@@ -148,7 +148,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
 			imageName, errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		os.Exit(1)
+		panic(util.Exit{1})
 	}
 
 	// Validate output against pattern
@@ -632,5 +632,5 @@ func PrintRunUsage() {
 		constants.RmFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	os.Exit(0)
+	panic(util.Exit{0})
 }
