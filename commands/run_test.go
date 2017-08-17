@@ -65,7 +65,7 @@ func TestDefineInputs(t *testing.T) {
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v ZIP:ZIP -v MULTIPLE:$MULTIPLETEMP$]", 0.0762338638305664,
+			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", 0.0762338638305664,
 			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
 	}
 
@@ -82,20 +82,22 @@ func TestDefineInputs(t *testing.T) {
 		expectedTempDir := c.expectedTempDir
 		for _, f := range c.inputs {
 			x := strings.Split(f, "=")
-			path := util.GetFullPath(x[1], "")
-			expectedVol = strings.Replace(expectedVol, x[0], path, -1)
-
 			tempDir, ok := tempDir[x[0]]
 			if ok {
 				defer util.RemoveAllFiles(tempDir)
 				tempVarStr := fmt.Sprintf("$%sTEMP$", x[0])
 				expectedVol = strings.Replace(expectedVol, tempVarStr, tempDir, -1)
+				path := util.GetFullPath(tempDir, "")
+				expectedVol = strings.Replace(expectedVol, x[0], path, -1)
 				expectedTempDir = strings.Replace(expectedTempDir, tempVarStr, tempDir, -1)
+			} else {
+				path := util.GetFullPath(x[1], "")
+				expectedVol = strings.Replace(expectedVol, x[0], path, -1)
 			}
 		}
 		tempStr := fmt.Sprintf("%v", volumes)
 		if expectedVol != tempStr {
-			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, tempStr, expectedVol)
+			t.Errorf("DefineInputs(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedVol)
 		}
 
 		if c.expectedSize != size {
@@ -104,7 +106,7 @@ func TestDefineInputs(t *testing.T) {
 
 		tempStr = fmt.Sprintf("%v", tempDir)
 		if expectedTempDir != tempStr {
-			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, tempStr, expectedTempDir)
+			t.Errorf("DefineInputs(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedTempDir)
 		}
 
 	}
