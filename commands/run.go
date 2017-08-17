@@ -49,7 +49,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	if seed.Job.Interface.InputData.Files != nil {
 		inMounts, size, temp, err := DefineInputs(&seed, inputs)
 		for _, v := range temp {
-			defer util.RemoveAll(v)
+			defer util.RemoveAllFiles(v)
 		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())

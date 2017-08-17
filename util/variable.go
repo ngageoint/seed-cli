@@ -55,9 +55,9 @@ func IsInUse(name string, path string, vars map[string][]string) bool {
 	return false
 }
 
-//Remove returns a new slice of strings without the given string from a slice of strings.
+//RemoveString returns a new slice of strings without the given string from a slice of strings.
 //If the slice does not contain the string the original slice is returned
-func Remove(s []string, r string) []string {
+func RemoveString(s []string, r string) []string {
 	for i, v := range s {
 		if v == r {
 			return append(s[:i], s[i+1:]...)

@@ -77,9 +77,9 @@ func SeedFileName(dir string) (string, error) {
 	return seedFileName, err
 }
 
-func RemoveAll(v string) {
+func RemoveAllFiles(v string) {
 	err := os.RemoveAll(v)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error removing temporary directory: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Error removing directory: %s\n", err.Error())
 	}
 }
