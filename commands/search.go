@@ -11,7 +11,7 @@ import (
 	"github.com/heroku/docker-registry-client/registry"
 )
 //DockerSearch executes the seed search command
-func DockerSearch(url, org, filter, username, password string) {
+func DockerSearch(url, org, filter, username, password string) error {
 	_ = filter //TODO: add filter
 
 	if url == "" {
@@ -35,28 +35,28 @@ func DockerSearch(url, org, filter, username, password string) {
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 		repositories, err = hub.UserRepositories(org)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 		repositories, err = hub.Repositories()
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 	}
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	
 	for _, repo := range repositories {
@@ -64,6 +64,8 @@ func DockerSearch(url, org, filter, username, password string) {
 			fmt.Println(repo)
 		}
 	}
+
+	return nil
 }
 
 //PrintSearchUsage prints the seed search usage information, then exits the program
