@@ -174,7 +174,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Input files should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
@@ -222,7 +222,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	}
 
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Input files should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
@@ -340,7 +340,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest mounts into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Mount should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for mount %v encountered.\n",
@@ -398,7 +398,7 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest inputs into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Setting should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for setting %v encountered.\n",
