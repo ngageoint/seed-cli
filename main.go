@@ -78,7 +78,10 @@ func main() {
 	if validateCmd.Parsed() {
 		schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		commands.Validate(schemaFile, dir)
+		err := commands.Validate(schemaFile, dir)
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
@@ -89,7 +92,10 @@ func main() {
 		filter := searchCmd.Lookup(constants.FilterFlag).Value.String()
 		username := searchCmd.Lookup(constants.UserFlag).Value.String()
 		password := searchCmd.Lookup(constants.PassFlag).Value.String()
-		commands.DockerSearch(url, org, filter, username, password)
+		err := commands.DockerSearch(url, org, filter, username, password)
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
@@ -98,14 +104,20 @@ func main() {
 
 	// seed list: Lists all seed compliant images on (default) local machine
 	if listCmd.Parsed() {
-		commands.DockerList()
+		_, err := commands.DockerList()
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		commands.DockerBuild(jobDirectory)
+		err := commands.DockerBuild(jobDirectory)
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
@@ -118,7 +130,10 @@ func main() {
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
-		commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
+		err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
@@ -139,8 +154,11 @@ func main() {
 		increaseAlgMajor := publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
 			constants.TrueString
 
-		commands.DockerPublish(origImg, registry, org, jobDirectory, deconflict,
+		err := commands.DockerPublish(origImg, registry, org, jobDirectory, deconflict,
 			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
+		if err != nil {
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 }

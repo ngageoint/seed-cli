@@ -188,53 +188,34 @@ func TestDefineResources(t *testing.T) {
 	}
 }
 
-/*
+
 func TestDefineSettings(t *testing.T) {
 	cases := []struct {
-		filename         string
-		expected         string
+		seedFileName     string
+		settings           []string
+		expectedSet      string
+		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
-		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
+		{"../examples/addition-algorithm/seed.manifest.json",
+			[]string{"SETTING_ONE=One", "SETTING_TWO=two"},
+			"[-e SETTING_ONE=One -e SETTING_TWO=two]", true, ""},
+		{"../examples/extractor/seed.manifest.json",
+			[]string{"HELLO=Hello"},"[-e HELLO=Hello]", true, ""},
 	}
 
 	for _, c := range cases {
-
-		seedFileName := util.GetFullPath(c.filename, "")
-		// retrieve seed from seed manifest
+		seedFileName := util.GetFullPath(c.seedFileName, "")
 		seed := objects.SeedFromManifestFile(seedFileName)
+		settings, err := DefineSettings(&seed, c.settings)
 
-		// Retrieve docker image name
-		imageName := objects.BuildImageName(&seed)
+		if c.expected != (err == nil) {
+			t.Errorf("DefineSettings(%q, %q) == %v, expected %v", seedFileName, c.settings, err, nil)
+		}
 
-		if imageName != c.expected {
-			t.Errorf("BuildImageName(%q) == %v, expected %v", seedFileName, imageName, c.expected)
+		tempStr := fmt.Sprintf("%v", settings)
+		if c.expectedSet != tempStr {
+			t.Errorf("DefineSettings(%q, %q) == \n%v, expected \n%v", seedFileName, c.settings, tempStr, c.expectedSet)
 		}
 	}
 }
-
-func TestCheckRunOutput(t *testing.T) {
-	cases := []struct {
-		filename         string
-		expected         string
-		expectedErrorMsg string
-	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
-		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
-	}
-
-	for _, c := range cases {
-
-		seedFileName := util.GetFullPath(c.filename, "")
-		// retrieve seed from seed manifest
-		seed := objects.SeedFromManifestFile(seedFileName)
-
-		// Retrieve docker image name
-		imageName := objects.BuildImageName(&seed)
-
-		if imageName != c.expected {
-			t.Errorf("BuildImageName(%q) == %v, expected %v", seedFileName, imageName, c.expected)
-		}
-	}
-}*/
