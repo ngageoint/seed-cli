@@ -508,7 +508,11 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 					matchList = append(matchList, "\t"+match+"\n")
 					metadata := match + ".metadata.json"
 					if _, err := os.Stat(metadata); err == nil {
-						err := ValidateSeedFile(util.GetFullPath(metadataSchema, ""), metadata, constants.SchemaMetadata)
+						schema := metadataSchema
+						if schema != "" {
+							schema = util.GetFullPath(schema, "")
+						}
+						err := ValidateSeedFile(schema, metadata, constants.SchemaMetadata)
 						if err != nil {
 							fmt.Fprintf(os.Stderr, "ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}
