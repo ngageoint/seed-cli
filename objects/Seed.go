@@ -27,9 +27,9 @@ type Job struct {
 	Tags             []string   `json:"tags,omitempty"`
 	Maintainer       Maintainer `json:"maintainer"`
 	Timeout          int        `json:"timeout,omitempty"`
-	Interface        Interface  `json:"interface"`
+	Interface        Interface  `json:"interface,omitempty"`
 	Resources        Resources  `json:"resources,omitempty"`
-	ErrorMapping     []ErrorMap `json:"errorMapping,omitempty"`
+	Errors           []ErrorMap `json:"errors,omitempty"`
 }
 
 type Maintainer struct {
@@ -41,11 +41,11 @@ type Maintainer struct {
 }
 
 type Interface struct {
-	Cmd        string     `json:"cmd"`
-	InputData  InputData  `json:"inputData,omitempty"`
-	OutputData OutputData `json:"outputData,omitempty"`
-	Mounts     []Mount    `json:"mounts,omitempty"`
-	Settings   []Setting  `json:"settings,omitempty"`
+	Command  string     `json:"command"`
+	Inputs   InputData  `json:"inputs,omitempty"`
+	Outputs  OutputData `json:"outputs,omitempty"`
+	Mounts   []Mount    `json:"mounts,omitempty"`
+	Settings []Setting  `json:"settings,omitempty"`
 }
 
 type Resources struct {

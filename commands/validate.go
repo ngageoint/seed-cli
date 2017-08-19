@@ -100,6 +100,14 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 
+	//skip resource and name collision checking for metadata files
+	if schemaType != constants.SchemaManifest {
+		if buffer.String() != "" {
+			return errors.New(buffer.String())
+		}
+		return nil
+	}
+
 	recommendedResources := []string{"mem", "cpu", "disk"}
 	if seed.Job.Resources.Scalar != nil {
 		for _, s := range seed.Job.Resources.Scalar {
