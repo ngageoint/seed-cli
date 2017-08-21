@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
 	"github.com/ngageoint/seed-cli/constants"
 )
 
@@ -71,7 +72,7 @@ func SeedFileName(dir string) (string, error) {
 	if os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
 			seedFileName)
-		fmt.Println(os.Stderr, "Make sure you have specified the correct directory")
+		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
 	}
 
 	return seedFileName, err
