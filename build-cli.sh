@@ -29,7 +29,7 @@ echo Building example images....................................................
 SEED=""
 UNAME=$(uname -s)
 case "${UNAME}" in
-    Linux*)     SEED=output/seed-linux-amd64;;
+    Linux*)     SEED=output/seed-linux-amd64; SUDO=sudo;;
     Darwin*)    SEED=output/seed-darwin-amd64;;
     CYGWIN*)    SEED=output/seed-windows-amd64;;
     *)          SEED="UNKNOWN:${UNAME}"
@@ -40,10 +40,10 @@ ${SEED} build -d examples/extractor/
 echo Finished building example images.................................................................
 
 echo Running example images...........................................................................
-sudo ${SEED} run -in addition-algorithm-0.0.1-seed:1.0.0 -i INPUT_FILE=examples/addition-algorithm/inputs.txt -rm -m MOUNT_BIN=testdata/complete/ -m MOUNT_TMP=testdata/ -e SETTING_ONE=one -e SETTING_TWO=two -o temp
+${SUDO} ${SEED} run -in addition-algorithm-0.0.1-seed:1.0.0 -i INPUT_FILE=examples/addition-algorithm/inputs.txt -rm -m MOUNT_BIN=testdata/complete/ -m MOUNT_TMP=testdata/ -e SETTING_ONE=one -e SETTING_TWO=two -o temp
 echo ...
 echo ...
-sudo ${SEED} run -in extractor-0.1.0-seed:0.1.0 -i ZIP=testdata/seed-scale.zip -i MULTIPLE=examples/extractor/seed.manifest.json -i MULTIPLE=examples/extractor/results_manifest.json -rm -m MOUNTAIN=testdata/complete/ -e HELLO=Hello -o temp
+${SUDO} ${SEED} run -in extractor-0.1.0-seed:0.1.0 -i ZIP=testdata/seed-scale.zip -i MULTIPLE=examples/extractor/seed.manifest.json -i MULTIPLE=examples/extractor/results_manifest.json -rm -m MOUNTAIN=testdata/complete/ -e HELLO=Hello -o temp
 echo Finished running example images..................................................................
 
 popd >/dev/null
