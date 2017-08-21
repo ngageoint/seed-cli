@@ -53,12 +53,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
-	"strings"
 )
 
 var buildCmd *flag.FlagSet
@@ -71,6 +71,10 @@ var versionCmd *flag.FlagSet
 var version string
 
 func main() {
+	// Handles any panics/actual exits. Ensures deferred functions are called
+	// before program exit.
+	defer util.HandleExit()
+
 	// Parse input flags
 	DefineFlags()
 
@@ -80,9 +84,9 @@ func main() {
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		err := commands.Validate(schemaFile, dir)
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	// seed search: Searches registry for seed images. Does not require docker
@@ -94,9 +98,9 @@ func main() {
 		password := searchCmd.Lookup(constants.PassFlag).Value.String()
 		err := commands.DockerSearch(url, org, filter, username, password)
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	// Checks if Docker requires sudo access. Prints error message if so.
@@ -106,9 +110,9 @@ func main() {
 	if listCmd.Parsed() {
 		_, err := commands.DockerList()
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	// seed build: Build Docker image
@@ -116,9 +120,9 @@ func main() {
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		err := commands.DockerBuild(jobDirectory)
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	// seed run: Runs docker image provided or found in seed manifest
@@ -132,9 +136,9 @@ func main() {
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
 		err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	// seed publish: Publishes a seed compliant image
@@ -157,9 +161,9 @@ func main() {
 		err := commands.DockerPublish(origImg, registry, org, jobDirectory, deconflict,
 			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
 		if err != nil {
-			os.Exit(1)
+			panic(util.Exit{1})
 		}
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 }
 
@@ -390,7 +394,7 @@ func DefineFlags() {
 	default:
 		fmt.Fprintf(os.Stderr, "%q is not a valid command.\n", os.Args[1])
 		PrintUsage()
-		os.Exit(0)
+		panic(util.Exit{0})
 	}
 
 	if cmd != nil {
@@ -414,18 +418,18 @@ func PrintUsage() {
 	fmt.Fprintf(os.Stderr, "  validate\tValidates a Seed spec\n")
 	fmt.Fprintf(os.Stderr, "  version\tPrints the version of Seed spec\n")
 	fmt.Fprintf(os.Stderr, "\nRun 'seed COMMAND --help' for more information on a command.\n")
-	os.Exit(0)
+	panic(util.Exit{0})
 }
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
 	fmt.Fprintf(os.Stderr, "\nUsage:\tseed version \n")
 	fmt.Fprintf(os.Stderr, "\nOutputs the version of the Seed CLI and specification.\n")
-	os.Exit(0)
+	panic(util.Exit{0})
 }
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
 	fmt.Fprintf(os.Stderr, "Seed v%s\n", version)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

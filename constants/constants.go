@@ -85,7 +85,7 @@ const ShortOrgFlag = "o"
 const FilterFlag = "filter"
 
 //ShortFilterFlag shorthand flag that defines filter
-const ShortFilterFlag= "f"
+const ShortFilterFlag = "f"
 
 //UserFlag defines user
 const UserFlag = "user"
@@ -118,7 +118,7 @@ const AlgVersionMajor = "A"
 const SeedFileName = "seed.manifest.json"
 
 //ResultsFileManifestName defines the filename for the results_manifest file
-const ResultsFileManifestName = "results_manifest.json"
+const ResultsFileManifestName = "seed.output.manifest.json"
 
 //DefaultRegistry defines the default registry address to use when searching for images
 const DefaultRegistry = "https://hub.docker.com/v2"

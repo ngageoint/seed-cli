@@ -26,7 +26,7 @@ import (
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) error {
 
 	if imageName == "" {
-		return errors.New("ERROR: No input image specified")
+		return errors.New("ERROR: No input image specified.")
 	}
 
 	// Parse seed information off of the label
@@ -54,7 +54,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
@@ -66,7 +66,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing resources\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inResources != nil {
 			resourceArgs = append(resourceArgs, inResources...)
 			outputSize = diskSize
@@ -89,7 +89,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing settings arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inSettings != nil {
 			envArgs = append(envArgs, inSettings...)
 		}
@@ -101,7 +101,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing mount arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			os.Exit(1)
+			panic(util.Exit{1})
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 		}
@@ -138,11 +138,13 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	dockerRun.Stdout = os.Stderr
 
 	// Run docker run
+	runTime := time.Now()
 	err := dockerRun.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
 			err.Error())
 	}
+	util.TimeTrack(runTime, "INFO: "+imageName+" run")
 
 	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
@@ -452,7 +454,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
-			mem = math.Max(mem, 4.0)  //docker memory requirement must be > 4MiB
+			mem = math.Max(mem, 4.0)        //docker memory requirement must be > 4MiB
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
@@ -639,5 +641,5 @@ func PrintRunUsage() {
 		constants.RmFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

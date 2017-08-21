@@ -40,7 +40,6 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	// Check for image confliction.
 	conflict := false //TODO - Need to call seed search when implemented
 
-
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
@@ -237,5 +236,5 @@ func PrintPublishUsage() {
 		constants.AlgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
-	os.Exit(0)
+	panic(util.Exit{0})
 }

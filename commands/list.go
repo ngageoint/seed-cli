@@ -2,54 +2,48 @@ package commands
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"strings"
+
+	"github.com/ngageoint/seed-cli/util"
 )
 
-//DockerList lists all seed compliant images (ending with -seed) on the local
-//	system
+//DockerList - Simplified version of dockerlist - relies on name filter of
+//  docker images command to search for images ending in '-seed'
 func DockerList() (string, error) {
-	dCmd := exec.Command("docker", "images")
-	gCmd := exec.Command("grep", "-seed")
-	var dErr bytes.Buffer
-	dCmd.Stderr = &dErr
-	dOut, err := dCmd.StdoutPipe()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error attaching to std output pipe. %s\n",
+	cmd := exec.Command("docker", "images", "--filter=reference=*-seed*")
+	var errs, out bytes.Buffer
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = &out
+
+	// run images
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
 			err.Error())
+		return "", err
 	}
 
-	dCmd.Start()
-	if string(dErr.Bytes()) != "" {
+	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
-			string(dErr.Bytes()))
+			errs.String())
+		return "", errors.New(errs.String())
 	}
 
-	gCmd.Stdin = dOut
-	var gErr bytes.Buffer
-	gCmd.Stderr = &gErr
-
-	o, err := gCmd.Output()
-	fmt.Fprintf(os.Stderr, string(gErr.Bytes()))
-	if string(gErr.Bytes()) != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: %s\n", string(gErr.Bytes()))
+	if !strings.Contains(out.String(), "seed") {
+		fmt.Fprintf(os.Stderr, "No seed images found!\n")
+		return "", nil
 	}
-	if err != nil && err.Error() != "exit status 1" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing seed list: %s\n", err.Error())
-	}
-	if string(o) == "" {
-		fmt.Fprintf(os.Stderr, "No Seed Images found!\n")
-	} else {
-		fmt.Fprintf(os.Stderr, "%s\n", string(o))
-	}
-
-	return string(o), err
+	fmt.Fprintf(os.Stderr, "%s", out.String())
+	return out.String(), nil
 }
 
 //PrintListUsage prints the seed list usage information, then exits the program
 func PrintListUsage() {
 	fmt.Fprintf(os.Stderr, "\nUsage:\tseed list\n")
 	fmt.Fprintf(os.Stderr, "\nLists all Seed compliant docker images residing on the local system.\n")
-	os.Exit(0)
+	panic(util.Exit{0})
 }
