@@ -1,5 +1,5 @@
 {
-  "seedVersion": "SEED_VERSION",
+  "seedVersion": "0.1.0",
   "job": {
     "name": "addition-algorithm",
     "algorithmVersion": "0.0.1",
@@ -19,8 +19,8 @@
       ]
     },
     "interface": {
-      "cmd": "${INPUT_FILE} ${OUTPUT_DIR}",
-      "inputData": {
+      "command": "${INPUT_FILE} ${OUTPUT_DIR}",
+      "inputs": {
         "files": [
           {
             "name": "INPUT_FILE",
@@ -31,7 +31,7 @@
           }
         ]
       },
-      "outputData": {
+      "outputs": {
         "files": [
           {
             "name": "OUTPUT_FILE",
@@ -58,14 +58,7 @@
         ]
       }
     },
-    "resources": {
-      "scalar": [
-        { "name": "cpu", "value": 0.1 },
-        { "name": "mem", "value": 1.0 },
-        { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 }
-      ]
-    },
-    "errorMapping": [
+    "errors": [
       {
         "code": 1,
         "title": "No Input Provided",

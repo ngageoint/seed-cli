@@ -1,0 +1,6 @@
+# IDE Files
+.idea
+
+# Build / src directories
+src
+output
