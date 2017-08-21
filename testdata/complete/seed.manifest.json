@@ -6,41 +6,28 @@
     "packageVersion": "0.1.0",
     "title": "My first algorithm",
     "description": "Reads an HDF5 file and outputs two TIFF images, a CSV and manifest containing cell_count",
-    "tag": [
+    "tags": [
       "hdf5",
       "tiff",
       "csv",
       "image processing"
     ],
-    "authorName": "John Doe",
-    "authorEmail": "jdoe@example.com",
-    "authorUrl": "http://www.example.com",
-    "timeout": 3600,
-    "resources": {
-      "scalar": [
-        {
-          "name": "cpu",
-          "value": 10
-        },
-        {
-          "name": "mem",
-          "value": 10240
-        },
-        {
-          "name": "disk",
-          "value": 10,
-          "inputMultiplier": 4
-        }
-      ]
+    "maintainer": {
+      "name": "John Doe",
+      "organization": "E-corp",
+      "email": "jdoe@example.com",
+      "url": "http://www.example.com",
+      "phone": "666-555-4321"
     },
+    "timeout": 3600,
     "interface": {
-      "cmd": "${INPUT_FILE} ${JOB_OUTPUT_DIR}",
+      "cmd": "${INPUT_FILE} ${OUTPUT_DIR}",
       "inputData": {
         "files": [
           {
             "name": "INPUT_FILE",
             "required": true,
-            "mediaType": [
+            "mediaTypes": [
               "image/x-hdf5-image"
             ]
           }
@@ -70,16 +57,24 @@
       },
       "mounts": [
         {
-          "name": "MOUNT1",
+          "name": "MOUNT_PATH",
           "path": "/the/container/path",
           "mode": "ro"
         }
       ],
       "settings": [
         {
-          "name": "SETTING1",
+          "name": "DB_HOST",
           "secret": false
         }
+      ]
+    },
+    "resources": {
+      "scalar": [
+        { "name": "cpu", "value": 10.0 },
+        { "name": "mem", "value": 10240.0 },
+        { "name": "sharedMem", "value": 0.0 },
+        { "name": "disk", "value": 10.0, "inputMultiplier": 4.0 }
       ]
     },
     "errorMapping": [

@@ -6,12 +6,13 @@
         "packageVersion": "0.1.0",
         "title": "Extractor",
         "description": "Reads a zip file and extracts the contents",
-        "tag": [
+        "tags": [
             "zip"
         ],
-        "authorName": "John Doe",
-        "authorEmail": "jdoe@example.com",
-        "authorUrl": "http://www.example.com",
+        "maintainer": {
+            "name": "John Tobe",
+            "email": "jtobe@example.com"
+        },
         "timeout": 3600,
         "resources": {
             "scalar": [
@@ -28,7 +29,7 @@
                     {
                         "name": "ZIP",
                         "required": true,
-                        "mediaType": [
+                        "mediaTypes": [
                             "application/zip"
                         ]
                     },
@@ -36,7 +37,7 @@
                         "name": "MULTIPLE",
                         "required": false,
                         "multiple": true,
-                        "mediaType": [
+                        "mediaTypes": [
                             "text"
                         ]
                     }
