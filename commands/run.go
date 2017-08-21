@@ -138,11 +138,13 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	dockerRun.Stdout = os.Stderr
 
 	// Run docker run
+	runTime := time.Now()
 	err := dockerRun.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
 			err.Error())
 	}
+	util.TimeTrack(runTime, "INFO: "+imageName+" run")
 
 	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
@@ -452,7 +454,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
-			mem = math.Max(mem, 4.0)  //docker memory requirement must be > 4MiB
+			mem = math.Max(mem, 4.0)        //docker memory requirement must be > 4MiB
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
