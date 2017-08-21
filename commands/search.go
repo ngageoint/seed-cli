@@ -12,7 +12,7 @@ import (
 )
 
 //DockerSearch executes the seed search command
-func DockerSearch(url, org, filter, username, password string) {
+func DockerSearch(url, org, filter, username, password string) error {
 	_ = filter //TODO: add filter
 
 	if url == "" {
@@ -34,29 +34,29 @@ func DockerSearch(url, org, filter, username, password string) {
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
-			fmt.Println(err.Error())
-			panic(util.Exit{1})
+			fmt.Fprintf(os.Stderr, err.Error())
+			return err
 		}
 		repositories, err = hub.UserRepositories(org)
 		if err != nil {
-			fmt.Println(err.Error())
-			panic(util.Exit{1})
+			fmt.Fprintf(os.Stderr, err.Error())
+			return err
 		}
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
-			fmt.Println(err.Error())
-			panic(util.Exit{1})
+			fmt.Fprintf(os.Stderr, err.Error())
+			return err
 		}
 		repositories, err = hub.Repositories()
 		if err != nil {
-			fmt.Println(err.Error())
-			panic(util.Exit{1})
+			fmt.Fprintf(os.Stderr, err.Error())
+			return err
 		}
 	}
 	if err != nil {
-		fmt.Println(err.Error())
-		panic(util.Exit{1})
+		fmt.Fprintf(os.Stderr, err.Error())
+		return err
 	}
 
 	for _, repo := range repositories {
@@ -64,6 +64,8 @@ func DockerSearch(url, org, filter, username, password string) {
 			fmt.Println(repo)
 		}
 	}
+
+	return nil
 }
 
 //PrintSearchUsage prints the seed search usage information, then exits the program

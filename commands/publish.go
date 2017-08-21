@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,7 +19,7 @@ import (
 
 //DockerPublish executes the seed publish command
 func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
-	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) {
+	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
 
 	//1. Check names and verify it doesn't conflict
 	tag := ""
@@ -44,8 +45,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		//1. Verify we have a valid manifest (-d option or within the current directory)
 		seedFileName, err := util.SeedFileName(jobDirectory)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: no %s found in %s.\nExiting seed...\n", constants.SeedFileName, jobDirectory)
-			panic(util.Exit{1})
+			return err
 		}
 		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
@@ -94,7 +94,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		} else {
 			fmt.Fprintf(os.Stderr, "ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			panic(util.Exit{1})
+			return errors.New("Image exists and no tag deconfliction method specified.")
 		}
 
 		img = objects.BuildImageName(&seed)
@@ -106,6 +106,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing updated seed version to %s.\n%s\n",
 				seedFileName, err.Error())
+			return errors.New("Error updating seed version in manifest.")
 		}
 
 		// Build Docker image
@@ -129,7 +130,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 			fmt.Fprintf(os.Stderr, "ERROR: Error re-building image '%s':\n%s\n",
 				img, errs.String())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			panic(util.Exit{1})
+			return errors.New(errs.String())
 		}
 
 		// Set final image name to tag + image
@@ -152,8 +153,22 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		if errs.String() != "" {
 			fmt.Fprintf(os.Stderr, "ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-			panic(util.Exit{1})
+			return errors.New(errs.String())
 		}
+	}
+
+	// docker tag
+	fmt.Fprintf(os.Stderr, "INFO: Performing docker tag %s\n", img)
+	errs.Reset()
+	tagCmd := exec.Command("docker", "tag", origImg, img)
+	tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	tagCmd.Stdout = os.Stdout
+
+	// Run docker tag
+	if err := tagCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker tag. %s\n",
+			err.Error())
+		return err
 	}
 
 	// docker push
@@ -167,6 +182,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	if err := pushCmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker push. %s\n",
 			err.Error())
+		return err
 	}
 
 	// Check for errors. Exit if error occurs
@@ -174,7 +190,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		fmt.Fprintf(os.Stderr, "ERROR: Error pushing image '%s':\n%s\n", img,
 			errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		panic(util.Exit{1})
+		return errors.New(errs.String())
 	}
 
 	// docker rmi
@@ -187,6 +203,7 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	if err := rmiCmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker rmi. %s\n",
 			err.Error())
+		return err
 	}
 
 	// check for errors on stderr
@@ -194,8 +211,10 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 		fmt.Fprintf(os.Stderr, "ERROR: Error removing image '%s':\n%s\n", img,
 			errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		panic(util.Exit{1})
+		return errors.New(errs.String())
 	}
+
+	return nil
 }
 
 //PrintPublishUsage prints the seed publish usage information, then exits the program

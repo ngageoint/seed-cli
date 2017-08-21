@@ -6,15 +6,11 @@
     "packageVersion": "1.0.0",
     "title": "Number Addition",
     "description": "Adds numbers together",
-    "authorName": "Emily Smith",
-    "timeout": 10,
-    "resources": {
-      "scalar": [
-        { "name": "cpu", "value": 0.1 },
-        { "name": "mem", "value": 1.0 },
-        { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 }
-      ]
+    "maintainer": {
+      "name": "Emily Smith",
+      "email": "esmith@example.com"
     },
+    "timeout": 10,
     "interface": {
       "cmd": "${INPUT_FILE} ${OUTPUT_DIR}",
       "inputData": {
@@ -22,7 +18,7 @@
           {
             "name": "INPUT_FILE",
             "required": true,
-            "mediaType": [
+            "mediaTypes": [
               "text/plain"
             ]
           }
@@ -75,6 +71,13 @@
           "name": "SETTING_TWO",
           "secret": true
         }
+      ]
+    },
+    "resources": {
+      "scalar": [
+        { "name": "cpu", "value": 0.1 },
+        { "name": "mem", "value": 1.0 },
+        { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 }
       ]
     },
     "errorMapping": [

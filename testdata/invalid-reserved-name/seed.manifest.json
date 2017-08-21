@@ -6,7 +6,10 @@
     "packageVersion":"0.1.0",
     "title":"Duplicate names",
     "description":"Processes an input PNG and outputs watermarked PNG.",
-    "authorName":"John Doe",
+    "maintainer": {
+      "name": "John Doe",
+      "email": "jdoe@example.com"
+    },
     "timeout":30,
     "resources":{},
     "interface":{
@@ -16,7 +19,7 @@
           {
             "name": "INPUT",
             "required": true,
-            "mediaType": [
+            "mediaTypes": [
               "application/png"
             ]
           },
@@ -24,7 +27,7 @@
             "name": "INPUT",
             "required": false,
             "multiple": true,
-            "mediaType": [
+            "mediaTypes": [
               "text"
             ]
           }

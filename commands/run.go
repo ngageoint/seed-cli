@@ -23,11 +23,10 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir bool) error {
 
 	if imageName == "" {
-		fmt.Fprintf(os.Stderr, "ERROR: No input image specified.\nExiting seed...\n")
-		panic(util.Exit{1})
+		return errors.New("ERROR: No input image specified.")
 	}
 
 	// Parse seed information off of the label
@@ -50,7 +49,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	if seed.Job.Interface.InputData.Files != nil {
 		inMounts, size, temp, err := DefineInputs(&seed, inputs)
 		for _, v := range temp {
-			defer util.RemoveAll(v)
+			defer util.RemoveAllFiles(v)
 		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())
@@ -139,7 +138,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	dockerRun.Stdout = os.Stderr
 
 	// Run docker run
-	if err := dockerRun.Run(); err != nil {
+	err := dockerRun.Run()
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
 			err.Error())
 	}
@@ -148,7 +148,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
 			imageName, errs.String())
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
-		panic(util.Exit{1})
+		return errors.New(errs.String())
 	}
 
 	// Validate output against pattern
@@ -156,6 +156,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		seed.Job.Interface.OutputData.JSON != nil {
 		CheckRunOutput(&seed, outDir, metadataSchema, outputSize)
 	}
+
+	return err
 }
 
 //DefineInputs extracts the paths to any input data given by the 'run' command
@@ -172,7 +174,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Input files should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
@@ -220,7 +222,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	}
 
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Input files should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
@@ -333,19 +335,19 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 	return outdir
 }
 
-//DefineMounts defines any seed specified mounts. TODO
+//DefineMounts defines any seed specified mounts.
 func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest mounts into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Mount should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for mount %v encountered.\n",
 				x)
 			continue
 		}
-		inMap[x[0]] = x[1]
+		inMap[x[0]] = util.GetFullPath(x[1], "")
 	}
 
 	// Valid by default
@@ -389,14 +391,14 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	return mounts, nil
 }
 
-//DefineSettings defines any seed specified docker settings. TODO
+//DefineSettings defines any seed specified docker settings.
 // Return []string of docker command arguments in form of:
 //	"-?? setting1=val1 -?? setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 	// Ingest inputs into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
-		x := strings.Split(f, "=")
+		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			fmt.Fprintf(os.Stderr, "ERROR: Setting should be specified in KEY=VALUE format.\n")
 			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for setting %v encountered.\n",
@@ -450,6 +452,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
+			mem = math.Max(mem, 4.0)  //docker memory requirement must be > 4MiB
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
@@ -505,7 +508,11 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 					matchList = append(matchList, "\t"+match+"\n")
 					metadata := match + ".metadata.json"
 					if _, err := os.Stat(metadata); err == nil {
-						err := ValidateSeedFile(util.GetFullPath(metadataSchema, ""), metadata, constants.SchemaMetadata)
+						schema := metadataSchema
+						if schema != "" {
+							schema = util.GetFullPath(schema, "")
+						}
+						err := ValidateSeedFile(schema, metadata, constants.SchemaMetadata)
 						if err != nil {
 							fmt.Fprintf(os.Stderr, "ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}

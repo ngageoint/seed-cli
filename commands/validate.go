@@ -100,6 +100,26 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 
+	//skip resource and name collision checking for metadata files
+	if schemaType != constants.SchemaManifest {
+		if buffer.String() != "" {
+			return errors.New(buffer.String())
+		}
+		return nil
+	}
+
+	recommendedResources := []string{"mem", "cpu", "disk"}
+	if seed.Job.Resources.Scalar != nil {
+		for _, s := range seed.Job.Resources.Scalar {
+			recommendedResources = util.RemoveString(recommendedResources, s.Name)
+		}
+	}
+	if len(recommendedResources) > 0 {
+		fmt.Fprintf(os.Stderr, "WARNING: %s does not specify some recommended resources\n", seedFileName)
+		fmt.Print("Specifying cpu, memory and disk requirements are highly recommended\n" )
+		fmt.Fprintf(os.Stderr, "The following resources are not defined: %s\n", recommendedResources)
+	}
+
 	// Grab all scalar resource names (verify none are set to OUTPUT_DIR)
 	var allocated []string
 	// var vars map[string]string

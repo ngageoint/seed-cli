@@ -24,21 +24,28 @@ type Job struct {
 	PackageVersion   string     `json:"packageVersion"`
 	Title            string     `json:"title,omitempty"`
 	Description      string     `json:"description,omitempty"`
-	AuthorName       string     `json:"authorName,omitempty"`
-	AuthorEmail      string     `json:"authorEmail,omitempty"`
-	AuthorUrl        string     `json:"authorUrl,omitempty"`
+	Tags             []string   `json:"tags,omitempty"`
+	Maintainer       Maintainer `json:"maintainer"`
 	Timeout          int        `json:"timeout,omitempty"`
+	Interface        Interface  `json:"interface,omitempty"`
 	Resources        Resources  `json:"resources,omitempty"`
-	Interface        Interface  `json:"interface"`
-	ErrorMapping     []ErrorMap `json:"errorMapping,omitempty"`
+	Errors           []ErrorMap `json:"errors,omitempty"`
+}
+
+type Maintainer struct {
+	Name         string `json:"name"`
+	Organization string `json:"organization,omitempty"`
+	Email        string `json:"email"`
+	Url          string `json:"url,omitempty"`
+	Phone        string `json:"phone,omitempty"`
 }
 
 type Interface struct {
-	Cmd        string     `json:"cmd"`
-	InputData  InputData  `json:"inputData,omitempty"`
-	OutputData OutputData `json:"outputData,omitempty"`
-	Mounts     []Mount    `json:"mounts,omitempty"`
-	Settings   []Setting  `json:"settings,omitempty"`
+	Command  string     `json:"command"`
+	Inputs   InputData  `json:"inputs,omitempty"`
+	Outputs  OutputData `json:"outputs,omitempty"`
+	Mounts   []Mount    `json:"mounts,omitempty"`
+	Settings []Setting  `json:"settings,omitempty"`
 }
 
 type Resources struct {
@@ -57,10 +64,10 @@ type InputData struct {
 }
 
 type InFile struct {
-	Name      string   `json:"name"`
-	MediaType []string `json:"mediaType"`
-	Multiple  bool     `json:"multiple"`
-	Required  bool     `json:"required"`
+	Name       string   `json:"name"`
+	MediaTypes []string `json:"mediaTypes"`
+	Multiple   bool     `json:"multiple"`
+	Required   bool     `json:"required"`
 }
 
 func (o *InFile) UnmarshalJSON(b []byte) error {
@@ -210,10 +217,10 @@ func SeedFromImageLabel(imageName string) Seed {
 		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
 		imageName)
 
-	inspctCmd := exec.Command("docker", "inspect", "-f",
+	inspectCmd := exec.Command("docker", "inspect", "-f",
 		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
 
-	errPipe, errr := inspctCmd.StderrPipe()
+	errPipe, errr := inspectCmd.StderrPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stderr. %s\n",
@@ -221,7 +228,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Attach stdout pipe
-	outPipe, errr := inspctCmd.StdoutPipe()
+	outPipe, errr := inspectCmd.StdoutPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stdout. %s\n",
@@ -229,7 +236,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Run docker inspect
-	if err := inspctCmd.Start(); err != nil {
+	if err := inspectCmd.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker %s. %s\n", cmdStr,
 			err.Error())
 	}
