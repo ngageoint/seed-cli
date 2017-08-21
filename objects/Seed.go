@@ -41,11 +41,11 @@ type Maintainer struct {
 }
 
 type Interface struct {
-	Command  string     `json:"command"`
-	Inputs   InputData  `json:"inputs,omitempty"`
-	Outputs  OutputData `json:"outputs,omitempty"`
-	Mounts   []Mount    `json:"mounts,omitempty"`
-	Settings []Setting  `json:"settings,omitempty"`
+	Command  string    `json:"command"`
+	Inputs   Inputs    `json:"inputs,omitempty"`
+	Outputs  Outputs   `json:"outputs,omitempty"`
+	Mounts   []Mount   `json:"mounts,omitempty"`
+	Settings []Setting `json:"settings,omitempty"`
 }
 
 type Resources struct {
@@ -58,7 +58,7 @@ type Scalar struct {
 	InputMultiplier float64 `json:"inputMultiplier"`
 }
 
-type InputData struct {
+type Inputs struct {
 	Files []InFile `json:"files,ommitempty"`
 	Json  []InJson `json:"json,omitempty"`
 }
@@ -96,7 +96,7 @@ func (o *InJson) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type OutputData struct {
+type Outputs struct {
 	Files []OutFile `json:"files,omitempty"`
 	JSON  []OutJson `json:"json,omitempty"`
 }
@@ -217,10 +217,10 @@ func SeedFromImageLabel(imageName string) Seed {
 		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
 		imageName)
 
-	inspectCmd := exec.Command("docker", "inspect", "-f",
+	inspectCommand := exec.Command("docker", "inspect", "-f",
 		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
 
-	errPipe, errr := inspectCmd.StderrPipe()
+	errPipe, errr := inspectCommand.StderrPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stderr. %s\n",
@@ -228,7 +228,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Attach stdout pipe
-	outPipe, errr := inspectCmd.StdoutPipe()
+	outPipe, errr := inspectCommand.StdoutPipe()
 	if errr != nil {
 		fmt.Fprintf(os.Stderr,
 			"ERROR: error attaching to docker inspect command stdout. %s\n",
@@ -236,7 +236,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	}
 
 	// Run docker inspect
-	if err := inspectCmd.Start(); err != nil {
+	if err := inspectCommand.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: error executing docker %s. %s\n", cmdStr,
 			err.Error())
 	}

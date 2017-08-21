@@ -18,7 +18,7 @@ func TestValidate(t *testing.T) {
 		{"../examples/extractor/seed.manifest.json", true, ""},
 		{"../testdata/invalid-missing-job/seed.manifest.json",
 			false, "job is required"},
-		{"../testdata/invalid-missing-job-interface-inputdata-files-name/seed.manifest.json",
+		{"../testdata/invalid-missing-job-interface-inputs-files-name/seed.manifest.json",
 			false, "name is required"},
 		{"../testdata/invalid-reserved-name/seed.manifest.json",
 			false, "Multiple Name values are assigned the same INPUT Name value. Each Name value must be unique."},

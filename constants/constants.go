@@ -42,11 +42,11 @@ const MountFlag = "mount"
 //ShortMountFlag defines the shorthand MountFlag
 const ShortMountFlag = "m"
 
-//InputDataFlag defines the InputDataFlag
-const InputDataFlag = "inputData"
+//InputsFlag defines the InputFlag
+const InputsFlag = "inputs"
 
-//ShortInputDataFlag defines the shorthand input data flag
-const ShortInputDataFlag = "i"
+//ShortInputsFlag defines the shorthand input flag
+const ShortInputsFlag = "i"
 
 //JobOutputDirFlag defines the job output directory
 const JobOutputDirFlag = "outDir"
