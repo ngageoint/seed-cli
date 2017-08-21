@@ -11,6 +11,13 @@
       "email": "esmith@example.com"
     },
     "timeout": 10,
+    "resources": {
+      "scalar": [
+        { "name": "cpu", "value": 0.1 },
+        { "name": "mem", "value": 4.0 },
+        { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 }
+      ]
+    },
     "interface": {
       "cmd": "${INPUT_FILE} ${OUTPUT_DIR}",
       "inputData": {
@@ -49,29 +56,7 @@
             "type": "integer"
           }
         ]
-      },
-      "mounts": [
-        {
-          "name": "MOUNT_BIN",
-          "path": "/usr/bin/",
-          "mode": "ro"
-        },
-        {
-          "name": "MOUNT_TMP",
-          "path": "/tmp/",
-          "mode": "rw"
-        }
-      ],
-      "settings": [
-        {
-          "name": "SETTING_ONE",
-          "secret": false
-        },
-        {
-          "name": "SETTING_TWO",
-          "secret": true
-        }
-      ]
+      }
     },
     "resources": {
       "scalar": [

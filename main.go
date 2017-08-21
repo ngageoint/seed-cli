@@ -54,7 +54,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/constants"
@@ -73,7 +72,7 @@ var version string
 
 func main() {
 	// Handles any panics/actual exits. Ensures deferred functions are called
-  // before program exit.
+	// before program exit.
 	defer util.HandleExit()
 
 	// Parse input flags
@@ -123,7 +122,7 @@ func main() {
 		if err != nil {
 			panic(util.Exit{1})
 		}
-    panic(util.Exit{0})
+		panic(util.Exit{0})
 	}
 
 	// seed run: Runs docker image provided or found in seed manifest
@@ -139,7 +138,7 @@ func main() {
 		if err != nil {
 			panic(util.Exit{1})
 		}
-    panic(util.Exit{0})
+		panic(util.Exit{0})
 	}
 
 	// seed publish: Publishes a seed compliant image
