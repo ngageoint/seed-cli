@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-
-	"github.com/ngageoint/seed-cli/util"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -104,10 +102,12 @@ func ImageExists(imageName string) (bool, error) {
 	return true, nil
 }
 
+//ImageCpuUsage displays CPU usage of image
 func ImageCpuUsage(imageName string) {
 
 }
 
+//ImageMemoryUsage displays memory usage of image
 func ImageMemoryUsage(imageName string) {
 
 }
