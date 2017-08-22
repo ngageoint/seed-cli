@@ -202,7 +202,7 @@ func DefineBuildFlags() {
 //DefineInitFlags defines the flags for the seed init command
 func DefineInitFlags() {
 	// build command flags
-	initCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	initCmd = flag.NewFlagSet(constants.InitCommand, flag.ContinueOnError)
 	var directory string
 	initCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Directory to place example seed.manifest.json (default is current directory).")
