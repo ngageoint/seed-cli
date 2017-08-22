@@ -50,7 +50,7 @@ func GetFullPath(rFile, directory string) string {
 
 //GetSeedFileName Finds and returns the full filepath to the seed.manifest.json
 // The second return value indicates whether it exists or not.
-func GetSeedFileName(dir string) (string, bool) {
+func GetSeedFileName(dir string) (string, bool, error) {
 	// Define the current working directory
 	curDirectory, _ := os.Getwd()
 
