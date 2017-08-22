@@ -34,8 +34,8 @@ case "${UNAME}" in
     CYGWIN*)    SEED=output/seed-windows-amd64;;
     *)          SEED="UNKNOWN:${UNAME}"
 esac
-${SEED} build -d examples/addition-algorithm/
-${SEED} build -d examples/extractor/
+${SUDO} ${SEED} build -d examples/addition-algorithm/
+${SUDO} ${SEED} build -d examples/extractor/
 
 echo Finished building example images.................................................................
 
