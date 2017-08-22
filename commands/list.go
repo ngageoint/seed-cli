@@ -15,13 +15,37 @@ import (
 //DockerList - Simplified version of dockerlist - relies on name filter of
 //  docker images command to search for images ending in '-seed'
 func DockerList() (string, error) {
-	cmd := exec.Command("docker", "images", "--filter=reference=*-seed*")
 	var errs, out bytes.Buffer
+	var cmd *exec.Cmd
+	reference := util.DockerVersionHasReferenceFilter()
+	if reference {
+		cmd = exec.Command("docker", "images", "--filter=reference=*-seed*")
+	} else {
+		dCmd := exec.Command("docker", "images")
+		cmd = exec.Command("grep", "-seed")
+		var dErr bytes.Buffer
+		dCmd.Stderr = &dErr
+		dOut, err := dCmd.StdoutPipe()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error attaching to std output pipe. %s\n",
+				err.Error())
+		}
+
+		dCmd.Start()
+		if string(dErr.Bytes()) != "" {
+			fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+				string(dErr.Bytes()))
+		}
+
+		cmd.Stdin = dOut
+	}
+
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	cmd.Stdout = &out
 
 	// run images
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	if reference && err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
 			err.Error())
 		return "", err

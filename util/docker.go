@@ -39,6 +39,16 @@ func CheckSudo() {
 
 //DockerVersionHasLabel returns if the docker version is greater than 1.11.1
 func DockerVersionHasLabel() bool {
+	return DockerVersionGreaterThan(1, 11, 1)
+}
+
+//DockerVersionHasLabel returns if the docker version is greater than 1.13.0
+func DockerVersionHasReferenceFilter() bool {
+	return DockerVersionGreaterThan(1, 13, 0)
+}
+
+//DockerVersionGreaterThan returns if the docker version is greater than the specified version
+func DockerVersionGreaterThan(major, minor, patch int) bool {
 	cmd := exec.Command("docker", "version", "-f", "{{.Client.Version}}")
 
 	// Attach stdout pipe
@@ -65,16 +75,16 @@ func DockerVersionHasLabel() bool {
 			v2, _ := strconv.Atoi(version[1])
 
 			// check for minimum of 1.11.1
-			if v1 == 1 {
-				if v2 > 11 {
+			if v1 == major {
+				if v2 > minor {
 					return true
-				} else if v2 == 11 && len(version) == 3 {
+				} else if v2 == minor && len(version) == 3 {
 					v3, _ := strconv.Atoi(version[2])
-					if v3 >= 1 {
+					if v3 >= patch {
 						return true
 					}
 				}
-			} else if v1 > 1 {
+			} else if v1 > major {
 				return true
 			}
 
