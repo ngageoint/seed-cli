@@ -1,13 +1,10 @@
 package commands
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/util"
