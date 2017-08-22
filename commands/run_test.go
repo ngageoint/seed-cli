@@ -189,11 +189,10 @@ func TestDefineResources(t *testing.T) {
 	}
 }
 
-
 func TestDefineSettings(t *testing.T) {
 	cases := []struct {
 		seedFileName     string
-		settings           []string
+		settings         []string
 		expectedSet      string
 		expected         bool
 		expectedErrorMsg string
@@ -202,7 +201,7 @@ func TestDefineSettings(t *testing.T) {
 			[]string{"SETTING_ONE=One", "SETTING_TWO=two"},
 			"[-e SETTING_ONE=One -e SETTING_TWO=two]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			[]string{"HELLO=Hello"},"[-e HELLO=Hello]", true, ""},
+			[]string{"HELLO=Hello"}, "[-e HELLO=Hello]", true, ""},
 	}
 
 	for _, c := range cases {
