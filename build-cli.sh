@@ -15,7 +15,7 @@ then
 fi
 
 
-vendor/go-bindata -pkg constants -o constants/jsonschema.go ./schema/0.1.0/
+vendor/go-bindata -pkg constants -o constants/assets.go ./schema/0.1.0/
 echo Building cross platform Seed CLI.
 echo Building for Linux...
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags "-X main.version=$VERSION -extldflags=\"-static\"" -o output/seed-linux-amd64

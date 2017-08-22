@@ -4,3 +4,7 @@
 # Build / src directories
 src
 output
+
+# Generated assets
+constants/assets.go
+
