@@ -56,7 +56,29 @@
             "type": "integer"
           }
         ]
-      }
+      },
+      "mounts": [
+        {
+          "name": "MOUNT_BIN",
+          "path": "/usr/bin/",
+          "mode": "ro"
+        },
+        {
+          "name": "MOUNT_TMP",
+          "path": "/tmp/",
+          "mode": "rw"
+        }
+      ],
+      "settings": [
+        {
+          "name": "SETTING_ONE",
+          "secret": false
+        },
+        {
+          "name": "SETTING_TWO",
+          "secret": true
+        }
+      ]
     },
     "errors": [
       {
