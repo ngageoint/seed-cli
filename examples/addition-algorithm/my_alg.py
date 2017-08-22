@@ -25,7 +25,7 @@ def runAlgorithm(x, y, outputDir):
 
     # write to seed manifest
     if not outputDir == "":
-        target = open(os.path.join(outputDir, "results_manifest.json"), 'a')
+        target = open(os.path.join(outputDir, "seed.outputs.json"), 'a')
         target.write("\"x\": " + str(x) + ",\n")
         target.write("\"y\": " + str(y) + ",\n")
         target.write("\"total\": " + str(z))
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     inputs = input_obj.readlines()
 
     if not outputStr == "":
-        fname = os.path.join(outputStr, "results_manifest.json")
+        fname = os.path.join(outputStr, "seed.outputs.json")
         if os.path.exists(fname):
             target = open(fname, 'w')
         else:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
             target.close()
 
     if not outputStr == "":
-        target = open(os.path.join(outputStr, "results_manifest.json"), 'a')
+        target = open(os.path.join(outputStr, "seed.outputs.json"), 'a')
         target.write("}")
         target.close
 

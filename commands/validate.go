@@ -70,9 +70,10 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		schemaBytes, _ := constants.Asset("schema/seed.manifest.schema.json")
+		// TODO: We need to support validation of all supported schema versions in the future
+		schemaBytes, _ := constants.Asset("schema/0.1.0/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("schema/seed.metadata.schema.json")
+			schemaBytes, _ = constants.Asset("schema/0.1.0/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
@@ -116,7 +117,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	}
 	if len(recommendedResources) > 0 {
 		fmt.Fprintf(os.Stderr, "WARNING: %s does not specify some recommended resources\n", seedFileName)
-		fmt.Print("Specifying cpu, memory and disk requirements are highly recommended\n" )
+		fmt.Print("Specifying cpu, memory and disk requirements are highly recommended\n")
 		fmt.Fprintf(os.Stderr, "The following resources are not defined: %s\n", recommendedResources)
 	}
 
@@ -137,31 +138,31 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		}
 	}
 
-	if seed.Job.Interface.InputData.Files != nil {
-		for _, f := range seed.Job.Interface.InputData.Files {
+	if seed.Job.Interface.Inputs.Files != nil {
+		for _, f := range seed.Job.Interface.Inputs.Files {
 			// check against the ALLOCATED_* and OUTPUT_DIR
 			if util.IsReserved(f.Name, allocated) {
-				buffer.WriteString("ERROR: job.interface.inputData.files Name " +
+				buffer.WriteString("ERROR: job.interface.inputs.files Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			util.IsInUse(f.Name, "job.interface.inputData.files", vars)
+			util.IsInUse(f.Name, "job.interface.inputs.files", vars)
 		}
 	}
 
-	if seed.Job.Interface.InputData.Json != nil {
-		for _, f := range seed.Job.Interface.InputData.Json {
+	if seed.Job.Interface.Inputs.Json != nil {
+		for _, f := range seed.Job.Interface.Inputs.Json {
 			if util.IsReserved(f.Name, allocated) {
-				buffer.WriteString("ERROR: job.interface.inputData.json Name " +
+				buffer.WriteString("ERROR: job.interface.inputs.json Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
-			util.IsInUse(f.Name, "job.interface.inputData.json", vars)
+			util.IsInUse(f.Name, "job.interface.inputs.json", vars)
 		}
 	}
 
-	if seed.Job.Interface.OutputData.Files != nil {
-		for _, f := range seed.Job.Interface.OutputData.Files {
+	if seed.Job.Interface.Outputs.Files != nil {
+		for _, f := range seed.Job.Interface.Outputs.Files {
 			// check against the ALLOCATED_* and OUTPUT_DIR
 			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.outputData.files Name " +
@@ -171,8 +172,8 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		}
 	}
 
-	if seed.Job.Interface.OutputData.JSON != nil {
-		for _, f := range seed.Job.Interface.OutputData.JSON {
+	if seed.Job.Interface.Outputs.JSON != nil {
+		for _, f := range seed.Job.Interface.Outputs.JSON {
 			// check against the ALLOCATED_* and OUTPUT_DIR
 			if util.IsReserved(f.Name, allocated) {
 				buffer.WriteString("ERROR: job.interface.outputData.json Name " +

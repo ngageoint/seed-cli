@@ -45,14 +45,14 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	var inputSize float64
 	var outputSize float64
 
-	// expand INPUT_FILEs to specified inputData files
-	if seed.Job.Interface.InputData.Files != nil {
+	// expand INPUT_FILEs to specified Inputs files
+	if seed.Job.Interface.Inputs.Files != nil {
 		inMounts, size, temp, err := DefineInputs(&seed, inputs)
 		for _, v := range temp {
 			defer util.RemoveAllFiles(v)
 		}
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())
+			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputs arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 			panic(util.Exit{1})
 		} else if inMounts != nil {
@@ -75,7 +75,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 
 	// mount the JOB_OUTPUT_DIR (outDir flag)
 	var outDir string
-	if strings.Contains(seed.Job.Interface.Cmd, "OUTPUT_DIR") {
+	if strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
 		outDir = SetOutputDir(imageName, &seed, outputDir)
 		if outDir != "" {
 			mountsArgs = append(mountsArgs, "-v")
@@ -113,14 +113,14 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	//		env injection
 	// 		all mounts
 	//		image name
-	//		Job.Interface.Cmd
+	//		Job.Interface.Command
 	dockerArgs = append(dockerArgs, mountsArgs...)
 	dockerArgs = append(dockerArgs, envArgs...)
 	dockerArgs = append(dockerArgs, resourceArgs...)
 	dockerArgs = append(dockerArgs, imageName)
 
-	// Parse out command arguments from seed.Job.Interface.Cmd
-	args := strings.Split(seed.Job.Interface.Cmd, " ")
+	// Parse out command arguments from seed.Job.Interface.Command
+	args := strings.Split(seed.Job.Interface.Command, " ")
 	dockerArgs = append(dockerArgs, args...)
 
 	// Run
@@ -154,8 +154,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	}
 
 	// Validate output against pattern
-	if seed.Job.Interface.OutputData.Files != nil ||
-		seed.Job.Interface.OutputData.JSON != nil {
+	if seed.Job.Interface.Outputs.Files != nil ||
+		seed.Job.Interface.Outputs.JSON != nil {
 		CheckRunOutput(&seed, outDir, metadataSchema, outputSize)
 	}
 
@@ -163,7 +163,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 }
 
 //DefineInputs extracts the paths to any input data given by the 'run' command
-// flags 'inputData' and sets the path in the json object. Returns:
+// flags 'inputs' and sets the path in the json object. Returns:
 // 	[]string: docker command args for input files in the format:
 //	"-v /path/to/file1:/path/to/file1 -v /path/to/file2:/path/to/file2 etc"
 func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[string]string, error) {
@@ -192,7 +192,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	var unrequired []string
 	var tempDirectories map[string]string
 	tempDirectories = make(map[string]string)
-	for _, f := range seed.Job.Interface.InputData.Files {
+	for _, f := range seed.Job.Interface.Inputs.Files {
 		if f.Multiple {
 			tempDir := "temp-" + time.Now().Format(time.RFC3339)
 			tempDir = strings.Replace(tempDir, ":", "_", -1)
@@ -251,14 +251,14 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		if directory, ok := tempDirectories[key]; ok {
 			value = directory //replace with the temp directory if multiple files
 		}
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 			"${"+key+"}", value, -1)
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd, "$"+key,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd, key, value,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
 			-1)
 
-		for _, k := range seed.Job.Interface.InputData.Files {
+		for _, k := range seed.Job.Interface.Inputs.Files {
 			if k.Name == key {
 				if k.Multiple {
 					//directory has already been added to mount args, just link file into that directory
@@ -275,11 +275,11 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	for _, k := range unrequired {
 		key := k
 		value := ""
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 			"${"+key+"}", value, -1)
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd, "$"+key,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd, key, value,
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
 			-1)
 	}
 
@@ -289,7 +289,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
 func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string {
-	if !strings.Contains(seed.Job.Interface.Cmd, "OUTPUT_DIR") {
+	if !strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
 		return ""
 	}
 
@@ -330,9 +330,9 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 		os.Mkdir(outdir, os.ModePerm)
 	}
 
-	seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd,
+	seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 		"$OUTPUT_DIR", outdir, -1)
-	seed.Job.Interface.Cmd = strings.Replace(seed.Job.Interface.Cmd,
+	seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 		"${OUTPUT_DIR}", outdir, -1)
 	return outdir
 }
@@ -469,10 +469,10 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 }
 
 //CheckRunOutput validates the output of the docker run command. Output data is
-// validated as defined in the seed.Job.Interface.OutputData.
+// validated as defined in the seed.Job.Interface.Outputs.
 func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit float64) {
-	// Validate any OutputData.Files
-	if seed.Job.Interface.OutputData.Files != nil {
+	// Validate any Outputs.Files
+	if seed.Job.Interface.Outputs.Files != nil {
 		fmt.Fprintf(os.Stderr, "INFO: Validating output files found under %s...\n",
 			outDir)
 
@@ -490,11 +490,11 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 			fmt.Fprintf(os.Stderr, "ERROR: Output directory exceeds disk space limit (%f MiB vs. %f MiB)\n", sizeMB, diskLimit)
 		}
 
-		// For each defined OutputData file:
+		// For each defined Outputs file:
 		//	#1 Check file media type
 		// 	#2 Check file names match output pattern
 		//  #3 Check number of files (if defined)
-		for _, f := range seed.Job.Interface.OutputData.Files {
+		for _, f := range seed.Job.Interface.Outputs.Files {
 			// find all pattern matches in OUTPUT_DIR
 			matches, _ := filepath.Glob(path.Join(outDir, f.Pattern))
 
@@ -544,10 +544,10 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		}
 	}
 
-	// Validate any defined OutputData.Json
+	// Validate any defined Outputs.Json
 	// Look for ResultsFileManifestName.json in the root of the OUTPUT_DIR
-	// and then validate any keys identified in OutputData exist
-	if seed.Job.Interface.OutputData.JSON != nil {
+	// and then validate any keys identified in Outputs exist
+	if seed.Job.Interface.Outputs.JSON != nil {
 		fmt.Fprintf(os.Stderr, "INFO: Validating %s...\n",
 			filepath.Join(outDir, constants.ResultsFileManifestName))
 		// look for results manifest
@@ -578,8 +578,8 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		schema := ""
 		required := ""
 
-		// Loop through defined name/key values to extract from results_manifest.json
-		for _, jsonStr := range seed.Job.Interface.OutputData.JSON {
+		// Loop through defined name/key values to extract from seed.outputs.json
+		for _, jsonStr := range seed.Job.Interface.Outputs.JSON {
 			key := jsonStr.Name
 			if jsonStr.Key != "" {
 				key = jsonStr.Key
@@ -630,7 +630,7 @@ func PrintRunUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
-		constants.ShortInputDataFlag, constants.InputDataFlag)
+		constants.ShortInputsFlag, constants.InputsFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",

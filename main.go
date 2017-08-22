@@ -15,13 +15,13 @@ usage is as folllows:
 
 	seed run [OPTIONS]
 		Options:
-		-i, -inputData  The input data. May be multiple -id flags defined
-										(seedfile: Job.Interface.InputData.Files)
+		-i, -inputs  The input data. May be multiple -id flags defined
+										(seedfile: Job.Interface.Inputs.Files)
 		-in, -imageName The name of the Docker image to run (overrides image name
 										pulled from seed spec)
 		-o, -outDir			The job output directory. Output defined in
-										seedfile: Job.Interface.OutputData.Files and
-										Job.Interface.OutputData.Json will be stored relative to
+										seedfile: Job.Interface.Outputs.Files and
+										Job.Interface.Outputs.Json will be stored relative to
 										this directory.
 		-s, -schema     The Seed Metadata Schema file; Overrides built in schema to validate
 									side-car metadata files against
@@ -128,7 +128,7 @@ func main() {
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
-		inputs := strings.Split(runCmd.Lookup(constants.InputDataFlag).Value.String(), ",")
+		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
@@ -194,9 +194,9 @@ func DefineRunFlags() {
 		"Name of Docker image to run")
 
 	var inputs objects.ArrayFlags
-	runCmd.Var(&inputs, constants.InputDataFlag,
+	runCmd.Var(&inputs, constants.InputsFlag,
 		"Defines the full path to any input data arguments")
-	runCmd.Var(&inputs, constants.ShortInputDataFlag,
+	runCmd.Var(&inputs, constants.ShortInputsFlag,
 		"Defines the full path to input data arguments")
 
 	var settings objects.ArrayFlags

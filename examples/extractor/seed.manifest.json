@@ -1,5 +1,5 @@
 {
-    "seedVersion": "SEED_VERSION",
+    "seedVersion": "0.1.0",
     "job": {
         "name": "extractor",
         "algorithmVersion": "0.1.0",
@@ -23,8 +23,8 @@
             ]
         },
         "interface": {
-            "cmd": "${ZIP} -d ${OUTPUT_DIR} ${MULTIPLE}",
-            "inputData": {
+            "command": "${ZIP} -d ${OUTPUT_DIR} ${MULTIPLE}",
+            "inputs": {
                 "files": [
                     {
                         "name": "ZIP",
@@ -43,7 +43,7 @@
                     }
                 ]
             },
-            "outputData": {
+            "outputs": {
                 "files": [
                     {
                         "name": "output_file_tiffs",
@@ -83,7 +83,7 @@
                 }
             ]
         },
-        "errorMapping": [
+        "errors": [
             {
                 "code": 1,
                 "title": "Error Name",
