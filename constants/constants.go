@@ -118,7 +118,7 @@ const AlgVersionMajor = "A"
 const SeedFileName = "seed.manifest.json"
 
 //ResultsFileManifestName defines the filename for the results_manifest file
-const ResultsFileManifestName = "seed.output.manifest.json"
+const ResultsFileManifestName = "seed.outputs.json"
 
 //DefaultRegistry defines the default registry address to use when searching for images
 const DefaultRegistry = "https://hub.docker.com/v2"
