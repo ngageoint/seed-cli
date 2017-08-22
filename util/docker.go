@@ -32,7 +32,7 @@ func CheckSudo() {
 		if strings.Contains(er, "Cannot connect to the Docker daemon. Is the docker daemon running on this host?") ||
 			strings.Contains(er, "dial unix /var/run/docker.sock: connect: permission denied") {
 			fmt.Fprintf(os.Stderr, "Elevated permissions are required by seed to run Docker. Try running the seed command again as sudo.\n")
-			panic(util.Exit{1})
+			panic(Exit{1})
 		}
 	}
 }
