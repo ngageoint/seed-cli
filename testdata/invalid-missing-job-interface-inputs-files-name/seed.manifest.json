@@ -1,5 +1,5 @@
 {
-  "seedVersion":"SEED_VERSION",
+  "seedVersion":"0.1.0",
   "job":{
     "name":"missing-filename",
     "algorithmVersion":"0.1.0",
@@ -13,8 +13,8 @@
     "timeout":30,
     "resources":{},
     "interface":{
-      "cmd":"app/job.sh ${INPUT_IMAGE} ${JOB_OUTPUT_DIR}",
-      "inputData":{
+      "command":"app/job.sh ${INPUT_IMAGE} ${JOB_OUTPUT_DIR}",
+      "inputs":{
         "files":[
           {
             "mediaTypes":[
@@ -23,7 +23,7 @@
           }
         ]
       },
-      "outputData":{
+      "outputs":{
         "files":[
           {
             "name":"OUTPUT_IMAGE",
@@ -33,7 +33,7 @@
         ]
       }
     },
-    "errorMapping":[
+    "errors":[
       {
         "code":1,
         "title":"Image Corrupt",

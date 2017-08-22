@@ -7,6 +7,7 @@ import (
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/dockerHubRegistry"
+	"github.com/ngageoint/seed-cli/util"
 
 	"github.com/heroku/docker-registry-client/registry"
 )

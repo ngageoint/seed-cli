@@ -1,0 +1,31 @@
+sudo: required
+
+language: go
+
+services:
+  - docker
+
+before_install:
+  - if [[ "${TRAVIS_TAG}x" == "x" ]] ; then export VERSION=snapshot; else export VERSION=${TRAVIS_TAG}; fi
+
+script:
+  - ./build-cli.sh ${VERSION}
+  - go test ./...
+
+deploy:
+  # Deployment that pushes GitHub releases of software on tag
+  - provider: releases
+    api_key: "$GH_TOKEN"
+    file_glob: true
+    file: output/*
+    skip_cleanup: true
+    on:
+      tags: true
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/10070a680400c55e3baa
+    on_success: change
+    on_failure: always
+    on_start: never

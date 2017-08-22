@@ -54,18 +54,18 @@ func TestDefineInputs(t *testing.T) {
 		seedFileName     string
 		inputs           []string
 		expectedVol      string
-		expectedSize     float64
+		expectedSize     string
 		expectedTempDir  string
 		expected         bool
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-algorithm/seed.manifest.json",
 			[]string{"INPUT_FILE=../examples/addition-algorithm/inputs.txt"},
-			"[-v INPUT_FILE:INPUT_FILE]", 2.288818359375e-05,
+			"[-v INPUT_FILE:INPUT_FILE]", "0.00",
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", 0.0762338638305664,
+			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", "0.08",
 			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
 	}
 
@@ -100,8 +100,9 @@ func TestDefineInputs(t *testing.T) {
 			t.Errorf("DefineInputs(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedVol)
 		}
 
-		if c.expectedSize != size {
-			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, size, c.expectedSize)
+		sizeStr := fmt.Sprintf("%.2f", size)
+		if c.expectedSize != sizeStr {
+			t.Errorf("DefineInputs(%q, %q) == %v, expected %v", seedFileName, c.inputs, sizeStr, c.expectedSize)
 		}
 
 		tempStr = fmt.Sprintf("%v", tempDir)
@@ -160,7 +161,7 @@ func TestDefineResources(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-algorithm/seed.manifest.json",
-			4.0, "[-m 4m]", 5.0, true, ""},
+			4.0, "[-m 16m]", 5.0, true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			1.0, "[-m 16m]", 1.01, true, ""},
 		{"../examples/extractor/seed.manifest.json",

@@ -45,14 +45,14 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	var inputSize float64
 	var outputSize float64
 
-	// expand INPUT_FILEs to specified inputData files
+	// expand INPUT_FILEs to specified Inputs files
 	if seed.Job.Interface.Inputs.Files != nil {
 		inMounts, size, temp, err := DefineInputs(&seed, inputs)
 		for _, v := range temp {
 			defer util.RemoveAllFiles(v)
 		}
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputData arguments.\n%s", err.Error())
+			fmt.Fprintf(os.Stderr, "ERROR: Error occurred processing inputs arguments.\n%s", err.Error())
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 			panic(util.Exit{1})
 		} else if inMounts != nil {
@@ -163,7 +163,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 }
 
 //DefineInputs extracts the paths to any input data given by the 'run' command
-// flags 'inputData' and sets the path in the json object. Returns:
+// flags 'inputs' and sets the path in the json object. Returns:
 // 	[]string: docker command args for input files in the format:
 //	"-v /path/to/file1:/path/to/file1 -v /path/to/file2:/path/to/file2 etc"
 func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[string]string, error) {
@@ -490,7 +490,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 			fmt.Fprintf(os.Stderr, "ERROR: Output directory exceeds disk space limit (%f MiB vs. %f MiB)\n", sizeMB, diskLimit)
 		}
 
-		// For each defined OutputData file:
+		// For each defined Outputs file:
 		//	#1 Check file media type
 		// 	#2 Check file names match output pattern
 		//  #3 Check number of files (if defined)
@@ -544,9 +544,9 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		}
 	}
 
-	// Validate any defined OutputData.Json
+	// Validate any defined Outputs.Json
 	// Look for ResultsFileManifestName.json in the root of the OUTPUT_DIR
-	// and then validate any keys identified in OutputData exist
+	// and then validate any keys identified in Outputs exist
 	if seed.Job.Interface.Outputs.JSON != nil {
 		fmt.Fprintf(os.Stderr, "INFO: Validating %s...\n",
 			filepath.Join(outDir, constants.ResultsFileManifestName))
@@ -578,7 +578,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		schema := ""
 		required := ""
 
-		// Loop through defined name/key values to extract from results_manifest.json
+		// Loop through defined name/key values to extract from seed.outputs.json
 		for _, jsonStr := range seed.Job.Interface.Outputs.JSON {
 			key := jsonStr.Name
 			if jsonStr.Key != "" {
@@ -630,7 +630,7 @@ func PrintRunUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
-		constants.ShortInputDataFlag, constants.InputDataFlag)
+		constants.ShortInputsFlag, constants.InputsFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",

@@ -72,12 +72,17 @@ Allows for publish of Seed compliant images to a remote Docker registry.
 
 == Development
 
-If you wish develop on the Seed CLI, you will need an installation of Golang. There are presently no external package
-dependencies, so building the project will be as easy as:
+If you wish develop on the Seed CLI, you will need an installation of Golang 1.6+ (for vendoring support). Once you have a `GOPATH` defined, the following will allow you to clone and build the CLI project:
 
 ----
-go build -o seed
+# Clone repo and retrieve dependencies
+git clone https://github.com/ngageoint/seed-cli.git $GOPATH/src/github.com/ngageoint/seed-cli
+cd $GOPATH/src/github.com/ngageoint/seed-cli
+go get ./...
 
-# Optionally add it to your system binary folder
-go build -o /usr/local/bin/seed
+# Build binary at version 0.1.0
+./build-cli.sh 0.1.0
+
+# Optionally add it to your local system binary folder for easy execution
+cp -f output/seed-linux-amd64 /usr/local/bin/seed
 ----

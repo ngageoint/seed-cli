@@ -73,9 +73,10 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		schemaBytes, _ := constants.Asset("schema/seed.manifest.schema.json")
+		// TODO: We need to support validation of all supported schema versions in the future
+		schemaBytes, _ := constants.Asset("schema/0.1.0/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("schema/seed.metadata.schema.json")
+			schemaBytes, _ = constants.Asset("schema/0.1.0/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
@@ -155,7 +156,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	if seed.Job.Interface.Inputs.Json != nil {
 		for _, f := range seed.Job.Interface.Inputs.Json {
 			if util.IsReserved(f.Name, allocated) {
-				buffer.WriteString("ERROR: job.Interface.Inputs.json Name " +
+				buffer.WriteString("ERROR: job.interface.inputs.json Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
 
