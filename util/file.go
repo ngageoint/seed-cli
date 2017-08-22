@@ -48,8 +48,9 @@ func GetFullPath(rFile, directory string) string {
 	return rFile
 }
 
-//SeedFileName Finds and returns the full filepath to the seed.manifest.json
-func SeedFileName(dir string) (string, error) {
+//GetSeedFileName Finds and returns the full filepath to the seed.manifest.json
+// The second return value indicates whether it exists or not.
+func GetSeedFileName(dir string) (string, bool) {
 	// Define the current working directory
 	curDirectory, _ := os.Getwd()
 
@@ -67,9 +68,16 @@ func SeedFileName(dir string) (string, error) {
 		}
 	}
 
-	// Verify seed.json exists within specified directory.
+	// Check to see if seed.manifest.json exists within specified directory.
 	_, err := os.Stat(seedFileName)
-	if os.IsNotExist(err) {
+
+	return seedFileName, !os.IsNotExist(err)
+}
+
+//SeedFileName Finds and returns the full filepath to the seed.manifest.json
+func SeedFileName(dir string) (string, error) {
+	seedFileName, exists = GetSeedFileName(dir)
+	if !exists {
 		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
 			seedFileName)
 		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")

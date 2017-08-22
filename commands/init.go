@@ -1,10 +1,13 @@
 package commands
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/util"
@@ -17,13 +20,13 @@ import (
 func SeedInit(directory string) error {
 	seedFileName, exists := util.GetSeedFileName(directory)
 	if exists {
-		return errors.New("Pre-existing %s found.", seedFileName)
+		return errors.New("Pre-existing " + seedFileName + " found.")
 	}
 
 	// TODO: We need to support init of all supported schema versions in the future
 	exampleSeedJson, _ := constants.Asset("schema/0.1.0/seed.manifest.example.json")
 
-	err = ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
+	err := ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
 			seedFileName, err.Error())
