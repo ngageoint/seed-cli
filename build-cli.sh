@@ -8,10 +8,8 @@ pushd "${0%/*}" > /dev/null
 VERSION=$1
 if [[ "${VERSION}x" == "x" ]]
 then
-    echo Missing version parameter!
-    echo Usage:
-    echo $0 1.0.0
-    exit 1
+    echo Missing version parameter - setting to snapshot
+    VERSION=snapshot
 fi
 
 

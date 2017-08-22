@@ -80,8 +80,8 @@ git clone https://github.com/ngageoint/seed-cli.git $GOPATH/src/github.com/ngage
 cd $GOPATH/src/github.com/ngageoint/seed-cli
 go get ./...
 
-# Build binary at version 0.1.0
-./build-cli.sh 0.1.0
+# Build binary
+./build-cli.sh
 
 # Optionally add it to your local system binary folder for easy execution
 cp -f output/seed-linux-amd64 /usr/local/bin/seed
