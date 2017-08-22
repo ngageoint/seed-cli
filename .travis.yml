@@ -10,6 +10,7 @@ before_install:
 
 script:
   - ./build-cli.sh ${VERSION}
+  - go test ./... | grep -v "no test files"
 
 deploy:
   # Deployment that pushes GitHub releases of software on tag
