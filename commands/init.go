@@ -18,7 +18,7 @@ import (
 // If file exists, warn and exit
 // If file does not exist, write sample to given directory
 func SeedInit(directory string) error {
-	seedFileName, exists := util.GetSeedFileName(directory)
+	seedFileName, exists, _ := util.GetSeedFileName(directory)
 	if exists {
 		return errors.New("Pre-existing " + seedFileName + " found.")
 	}

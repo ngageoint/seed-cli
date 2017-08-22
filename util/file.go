@@ -71,12 +71,12 @@ func GetSeedFileName(dir string) (string, bool) {
 	// Check to see if seed.manifest.json exists within specified directory.
 	_, err := os.Stat(seedFileName)
 
-	return seedFileName, !os.IsNotExist(err)
+	return seedFileName, !os.IsNotExist(err), err
 }
 
 //SeedFileName Finds and returns the full filepath to the seed.manifest.json
 func SeedFileName(dir string) (string, error) {
-	seedFileName, exists := GetSeedFileName(dir)
+	seedFileName, exists, err := GetSeedFileName(dir)
 	if !exists {
 		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
 			seedFileName)
