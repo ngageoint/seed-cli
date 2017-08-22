@@ -87,7 +87,7 @@ func main() {
 	// seed init: Create example seed.manifest.json. Does not require docker
 	if initCmd.Parsed() {
 		dir := initCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		err := commands.Validate(dir)
+		err := commands.SeedInit(dir)
 		if err != nil {
 			panic(util.Exit{1})
 		}
