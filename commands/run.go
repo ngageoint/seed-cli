@@ -578,7 +578,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		schema := ""
 		required := ""
 
-		// Loop through defined name/key values to extract from results_manifest.json
+		// Loop through defined name/key values to extract from seed.outputs.json
 		for _, jsonStr := range seed.Job.Interface.Outputs.JSON {
 			key := jsonStr.Name
 			if jsonStr.Key != "" {
