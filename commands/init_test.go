@@ -2,15 +2,15 @@ package commands
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
-	"os"
 )
 
 func TestSeedInit(t *testing.T) {
 	cases := []struct {
-		directory  string
-		expectedErr  error
+		directory   string
+		expectedErr error
 	}{
 		{"../testdata/dummy-scratch/", nil},
 		{"../testdata/complete/", errors.New("Existing file left unmodified.")},
