@@ -96,9 +96,18 @@ func main() {
 		filter := searchCmd.Lookup(constants.FilterFlag).Value.String()
 		username := searchCmd.Lookup(constants.UserFlag).Value.String()
 		password := searchCmd.Lookup(constants.PassFlag).Value.String()
-		err := commands.DockerSearch(url, org, filter, username, password)
+		results, err := commands.DockerSearch(url, org, filter, username, password)
 		if err != nil {
 			panic(util.Exit{1})
+		}
+
+		if len(results) > 0 {
+			fmt.Fprintf(os.Stderr, "Found %v Repositories:\n", len(results))
+			for _, r := range results {
+				fmt.Fprintf(os.Stderr, "%s\n", r)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "No repositories found.\n")
 		}
 		panic(util.Exit{0})
 	}
@@ -128,7 +137,7 @@ func main() {
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
-		inputs := strings.Split(runCmd.Lookup(constants.InputDataFlag).Value.String(), ",")
+		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
@@ -194,9 +203,9 @@ func DefineRunFlags() {
 		"Name of Docker image to run")
 
 	var inputs objects.ArrayFlags
-	runCmd.Var(&inputs, constants.InputDataFlag,
+	runCmd.Var(&inputs, constants.InputsFlag,
 		"Defines the full path to any input data arguments")
-	runCmd.Var(&inputs, constants.ShortInputDataFlag,
+	runCmd.Var(&inputs, constants.ShortInputsFlag,
 		"Defines the full path to input data arguments")
 
 	var settings objects.ArrayFlags
@@ -358,7 +367,7 @@ func DefineFlags() {
 		PrintUsage()
 	}
 
-	var cmd *flag.FlagSet = nil
+	var cmd *flag.FlagSet
 	minArgs := 2
 
 	// Parse commands

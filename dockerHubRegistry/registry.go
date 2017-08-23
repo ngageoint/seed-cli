@@ -6,15 +6,17 @@ import (
 	"strings"
 )
 
+//DockerHubRegistry type representing a Docker Hub registry
 type DockerHubRegistry struct {
 	URL    string
 	Client *http.Client
 }
 
+//New creates a new docker hub registry from the given URL
 func New(registryUrl string) (*DockerHubRegistry, error) {
 	url := strings.TrimSuffix(registryUrl, "/")
 	registry := &DockerHubRegistry{
-		URL: url,
+		URL:    url,
 		Client: &http.Client{},
 	}
 

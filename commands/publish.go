@@ -20,7 +20,6 @@ import (
 //DockerPublish executes the seed publish command
 func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
-
 	//1. Check names and verify it doesn't conflict
 	tag := ""
 	img := origImg
@@ -38,13 +37,22 @@ func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
 	}
 
 	// Check for image confliction.
-	conflict := false //TODO - Need to call seed search when implemented
+	matches, err := DockerSearch(registry, org, origImg, "", "")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error searching for matching tag names.\n%s\n",
+			err.Error())
+	}
+	conflict := len(matches) > 0
+	//conflict := false //TODO - Need to call seed search when implemented
 
 	// If it conflicts, bump specified version number
 	if conflict && deconflict {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
 		seedFileName, err := util.SeedFileName(jobDirectory)
-		if err != nil {
+		if err != nil && os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
+				constants.SeedFileName)
+			fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
 			return err
 		}
 		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
