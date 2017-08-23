@@ -70,14 +70,13 @@ func SeedFileName(dir string) (string, error) {
 	// Verify seed.json exists within specified directory.
 	_, err := os.Stat(seedFileName)
 	if os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
-			seedFileName)
-		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+		return "", err
 	}
 
 	return seedFileName, err
 }
 
+//RemoveAllFiles removes all files in the specified directory
 func RemoveAllFiles(v string) {
 	err := os.RemoveAll(v)
 	if err != nil {
