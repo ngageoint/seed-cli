@@ -7,6 +7,11 @@ usage is as folllows:
 		-d, -directory	The directory containing the seed spec and Dockerfile
 										(default is current directory)
 
+	seed init [OPTIONS]
+		Options:
+		-d, -directory	The directory to create example seed.manifest.json within
+										(default is current directory)
+
 	seed list [OPTIONS]
 		Not yet implemented
 
@@ -62,6 +67,7 @@ import (
 )
 
 var buildCmd *flag.FlagSet
+var initCmd *flag.FlagSet
 var listCmd *flag.FlagSet
 var publishCmd *flag.FlagSet
 var runCmd *flag.FlagSet
@@ -77,6 +83,16 @@ func main() {
 
 	// Parse input flags
 	DefineFlags()
+
+	// seed init: Create example seed.manifest.json. Does not require docker
+	if initCmd.Parsed() {
+		dir := initCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		err := commands.SeedInit(dir)
+		if err != nil {
+			panic(util.Exit{1})
+		}
+		panic(util.Exit{0})
+	}
 
 	// seed validate: Validate seed.manifest.json. Does not require docker
 	if validateCmd.Parsed() {
@@ -180,6 +196,22 @@ func DefineBuildFlags() {
 	// Print usage function
 	buildCmd.Usage = func() {
 		commands.PrintBuildUsage()
+	}
+}
+
+//DefineInitFlags defines the flags for the seed init command
+func DefineInitFlags() {
+	// build command flags
+	initCmd = flag.NewFlagSet(constants.InitCommand, flag.ContinueOnError)
+	var directory string
+	initCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Directory to place example seed.manifest.json (default is current directory).")
+	initCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Directory to place example seed.manifest.json (default is current directory).")
+
+	// Print usage function
+	initCmd.Usage = func() {
+		commands.PrintInitUsage()
 	}
 }
 
@@ -329,25 +361,14 @@ func DefineValidateFlags() {
 
 //DefineFlags defines the flags available for the seed runner.
 func DefineFlags() {
-	// seed build flags
+	// Seed subcommand flags
 	DefineBuildFlags()
-
-	// seed run flags
+	DefineInitFlags()
 	DefineRunFlags()
-
-	// seed list flags
 	DefineListFlags()
-
-	// seed search flags
 	DefineSearchFlags()
-
-	// seed publish flags
 	DefinePublishFlags()
-
-	// seed validate flags
 	DefineValidateFlags()
-
-	// seed version flags
 	versionCmd = flag.NewFlagSet(constants.VersionCommand, flag.ExitOnError)
 	versionCmd.Usage = func() {
 		PrintVersionUsage()
@@ -373,6 +394,10 @@ func DefineFlags() {
 			}
 		}
 		minArgs = 3
+
+	case constants.InitCommand:
+		cmd = initCmd
+		minArgs = 2
 
 	case constants.RunCommand:
 		cmd = runCmd
@@ -418,6 +443,7 @@ func PrintUsage() {
 	fmt.Fprintf(os.Stderr, "A test runner for seed spec compliant algorithms\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")
 	fmt.Fprintf(os.Stderr, "  build \tBuilds Seed compliant Docker image\n")
+	fmt.Fprintf(os.Stderr, "  init \tInitialize new project with example seed.manifest.json file\n")
 	fmt.Fprintf(os.Stderr, "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
 	fmt.Fprintf(os.Stderr, "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
 	fmt.Fprintf(os.Stderr, "  run   \tExecutes Seed compliant Docker docker image\n")

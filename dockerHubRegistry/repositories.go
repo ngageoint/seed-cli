@@ -1,10 +1,10 @@
 package dockerHubRegistry
 
 type repositoriesResponse struct {
-	Count int
-	Next string
+	Count    int
+	Next     string
 	Previous string
-	Results []Result
+	Results  []Result
 }
 
 type Result struct {
@@ -16,7 +16,7 @@ func (registry *DockerHubRegistry) UserRepositories(user string) ([]string, erro
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
 	var response repositoriesResponse
-	for err == nil{
+	for err == nil {
 		response.Next = ""
 		url, err = registry.getDockerHubPaginatedJson(url, &response)
 		for _, r := range response.Results {

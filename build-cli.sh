@@ -8,14 +8,14 @@ pushd "${0%/*}" > /dev/null
 VERSION=$1
 if [[ "${VERSION}x" == "x" ]]
 then
-    echo Missing version parameter!
-    echo Usage:
-    echo $0 1.0.0
-    exit 1
+    echo Missing version parameter - setting to snapshot
+    VERSION=snapshot
 fi
 
 
-vendor/go-bindata -pkg constants -o constants/jsonschema.go ./schema/0.1.0/
+UNAME=$(uname -s)
+
+vendor/go-bindata-${UNAME} -pkg constants -o constants/assets.go ./schema/0.1.0/
 echo Building cross platform Seed CLI.
 echo Building for Linux...
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags "-X main.version=$VERSION -extldflags=\"-static\"" -o output/seed-linux-amd64
@@ -27,7 +27,6 @@ echo CLI build complete
 
 echo Building example images.................................................................
 SEED=""
-UNAME=$(uname -s)
 case "${UNAME}" in
     Linux*)     SEED=output/seed-linux-amd64; SUDO=sudo;;
     Darwin*)    SEED=output/seed-darwin-amd64;;
