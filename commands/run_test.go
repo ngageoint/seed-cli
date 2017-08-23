@@ -65,7 +65,7 @@ func TestDefineInputs(t *testing.T) {
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", "0.08",
+			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", "0.07",
 			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
 	}
 
