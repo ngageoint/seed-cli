@@ -18,6 +18,9 @@ const SearchCommand = "search"
 //PublishCommand seed publish subcommand
 const PublishCommand = "publish"
 
+//PullCommand seed pull subcommand
+const PullCommand = "pull"
+
 //ValidateCommand seed validate subcommand
 const ValidateCommand = "validate"
 
@@ -136,3 +139,9 @@ const (
 	//SchemaMetadata metadata schema
 	SchemaMetadata
 )
+
+//DockerConfigDir defines directory to use for DOCKER_CONFIG environment variable
+//This is used instead of the default directory so when seed is run as root (most times),
+//user credentials aren't stored under the root directory and people aren't stepping on
+//each other
+const DockerConfigDir = ".docker"

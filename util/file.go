@@ -1,9 +1,11 @@
 package util
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
 )
@@ -46,6 +48,56 @@ func GetFullPath(rFile, directory string) string {
 	}
 
 	return rFile
+}
+
+//DockerfileRegistry attempts to find the registry for a dockerfile's base image, if any
+func DockerfileBaseRegistry(dir string) (string, error) {
+	registry := ""
+
+	// Define the current working directory
+	curDirectory, _ := os.Getwd()
+
+	dockerfile := "Dockerfile"
+	if dir == "." {
+		dockerfile = filepath.Join(curDirectory, dockerfile)
+	} else {
+		if filepath.IsAbs(dir) {
+			dockerfile = filepath.Join(dir, dockerfile)
+		} else {
+			dockerfile = filepath.Join(curDirectory, dir, dockerfile)
+		}
+	}
+
+	// Verify dockerfile exists within specified directory.
+	_, err := os.Stat(dockerfile)
+	if os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
+			dockerfile)
+		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+	}
+
+	file, err := os.Open(dockerfile)
+	if err == nil {
+
+		// make sure it gets closed
+		defer file.Close()
+
+		// create a new scanner and read the file line by line
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			i := strings.Index(line, "/")
+			if i > 5 && strings.HasPrefix(line, "FROM ") {
+				registry = line[5:i]
+				break
+			}
+		}
+
+		// check for errors
+		err = scanner.Err()
+	}
+
+	return registry, err
 }
 
 //SeedFileName Finds and returns the full filepath to the seed.manifest.json

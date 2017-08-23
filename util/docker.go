@@ -1,7 +1,10 @@
 package util
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -120,4 +123,28 @@ func ImageCpuUsage(imageName string) {
 //ImageMemoryUsage displays memory usage of image
 func ImageMemoryUsage(imageName string) {
 
+}
+
+func Login(username, password, registry string) error {
+	var errs, out bytes.Buffer
+	args := []string{"login", "-u", username, "-p", password, registry}
+	cmd := exec.Command("docker", args...)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = &out
+
+	// run images
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
+			err.Error())
+		return err
+	}
+
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+			errs.String())
+		return errors.New(errs.String())
+	}
+
+	fmt.Fprintf(os.Stderr, "%s", out.String())
+	return nil
 }

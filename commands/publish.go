@@ -18,8 +18,15 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
+func DockerPublish(origImg, registry, org, username, password, jobDirectory string, deconflict,
 	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
+
+	if username != "" {
+		err := util.Login(registry, username, password)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
 	//1. Check names and verify it doesn't conflict
 	tag := ""
@@ -224,9 +231,9 @@ func PrintPublishUsage() {
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
 	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to which to publish the image\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to which to publish the image\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization to publish the image\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMinor)
@@ -236,5 +243,9 @@ func PrintPublishUsage() {
 		constants.AlgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (will use cached login if available and not specified).\n",
+		constants.ShortUserFlag, constants.UserFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (will use cached login if available and not specified).\n",
+		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

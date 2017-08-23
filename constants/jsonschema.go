@@ -84,7 +84,7 @@ func schema010SeedManifestSchemaJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "schema/0.1.0/seed.manifest.schema.json", size: 9927, mode: os.FileMode(420), modTime: time.Unix(1503345542, 0)}
+	info := bindataFileInfo{name: "schema/0.1.0/seed.manifest.schema.json", size: 9927, mode: os.FileMode(448), modTime: time.Unix(1503404558, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func schema010SeedMetadataSchemaJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "schema/0.1.0/seed.metadata.schema.json", size: 4230, mode: os.FileMode(420), modTime: time.Unix(1503345551, 0)}
+	info := bindataFileInfo{name: "schema/0.1.0/seed.metadata.schema.json", size: 4230, mode: os.FileMode(448), modTime: time.Unix(1503404558, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
