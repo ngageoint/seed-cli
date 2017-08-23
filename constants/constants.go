@@ -3,28 +3,14 @@ package constants
 //TrueString string version of true boolean
 const TrueString = "true"
 
-//BuildCommand seed build subcommand
+// Subcommands supported by CLI
 const BuildCommand = "build"
-
-//RunCommand seed run subcommand
-const RunCommand = "run"
-
-//ListCommand seed list subcommand
+const InitCommand = "init"
 const ListCommand = "list"
-
-//SearchCommand seed search subcommand
-const SearchCommand = "search"
-
-//PublishCommand seed publish subcommand
 const PublishCommand = "publish"
-
-//PullCommand seed pull subcommand
-const PullCommand = "pull"
-
-//ValidateCommand seed validate subcommand
+const RunCommand = "run"
+const SearchCommand = "search"
 const ValidateCommand = "validate"
-
-//VersionCommand seed version subcommand
 const VersionCommand = "version"
 
 //JobDirectoryFlag defines the location of the seed spec and Dockerfile

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -47,7 +48,12 @@ func TestSeedLabel(t *testing.T) {
 
 	for _, c := range cases {
 		DockerBuild(c.directory)
-		seedFileName, _ := util.SeedFileName(c.directory)
+		seedFileName, er := util.SeedFileName(c.directory)
+		if er != nil && os.IsNotExist(er) {
+			t.Errorf("ERROR: %s cannot be found.\n",
+				seedFileName)
+			t.Errorf("Make sure you have specified the correct directory.\n")
+		}
 
 		// retrieve seed from seed manifest
 		seed := objects.SeedFromManifestFile(seedFileName)

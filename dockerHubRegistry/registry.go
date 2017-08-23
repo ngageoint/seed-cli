@@ -14,7 +14,7 @@ type DockerHubRegistry struct {
 func New(registryUrl string) (*DockerHubRegistry, error) {
 	url := strings.TrimSuffix(registryUrl, "/")
 	registry := &DockerHubRegistry{
-		URL: url,
+		URL:    url,
 		Client: &http.Client{},
 	}
 
