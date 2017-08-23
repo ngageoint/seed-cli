@@ -17,7 +17,8 @@ import (
 func SeedInit(directory string) error {
 	seedFileName, exists, _ := util.GetSeedFileName(directory)
 	if exists {
-		return errors.New("Pre-existing " + seedFileName + " found.")
+		msg := "Pre-existing " + seedFileName + " found. Existing file left unmodified."
+		return errors.New(msg)
 	}
 
 	// TODO: We need to support init of all supported schema versions in the future

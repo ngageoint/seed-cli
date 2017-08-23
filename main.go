@@ -390,7 +390,7 @@ func DefineFlags() {
 
 	case constants.InitCommand:
 		cmd = initCmd
-		minArgs = 3
+		minArgs = 2
 
 	case constants.RunCommand:
 		cmd = runCmd
