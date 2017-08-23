@@ -386,6 +386,13 @@ func DefineFlags() {
 	switch os.Args[1] {
 	case constants.BuildCommand:
 		cmd = buildCmd
+
+		// Check for seed manifest in current directory. If found, add current directory arg
+		if len(os.Args) == 2 {
+			if _, err := util.SeedFileName("."); err == nil {
+				os.Args = append(os.Args, ".")
+			}
+		}
 		minArgs = 3
 
 	case constants.InitCommand:

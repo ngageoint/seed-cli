@@ -70,7 +70,6 @@ func GetSeedFileName(dir string) (string, bool, error) {
 
 	// Check to see if seed.manifest.json exists within specified directory.
 	_, err := os.Stat(seedFileName)
-
 	return seedFileName, !os.IsNotExist(err), err
 }
 
@@ -86,6 +85,7 @@ func SeedFileName(dir string) (string, error) {
 	return seedFileName, err
 }
 
+//RemoveAllFiles removes all files in the specified directory
 func RemoveAllFiles(v string) {
 	err := os.RemoveAll(v)
 	if err != nil {
