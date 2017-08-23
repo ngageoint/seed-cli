@@ -5,6 +5,9 @@ language: go
 services:
   - docker
 
+install:
+  - vendor/go-bindata-Linux -pkg constants -o constants/assets.go ./schema/0.1.0/
+
 script:
   - ./build-cli.sh ${TRAVIS_TAG}
   - go test ./...
