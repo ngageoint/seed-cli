@@ -17,10 +17,8 @@ import (
 func DockerBuild(jobDirectory string) error {
 
 	seedFileName, err := util.SeedFileName(jobDirectory)
-	if err != nil && os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
-			seedFileName)
-		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+	if err != nil && !os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
 		return err
 	}
 
