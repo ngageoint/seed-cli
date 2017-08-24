@@ -19,8 +19,9 @@ func DockerBuild(jobDirectory, username, password string) error {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-		os.Setenv("DOCKER_CONFIG", configDir)
+		os.Setenv(constants.DockerConfigKey, configDir)
 		defer util.RemoveAllFiles(configDir)
+		defer os.Unsetenv(constants.DockerConfigKey)
 
 		registry, err := util.DockerfileBaseRegistry(jobDirectory)
 		if err != nil {

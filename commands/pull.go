@@ -18,8 +18,9 @@ func DockerPull(image, registry, org, username, password string) error {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-		os.Setenv("DOCKER_CONFIG", configDir)
+		os.Setenv(constants.DockerConfigKey, configDir)
 		defer util.RemoveAllFiles(configDir)
+		defer os.Unsetenv(constants.DockerConfigKey)
 
 		err := util.Login(registry, username, password)
 		if err != nil {

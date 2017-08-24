@@ -132,3 +132,5 @@ const (
 //user credentials aren't stored under the root directory and people aren't stepping on
 //each other
 const DockerConfigDir = "docker-config-"
+
+const DockerConfigKey = "DOCKER_CONFIG"
