@@ -23,7 +23,7 @@ func DockerSearch(url, org, filter, username, password string) error {
 	if org == "" {
 		org = constants.DefaultOrg
 	}
-
+	
 	dockerHub := false
 	if strings.Contains(url, "hub.docker.com") || strings.Contains(url, "index.docker.io") || strings.Contains(url, "registry-1.docker.io") {
 		url = "https://hub.docker.com"
@@ -33,6 +33,13 @@ func DockerSearch(url, org, filter, username, password string) error {
 	var repositories []string
 	var err error
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
+		if username != "" {
+			err := util.Login(url, username, password)
+			if err != nil {
+				fmt.Fprintf(os.Stderr,"Error calling docker login: %s\n", err.Error())
+			}
+		}
+
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
