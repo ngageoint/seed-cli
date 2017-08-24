@@ -82,9 +82,6 @@ func main() {
 	// before program exit.
 	defer util.HandleExit()
 
-	//set config dir so we don't stomp on other users' logins with sudo
-	os.Setenv("DOCKER_CONFIG", constants.DockerConfigDir)
-
 	// Parse input flags
 	DefineFlags()
 

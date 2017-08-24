@@ -131,4 +131,4 @@ const (
 //This is used instead of the default directory so when seed is run as root (most times),
 //user credentials aren't stored under the root directory and people aren't stepping on
 //each other
-const DockerConfigDir = ".docker"
+const DockerConfigDir = "docker-config-"

@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
@@ -22,6 +23,11 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
 
 	if username != "" {
+		//set config dir so we don't stomp on other users' logins with sudo
+		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv("DOCKER_CONFIG", configDir)
+		defer util.RemoveAllFiles(configDir)
+
 		err := util.Login(registry, username, password)
 		if err != nil {
 			fmt.Println(err)
@@ -249,9 +255,9 @@ func PrintPublishUsage() {
 		constants.AlgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (will use cached login if available and not specified).\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (will use cached login if available and not specified).\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

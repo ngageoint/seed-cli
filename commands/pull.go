@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/util"
@@ -15,6 +16,11 @@ import (
 //Dockerpull pulls specified image from remote repository (default docker.io)
 func DockerPull(image, registry, org, username, password string) error {
 	if username != "" {
+		//set config dir so we don't stomp on other users' logins with sudo
+		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv("DOCKER_CONFIG", configDir)
+		defer util.RemoveAllFiles(configDir)
+
 		err := util.Login(registry, username, password)
 		if err != nil {
 			fmt.Println(err)
@@ -84,9 +90,9 @@ func PrintPullUsage() {
 		constants.ShortRegistryFlag, constants.RegistryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization (default is no organization).\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login to remote registry (will use cached login if available and not specified).\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login to remote registry (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login to remote registry (will use cached login if available and not specified).\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login to remote registry (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }
