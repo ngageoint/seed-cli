@@ -19,10 +19,8 @@ func Validate(schemaFile, dir string) error {
 	var seedFileName string
 
 	seedFileName, err = util.SeedFileName(dir)
-	if err != nil && os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
-			seedFileName)
-		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
 		return err
 	}
 

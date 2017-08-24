@@ -13,7 +13,7 @@ import (
 )
 
 //DockerSearch executes the seed search command
-func DockerSearch(url, org, filter, username, password string) error {
+func DockerSearch(url, org, filter, username, password string) ([]string, error) {
 	_ = filter //TODO: add filter
 
 	if url == "" {
@@ -36,37 +36,44 @@ func DockerSearch(url, org, filter, username, password string) error {
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
-			return err
+			return nil, err
 		}
 		repositories, err = hub.UserRepositories(org)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
-			return err
+			return nil, err
 		}
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
-			return err
+			return nil, err
 		}
 		repositories, err = hub.Repositories()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
-			return err
+			return nil, err
 		}
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
-		return err
+		return nil, err
 	}
 
+	var stringRepos []string
 	for _, repo := range repositories {
-		if strings.HasSuffix(repo, "-seed") {
-			fmt.Println(repo)
+		if strings.Contains(repo, "-seed") {
+			if filter != "" {
+				if strings.Contains(repo, filter) {
+					stringRepos = append(stringRepos, repo)
+				}
+			} else {
+				stringRepos = append(stringRepos, repo)
+			}
 		}
 	}
 
-	return nil
+	return stringRepos, nil
 }
 
 //PrintSearchUsage prints the seed search usage information, then exits the program
