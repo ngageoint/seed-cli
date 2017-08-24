@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
@@ -14,7 +15,23 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory string) error {
+func DockerBuild(jobDirectory, username, password string) error {
+	if username != "" {
+		//set config dir so we don't stomp on other users' logins with sudo
+		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(constants.DockerConfigKey, configDir)
+		defer util.RemoveAllFiles(configDir)
+		defer os.Unsetenv(constants.DockerConfigKey)
+
+		registry, err := util.DockerfileBaseRegistry(jobDirectory)
+		if err != nil {
+			fmt.Fprintf(os.Stderr,"Error getting registry from dockerfile: %s\n", err.Error())
+		}
+		err = util.Login(registry, username, password)
+		if err != nil {
+			fmt.Fprintf(os.Stderr,"Error calling docker login: %s\n", err.Error())
+		}
+	}
 
 	seedFileName, err := util.SeedFileName(jobDirectory)
 	if err != nil && !os.IsNotExist(err) {
@@ -75,5 +92,9 @@ func PrintBuildUsage() {
 	fmt.Fprintf(os.Stderr,
 		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
+		constants.ShortUserFlag, constants.UserFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to pull images (default anonymous).\n",
+		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

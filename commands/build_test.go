@@ -21,7 +21,7 @@ func TestDockerBuild(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		err := DockerBuild(c.directory)
+		err := DockerBuild(c.directory, "", "")
 		success := err == nil
 		if success != c.expected {
 			t.Errorf("DockerBuild(%q) == %v, expected %v", c.directory, success, c.expected)
@@ -46,7 +46,7 @@ func TestSeedLabel(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		DockerBuild(c.directory)
+		DockerBuild(c.directory, "", "")
 		seedFileName, exist, _ := util.GetSeedFileName(c.directory)
 		if !exist {
 			t.Errorf("ERROR: %s cannot be found.\n",

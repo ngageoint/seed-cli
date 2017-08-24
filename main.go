@@ -70,6 +70,7 @@ var buildCmd *flag.FlagSet
 var initCmd *flag.FlagSet
 var listCmd *flag.FlagSet
 var publishCmd *flag.FlagSet
+var pullCmd *flag.FlagSet
 var runCmd *flag.FlagSet
 var searchCmd *flag.FlagSet
 var validateCmd *flag.FlagSet
@@ -143,7 +144,9 @@ func main() {
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		err := commands.DockerBuild(jobDirectory)
+		user := searchCmd.Lookup(constants.UserFlag).Value.String()
+		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
+		err := commands.DockerBuild(jobDirectory, user, pass)
 		if err != nil {
 			panic(util.Exit{1})
 		}
@@ -170,6 +173,8 @@ func main() {
 	if publishCmd.Parsed() {
 		registry := publishCmd.Lookup(constants.RegistryFlag).Value.String()
 		org := publishCmd.Lookup(constants.OrgFlag).Value.String()
+		user := searchCmd.Lookup(constants.UserFlag).Value.String()
+		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
 		origImg := publishCmd.Arg(0)
 		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		deconflict := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
@@ -183,8 +188,23 @@ func main() {
 		increaseAlgMajor := publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
 			constants.TrueString
 
-		err := commands.DockerPublish(origImg, registry, org, jobDirectory, deconflict,
+		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory, deconflict,
 			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
+		if err != nil {
+			panic(util.Exit{1})
+		}
+		panic(util.Exit{0})
+	}
+
+	// seed pull: Pulls a remote image and tags it as a local image
+	if pullCmd.Parsed() {
+		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
+		registry := pullCmd.Lookup(constants.RegistryFlag).Value.String()
+		org := pullCmd.Lookup(constants.OrgFlag).Value.String()
+		user := pullCmd.Lookup(constants.UserFlag).Value.String()
+		pass := pullCmd.Lookup(constants.PassFlag).Value.String()
+
+		err := commands.DockerPull(imageName, registry, org, user, pass)
 		if err != nil {
 			panic(util.Exit{1})
 		}
@@ -201,6 +221,18 @@ func DefineBuildFlags() {
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var user string
+	buildCmd.StringVar(&user, constants.UserFlag, "",
+		"Optional username to use if dockerfile pulls images from private repository (default is anonymous).")
+	buildCmd.StringVar(&user, constants.ShortUserFlag, "",
+		"Optional username to use if dockerfile pulls images from private repository (default is anonymous).")
+
+	var password string
+	buildCmd.StringVar(&password, constants.PassFlag, "",
+		"Optional password if dockerfile pulls images from private repository (default is empty).")
+	buildCmd.StringVar(&password, constants.ShortPassFlag, "",
+		"Optional password if dockerfile pulls images from private repository (default is empty).")
 
 	// Print usage function
 	buildCmd.Usage = func() {
@@ -346,6 +378,38 @@ func DefinePublishFlags() {
 
 	publishCmd.Usage = func() {
 		commands.PrintPublishUsage()
+	}
+}
+
+//DefinePullFlags defines the flags for the seed pull command
+func DefinePullFlags() {
+	// Search command
+	pullCmd = flag.NewFlagSet(constants.PullCommand, flag.ExitOnError)
+
+	var imgNameFlag string
+	pullCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to pull")
+	pullCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to pull")
+
+	var registry string
+	pullCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to pull image from (default is index.docker.io).")
+	pullCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to pull image from (default is index.docker.io).")
+
+	var org string
+	pullCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to pull image from (default is geoint).")
+	pullCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to pull image from (default is geoint).")
+
+	var user string
+	pullCmd.StringVar(&user, constants.UserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+	pullCmd.StringVar(&user, constants.ShortUserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+
+	var password string
+	pullCmd.StringVar(&password, constants.PassFlag, "", "Specifies password to use for authorization (default is empty).")
+	pullCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
+
+	pullCmd.Usage = func() {
+		commands.PrintPullUsage()
 	}
 }
 

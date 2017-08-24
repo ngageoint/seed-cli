@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
@@ -18,8 +19,22 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(origImg, registry, org, jobDirectory string, deconflict,
+func DockerPublish(origImg, registry, org, username, password, jobDirectory string, deconflict,
 	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
+
+	if username != "" {
+		//set config dir so we don't stomp on other users' logins with sudo
+		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(constants.DockerConfigKey, configDir)
+		defer util.RemoveAllFiles(configDir)
+		defer os.Unsetenv(constants.DockerConfigKey)
+
+		err := util.Login(registry, username, password)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	//1. Check names and verify it doesn't conflict
 	tag := ""
 	img := origImg
@@ -229,9 +244,9 @@ func PrintPublishUsage() {
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
 	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to which to publish the image\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to which to publish the image\n",
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization to publish the image\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMinor)
@@ -241,5 +256,9 @@ func PrintPublishUsage() {
 		constants.AlgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
+		constants.ShortUserFlag, constants.UserFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",
+		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }
