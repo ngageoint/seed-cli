@@ -3,10 +3,13 @@ package dockerHubRegistry
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
 )
 
 var (
+	//ErrNoMorePages error representing no more pages
 	ErrNoMorePages = errors.New("No more pages")
 )
 
@@ -25,6 +28,7 @@ func (registry *DockerHubRegistry) getDockerHubPaginatedJson(url string, respons
 	err = decoder.Decode(response)
 	r := response.(*repositoriesResponse)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Returning error")
 		return "", err
 	}
 	if r.Next == "" {

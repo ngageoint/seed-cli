@@ -116,9 +116,18 @@ func main() {
 		filter := searchCmd.Lookup(constants.FilterFlag).Value.String()
 		username := searchCmd.Lookup(constants.UserFlag).Value.String()
 		password := searchCmd.Lookup(constants.PassFlag).Value.String()
-		err := commands.DockerSearch(url, org, filter, username, password)
+		results, err := commands.DockerSearch(url, org, filter, username, password)
 		if err != nil {
 			panic(util.Exit{1})
+		}
+
+		if len(results) > 0 {
+			fmt.Fprintf(os.Stderr, "Found %v Repositories:\n", len(results))
+			for _, r := range results {
+				fmt.Fprintf(os.Stderr, "%s\n", r)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "No repositories found.\n")
 		}
 		panic(util.Exit{0})
 	}
@@ -446,7 +455,7 @@ func DefineFlags() {
 		PrintUsage()
 	}
 
-	var cmd *flag.FlagSet = nil
+	var cmd *flag.FlagSet
 	minArgs := 2
 
 	// Parse commands
@@ -456,7 +465,7 @@ func DefineFlags() {
 
 		// Check for seed manifest in current directory. If found, add current directory arg
 		if len(os.Args) == 2 {
-			if _, err := util.SeedFileName("."); err == nil {
+			if _, exist, err := util.GetSeedFileName("."); err == nil && exist {
 				os.Args = append(os.Args, ".")
 			}
 		}
