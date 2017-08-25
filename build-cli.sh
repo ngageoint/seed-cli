@@ -33,13 +33,13 @@ case "${UNAME}" in
     CYGWIN*)    SEED=output/seed-windows-amd64;;
     *)          SEED="UNKNOWN:${UNAME}"
 esac
-${SUDO} ${SEED} build -d examples/addition-algorithm/
+${SUDO} ${SEED} build -d examples/addition-job/
 ${SUDO} ${SEED} build -d examples/extractor/
 
 echo Finished building example images.................................................................
 
 echo Running example images...........................................................................
-${SUDO} ${SEED} run -in addition-algorithm-0.0.1-seed:1.0.0 -i INPUT_FILE=examples/addition-algorithm/inputs.txt -rm -m MOUNT_BIN=testdata/complete/ -m MOUNT_TMP=testdata/ -e SETTING_ONE=one -e SETTING_TWO=two -o temp
+${SUDO} ${SEED} run -in addition-job-0.0.1-seed:1.0.0 -i INPUT_FILE=examples/addition-job/inputs.txt -rm -m MOUNT_BIN=testdata/complete/ -m MOUNT_TMP=testdata/ -e SETTING_ONE=one -e SETTING_TWO=two -o temp
 echo ...
 echo ...
 ${SUDO} ${SEED} run -in extractor-0.1.0-seed:0.1.0 -i ZIP=testdata/seed-scale.zip -i MULTIPLE=examples/extractor/seed.manifest.json -i MULTIPLE=examples/extractor/seed.outputs.json -rm -m MOUNTAIN=testdata/complete/ -e HELLO=Hello -o temp
