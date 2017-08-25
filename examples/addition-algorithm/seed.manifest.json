@@ -1,8 +1,8 @@
 {
   "seedVersion": "0.1.0",
   "job": {
-    "name": "addition-algorithm",
-    "algorithmVersion": "0.0.1",
+    "name": "addition-job",
+    "jobVersion": "0.0.1",
     "packageVersion": "1.0.0",
     "title": "Number Addition",
     "description": "Adds numbers together",

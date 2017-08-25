@@ -6,12 +6,12 @@ OUTPUT=$2
 
 echo ''
 echo '----------------------------------------------------'
-echo 'Calling algorithm with arguments ' $INPUT $OUTPUT
+echo 'Calling job with arguments ' $INPUT $OUTPUT
 SCRIPT=my_alg.py
 
 python $SCRIPT $INPUT $OUTPUT
 rc=$?
-echo 'Done calling algorithm - wrapper finished'
+echo 'Done calling job - wrapper finished'
 echo '----------------------------------------------------'
 echo ''
 exit $rc

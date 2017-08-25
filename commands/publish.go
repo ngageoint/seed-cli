@@ -91,7 +91,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			fmt.Fprintf(os.Stderr, "The major package version will be increased to %s.\n",
 				seed.Job.PackageVersion)
 
-			// Bump the algorithm minor version
+			// Bump the job minor version
 		} else if increaseAlgMinor {
 
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
@@ -99,17 +99,17 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			algVersion[1] = strconv.Itoa(minorVersion + 1)
 			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
 
-			fmt.Fprintf(os.Stderr, "The minor algorithm version will be increased to %s.\n",
+			fmt.Fprintf(os.Stderr, "The minor job version will be increased to %s.\n",
 				seed.Job.AlgorithmVersion)
 
-			// Bump the algorithm major verion
+			// Bump the job major verion
 		} else if increaseAlgMajor {
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
 			majorVersion, _ := strconv.Atoi(algVersion[0])
 			algVersion[0] = strconv.Itoa(majorVersion + 1)
 			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
 
-			fmt.Fprintf(os.Stderr, "The major algorithm version will be increased to %s.\n",
+			fmt.Fprintf(os.Stderr, "The major job version will be increased to %s.\n",
 				seed.Job.AlgorithmVersion)
 		} else {
 			fmt.Fprintf(os.Stderr, "ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
@@ -252,9 +252,9 @@ func PrintPublishUsage() {
 		constants.PkgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMajor)
-	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMinor)
-	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.AlgVersionMajor)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)

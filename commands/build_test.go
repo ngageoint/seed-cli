@@ -15,7 +15,7 @@ func TestDockerBuild(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/", true, ""},
+		{"../examples/addition-job/", true, ""},
 		{"../examples/extractor/", true, ""},
 		{"", false, "no such file or directory"},
 	}
@@ -41,7 +41,7 @@ func TestSeedLabel(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/", "addition-algorithm-0.0.1-seed:1.0.0", true, ""},
+		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0", true, ""},
 		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0", true, ""},
 	}
 
@@ -74,7 +74,7 @@ func TestImageName(t *testing.T) {
 		expected         string
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json", "addition-algorithm-0.0.1-seed:1.0.0", ""},
+		{"../examples/addition-job/seed.manifest.json", "addition-job-0.0.1-seed:1.0.0", ""},
 		{"../examples/extractor/seed.manifest.json", "extractor-0.1.0-seed:0.1.0", ""},
 	}
 

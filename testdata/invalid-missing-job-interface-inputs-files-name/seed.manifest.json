@@ -2,7 +2,7 @@
   "seedVersion":"0.1.0",
   "job":{
     "name":"missing-filename",
-    "algorithmVersion":"0.1.0",
+    "jobVersion":"0.1.0",
     "packageVersion":"0.1.0",
     "title":"Image Watermarker",
     "description":"Processes an input PNG and outputs watermarked PNG.",
