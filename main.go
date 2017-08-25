@@ -179,17 +179,16 @@ func main() {
 		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		force := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
 
-		increasePkgMinor := publishCmd.Lookup(constants.PkgVersionMinor).Value.String() ==
-			constants.TrueString
-		increasePkgMajor := publishCmd.Lookup(constants.PkgVersionMajor).Value.String() ==
-			constants.TrueString
-		increaseAlgMinor := publishCmd.Lookup(constants.AlgVersionMinor).Value.String() ==
-			constants.TrueString
-		increaseAlgMajor := publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
-			constants.TrueString
+		P := publishCmd.Lookup(constants.PkgVersionMajor).Value.String() == constants.TrueString
+		pm := publishCmd.Lookup(constants.PkgVersionMinor).Value.String() == constants.TrueString
+		pp := publishCmd.Lookup(constants.PkgVersionPatch).Value.String() == constants.TrueString
 
-		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory, force,
-			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
+		J := publishCmd.Lookup(constants.JobVersionMajor).Value.String() == constants.TrueString
+		jm := publishCmd.Lookup(constants.JobVersionMinor).Value.String() == constants.TrueString
+		jp := publishCmd.Lookup(constants.JobVersionPatch).Value.String() == constants.TrueString
+
+		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory,
+			force, P, pm, pp, J, jm, jp)
 		if err != nil {
 			panic(util.Exit{1})
 		}
@@ -286,9 +285,9 @@ func DefineRunFlags() {
 
 	var outdir string
 	runCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
-		"Full path to the algorithm output directory")
+		"Full path to the job output directory")
 	runCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
-		"Full path to the algorithm output directory")
+		"Full path to the job output directory")
 
 	var rmVar bool
 	runCmd.BoolVar(&rmVar, constants.RmFlag, false,
@@ -363,18 +362,24 @@ func DefinePublishFlags() {
 	var b bool
 	publishCmd.BoolVar(&b, constants.ForcePublishFlag, false,
 		"Force publish, do not deconflict")
+	var pPatch bool
+	publishCmd.BoolVar(&pPatch, constants.PkgVersionPatch, false,
+		"Patch version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
 	var pMin bool
 	publishCmd.BoolVar(&pMin, constants.PkgVersionMinor, false,
 		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
 	var pMaj bool
 	publishCmd.BoolVar(&pMaj, constants.PkgVersionMajor, false,
 		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
-	var aMin bool
-	publishCmd.BoolVar(&aMin, constants.AlgVersionMinor, false,
-		"Minor version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
-	var aMaj bool
-	publishCmd.BoolVar(&aMaj, constants.AlgVersionMajor, false,
-		"Major version bump of 'algorithmVersion' in manifest on disk, will auto rebuild and push")
+	var jPatch bool
+	publishCmd.BoolVar(&jPatch, constants.JobVersionPatch, false,
+		"Patch version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMin bool
+	publishCmd.BoolVar(&jMin, constants.JobVersionMinor, false,
+		"Minor version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMaj bool
+	publishCmd.BoolVar(&jMaj, constants.JobVersionMajor, false,
+		"Major version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
 
 	publishCmd.Usage = func() {
 		commands.PrintPublishUsage()

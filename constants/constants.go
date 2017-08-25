@@ -93,16 +93,22 @@ const ShortPassFlag = "p"
 const ForcePublishFlag = "f"
 
 //PkgVersionMinor specifies to bump package minor version
-const PkgVersionMinor = "p"
+const PkgVersionMinor = "pm"
 
 //PkgVersionMajor specifies to bump package major version
 const PkgVersionMajor = "P"
 
-//AlgVersionMinor specifies to bump job minor version
-const AlgVersionMinor = "a"
+//PkgVersionPatch specifies to bump package patch version
+const PkgVersionPatch = "pp"
 
-//AlgVersionMajor specifies to bump job major version
-const AlgVersionMajor = "A"
+//JobVersionMinor specifies to bump job minor version
+const JobVersionMinor = "jm"
+
+//JobVersionMajor specifies to bump job major version
+const JobVersionMajor = "J"
+
+//JobVersionPatch specifies to bump job patch version
+const JobVersionPatch = "jp"
 
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"

@@ -19,8 +19,8 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(origImg, registry, org, username, password, jobDirectory string, force,
-	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
+func DockerPublish(origImg, registry, org, username, password, jobDirectory string,
+	force, P, pm, pp, J, jm, jp bool) error {
 
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
@@ -72,7 +72,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 		fmt.Fprintf(os.Stderr, "INFO: An image with the name %s already exists. ", img)
 		// Bump the package patch version
-		if increasePkgPatch {
+		if pp {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			patchVersion, _ := strconv.Atoi(pkgVersion[2])
 			pkgVersion[2] = strconv.Itoa(patchVersion + 1)
@@ -80,8 +80,8 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			fmt.Fprintf(os.Stderr, "The package patch version will be increased to %s.\n",
 				seed.Job.PackageVersion)
 
-			// Bump the algorithm major verion
-		} else if  increasePkgMinor {
+			// Bump the package minor verion
+		} else if  pm {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			minorVersion, _ := strconv.Atoi(pkgVersion[1])
 			pkgVersion[1] = strconv.Itoa(minorVersion + 1)
@@ -91,7 +91,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 				seed.Job.PackageVersion)
 
 			// Bump the package major version
-		} else if increasePkgMajor {
+		} else if P {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			majorVersion, _ := strconv.Atoi(pkgVersion[0])
 			pkgVersion[0] = strconv.Itoa(majorVersion + 1)
@@ -99,40 +99,39 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 			fmt.Fprintf(os.Stderr, "The major package version will be increased to %s.\n",
 				seed.Job.PackageVersion)
-
-			// Bump the algorithm minor version
 		}
-		if increaseAlgPatch {
-			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
-			patchVersion, _ := strconv.Atoi(algVersion[2])
-			algVersion[2] = strconv.Itoa(patchVersion + 1)
-			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
-			fmt.Fprintf(os.Stderr, "The algorithm patch version will be increased to %s.\n",
-				seed.Job.AlgorithmVersion)
+		// Bump the job patch version
+		if jp {
+			jobVersion := strings.Split(seed.Job.JobVersion, ".")
+			patchVersion, _ := strconv.Atoi(jobVersion[2])
+			jobVersion[2] = strconv.Itoa(patchVersion + 1)
+			seed.Job.JobVersion = strings.Join(jobVersion, ".")
+			fmt.Fprintf(os.Stderr, "The job patch version will be increased to %s.\n",
+				seed.Job.JobVersion)
 
-			// Bump the algorithm major verion
-		} else if increaseAlgMinor {
-			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
-			minorVersion, _ := strconv.Atoi(algVersion[1])
-			algVersion[1] = strconv.Itoa(minorVersion + 1)
-			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
-			algVersion[2] = "0"
-			fmt.Fprintf(os.Stderr, "The minor algorithm version will be increased to %s.\n",
-				seed.Job.AlgorithmVersion)
+			// Bump the job minor verion
+		} else if jm {
+			jobVersion := strings.Split(seed.Job.JobVersion, ".")
+			minorVersion, _ := strconv.Atoi(jobVersion[1])
+			jobVersion[1] = strconv.Itoa(minorVersion + 1)
+			seed.Job.JobVersion = strings.Join(jobVersion, ".")
+			jobVersion[2] = "0"
+			fmt.Fprintf(os.Stderr, "The minor job version will be increased to %s.\n",
+				seed.Job.JobVersion)
 
-			// Bump the algorithm major verion
-		} else if increaseAlgMajor {
-			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
-			majorVersion, _ := strconv.Atoi(algVersion[0])
-			algVersion[0] = strconv.Itoa(majorVersion + 1)
-			algVersion[1] = "0"
-			algVersion[2] = "0"
-			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
+			// Bump the job major verion
+		} else if J {
+			jobVersion := strings.Split(seed.Job.JobVersion, ".")
+			majorVersion, _ := strconv.Atoi(jobVersion[0])
+			jobVersion[0] = strconv.Itoa(majorVersion + 1)
+			jobVersion[1] = "0"
+			jobVersion[2] = "0"
+			seed.Job.JobVersion = strings.Join(jobVersion, ".")
 
-			fmt.Fprintf(os.Stderr, "The major algorithm version will be increased to %s.\n",
-				seed.Job.AlgorithmVersion)
+			fmt.Fprintf(os.Stderr, "The major job version will be increased to %s.\n",
+				seed.Job.JobVersion)
 		}
-		if !increaseAlgMajor && !increaseAlgMinor && !increaseAlgPatch && !increasePkgMajor && !increasePkgMinor && !increasePkgPatch{
+		if !J && !jm && !jp && !P && !pm && !pp{
 			fmt.Fprintf(os.Stderr, "ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 			return errors.New("Image exists and no tag deconfliction method specified.")
@@ -273,14 +272,18 @@ func PrintPublishUsage() {
 		constants.ShortOrgFlag, constants.OrgFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tOverwrite remote image if publish conflict found\n",
 		constants.ForcePublishFlag)
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Patch version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
+		constants.PkgVersionPatch)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMajor)
-	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
-		constants.AlgVersionMinor)
-	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'algorithmVersion' in manifest on disk if publish conflict found\n",
-		constants.AlgVersionMajor)
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Patch version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		constants.JobVersionPatch)
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		constants.JobVersionMinor)
+	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		constants.JobVersionMajor)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",

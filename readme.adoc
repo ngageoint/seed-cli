@@ -28,14 +28,14 @@ input / output specification (`seed.manifest.json`). By default, the `seed build
 `seed.manifest.json` reside in the current working directory. Using these two files in conjunction the build command
 is able to construct an re-usable Seed compliant image.
 
-A simple example of this would be the addition-algorithm.
+A simple example of this would be the addition-job image.
 
 ----
-seed build -d examples/addition-algorithm
+seed build -d examples/addition-job
 ----
 
 This will result in a new Docker image that contains `com.ngageoint.seed.manifest` LABEL and is named according to spec
-constraint: addition-algorithm-0.0.1-seed:1.0.0
+constraint: addition-job-0.0.1-seed:1.0.0
 
 This image can now be executed via the `seed run` command or pushed to a remote image registry by way of `seed publish`.
 

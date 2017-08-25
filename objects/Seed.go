@@ -19,17 +19,17 @@ type Seed struct {
 }
 
 type Job struct {
-	Name             string     `json:"name"`
-	AlgorithmVersion string     `json:"jobVersion"`
-	PackageVersion   string     `json:"packageVersion"`
-	Title            string     `json:"title,omitempty"`
-	Description      string     `json:"description,omitempty"`
-	Tags             []string   `json:"tags,omitempty"`
-	Maintainer       Maintainer `json:"maintainer"`
-	Timeout          int        `json:"timeout,omitempty"`
-	Interface        Interface  `json:"interface,omitempty"`
-	Resources        Resources  `json:"resources,omitempty"`
-	Errors           []ErrorMap `json:"errors,omitempty"`
+	Name           string     `json:"name"`
+	JobVersion     string     `json:"jobVersion"`
+	PackageVersion string     `json:"packageVersion"`
+	Title          string     `json:"title,omitempty"`
+	Description    string     `json:"description,omitempty"`
+	Tags           []string   `json:"tags,omitempty"`
+	Maintainer     Maintainer `json:"maintainer"`
+	Timeout        int        `json:"timeout,omitempty"`
+	Interface      Interface  `json:"interface,omitempty"`
+	Resources      Resources  `json:"resources,omitempty"`
+	Errors         []ErrorMap `json:"errors,omitempty"`
 }
 
 type Maintainer struct {
@@ -301,13 +301,13 @@ func SeedFromManifestFile(seedFileName string) Seed {
 }
 
 //BuildImageName extracts the Docker Image name from the seed.json
-// 	jobName-algVersion-seed:pkgVersion
+// 	jobName-jobVersion-seed:pkgVersion
 func BuildImageName(seed *Seed) string {
 	var buffer bytes.Buffer
 
 	buffer.WriteString(seed.Job.Name)
 	buffer.WriteString("-")
-	buffer.WriteString(seed.Job.AlgorithmVersion)
+	buffer.WriteString(seed.Job.JobVersion)
 	buffer.WriteString("-seed")
 	buffer.WriteString(":")
 	buffer.WriteString(seed.Job.PackageVersion)
