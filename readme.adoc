@@ -39,6 +39,15 @@ constraint: addition-job-0.0.1-seed:1.0.0
 
 This image can now be executed via the `seed run` command or pushed to a remote image registry by way of `seed publish`.
 
+=== Init
+
+The init command will initalize a directory with a template seed.manifest.json file.  The following command will put
+a template seed.manifest.json file in the examples/job directory:
+
+----
+seed init -d examples/job
+----
+
 === Run
 
 The primary purpose of the CLI is to easily enable algorithm execution. The common stumbling blocks for new developers
@@ -115,6 +124,27 @@ seed publish -in extractor-0.1.0-seed:0.1.0 -r localhost:5000 -u testuser -p tes
 
 === Validate
 
+The Validate command will validate a seed json file against the seed schema.  This is also done as part of the build and
+run commands, but if a user is having problems getting their seed file to validate this can be useful to debug without
+those additional steps.  This command will validate the seed file in the examples/extractor directory:
+
+----
+seed validate -d examples/extractor
+----
+
+That will use the schema built-in to the Seed CLI tool.  To use a different schema, pass it in using the -s flag:
+
+----
+seed validate -d examples/extractor -s schema/0.1.0/seed.manifest.schema.json
+----
+
+=== Version
+
+The version command will print the version of the Seed CLI tool:
+
+----
+seed version
+----
 
 
 == Development
