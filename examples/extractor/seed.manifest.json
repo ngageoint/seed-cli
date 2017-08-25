@@ -2,7 +2,7 @@
     "seedVersion": "0.1.0",
     "job": {
         "name": "extractor",
-        "algorithmVersion": "0.1.0",
+        "jobVersion": "0.1.0",
         "packageVersion": "0.1.0",
         "title": "Extractor",
         "description": "Reads a zip file and extracts the contents",
@@ -88,19 +88,13 @@
                 "code": 1,
                 "title": "Error Name",
                 "description": "Error Description",
-                "category": "system"
+                "category": "data"
             },
             {
                 "code": 2,
                 "title": "Error Name",
                 "description": "Error Description",
-                "category": "data"
-            },
-            {
-                "code": 3,
-                "title": "Error Name",
-                "description": "Error Description",
-                "category": "algorithm"
+                "category": "job"
             }
         ]
     }

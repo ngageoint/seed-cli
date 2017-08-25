@@ -98,10 +98,10 @@ const PkgVersionMinor = "p"
 //PkgVersionMajor specifies to bump package major version
 const PkgVersionMajor = "P"
 
-//AlgVersionMinor specifies to bump algorithm minor version
+//AlgVersionMinor specifies to bump job minor version
 const AlgVersionMinor = "a"
 
-//AlgVersionMajor specifies to bump algorithm major version
+//AlgVersionMajor specifies to bump job major version
 const AlgVersionMajor = "A"
 
 //SeedFileName defines the filename for the seed file

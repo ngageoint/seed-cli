@@ -19,8 +19,8 @@ func TestDockerRun(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/", "addition-algorithm-0.0.1-seed:1.0.0",
-			[]string{"INPUT_FILE=../examples/addition-algorithm/inputs.txt"},
+		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0",
+			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
 			[]string{"SETTING_ONE=one", "SETTING_TWO=two"},
 			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
 			true, ""},
@@ -59,8 +59,8 @@ func TestDefineInputs(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json",
-			[]string{"INPUT_FILE=../examples/addition-algorithm/inputs.txt"},
+		{"../examples/addition-job/seed.manifest.json",
+			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
 			"[-v INPUT_FILE:INPUT_FILE]", "0.0",
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
@@ -121,7 +121,7 @@ func TestDefineMounts(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json",
+		{"../examples/addition-job/seed.manifest.json",
 			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
 			"[-v MOUNT_BIN:/usr/bin/:ro -v MOUNT_TMP:/tmp/:rw]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
@@ -160,7 +160,7 @@ func TestDefineResources(t *testing.T) {
 		expectedResult   bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json",
+		{"../examples/addition-job/seed.manifest.json",
 			4.0, "[-m 16m]", 5.0, true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			1.0, "[-m 16m]", 1.01, true, ""},
@@ -197,7 +197,7 @@ func TestDefineSettings(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json",
+		{"../examples/addition-job/seed.manifest.json",
 			[]string{"SETTING_ONE=One", "SETTING_TWO=two"},
 			"[-e SETTING_ONE=One -e SETTING_TWO=two]", true, ""},
 		{"../examples/extractor/seed.manifest.json",

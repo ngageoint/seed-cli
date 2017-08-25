@@ -14,7 +14,7 @@ func TestValidate(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-algorithm/seed.manifest.json", true, ""},
+		{"../examples/addition-job/seed.manifest.json", true, ""},
 		{"../examples/extractor/seed.manifest.json", true, ""},
 		{"../testdata/invalid-missing-job/seed.manifest.json",
 			false, "job is required"},
