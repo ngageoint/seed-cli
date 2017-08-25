@@ -20,7 +20,7 @@ type Seed struct {
 
 type Job struct {
 	Name             string     `json:"name"`
-	AlgorithmVersion string     `json:"algorithmVersion"`
+	AlgorithmVersion string     `json:"jobVersion"`
 	PackageVersion   string     `json:"packageVersion"`
 	Title            string     `json:"title,omitempty"`
 	Description      string     `json:"description,omitempty"`
@@ -176,7 +176,7 @@ type ErrorMap struct {
 
 func (o *ErrorMap) UnmarshalJSON(b []byte) error {
 	type xErrorMap ErrorMap
-	xo := &xErrorMap{Category: "algorithm"}
+	xo := &xErrorMap{Category: "job"}
 	if err := json.Unmarshal(b, xo); err != nil {
 		return err
 	}

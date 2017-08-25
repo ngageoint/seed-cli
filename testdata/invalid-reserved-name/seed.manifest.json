@@ -2,7 +2,7 @@
   "seedVersion":"0.1.0",
   "job":{
     "name":"reserved-name",
-    "algorithmVersion":"0.1.0",
+    "jobVersion":"0.1.0",
     "packageVersion":"0.1.0",
     "title":"Duplicate names",
     "description":"Processes an input PNG and outputs watermarked PNG.",

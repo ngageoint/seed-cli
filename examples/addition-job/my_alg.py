@@ -36,7 +36,7 @@ if __name__ == '__main__':
     sys_stdout = sys.stdout
     argv = sys.argv
     if argv is None:
-        log.error('No inputs passed to algorithm')
+        log.error('No inputs passed to job')
         sys.exit(2)
     argc = len(argv) - 1
 
