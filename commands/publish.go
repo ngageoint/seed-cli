@@ -19,7 +19,7 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(origImg, registry, org, username, password, jobDirectory string, deconflict,
+func DockerPublish(origImg, registry, org, username, password, jobDirectory string, force,
 	increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor bool) error {
 
 	if username != "" {
@@ -60,7 +60,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	conflict := len(matches) > 0
 
 	// If it conflicts, bump specified version number
-	if conflict && deconflict {
+	if conflict && !force {
 		//1. Verify we have a valid manifest (-d option or within the current directory)
 		seedFileName, err := util.SeedFileName(jobDirectory)
 		if err != nil {
@@ -71,8 +71,17 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		seed := objects.SeedFromManifestFile(seedFileName)
 
 		fmt.Fprintf(os.Stderr, "INFO: An image with the name %s already exists. ", img)
-		// Bump the package minor version
-		if increasePkgMinor {
+		// Bump the package patch version
+		if increasePkgPatch {
+			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
+			patchVersion, _ := strconv.Atoi(pkgVersion[2])
+			pkgVersion[2] = strconv.Itoa(patchVersion + 1)
+			seed.Job.PackageVersion = strings.Join(pkgVersion, ".")
+			fmt.Fprintf(os.Stderr, "The package patch version will be increased to %s.\n",
+				seed.Job.PackageVersion)
+
+			// Bump the algorithm major verion
+		} else if  increasePkgMinor {
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			minorVersion, _ := strconv.Atoi(pkgVersion[1])
 			pkgVersion[1] = strconv.Itoa(minorVersion + 1)
@@ -92,13 +101,22 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 				seed.Job.PackageVersion)
 
 			// Bump the algorithm minor version
-		} else if increaseAlgMinor {
+		}
+		if increaseAlgPatch {
+			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
+			patchVersion, _ := strconv.Atoi(algVersion[2])
+			algVersion[2] = strconv.Itoa(patchVersion + 1)
+			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
+			fmt.Fprintf(os.Stderr, "The algorithm patch version will be increased to %s.\n",
+				seed.Job.AlgorithmVersion)
 
+			// Bump the algorithm major verion
+		} else if increaseAlgMinor {
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
 			minorVersion, _ := strconv.Atoi(algVersion[1])
 			algVersion[1] = strconv.Itoa(minorVersion + 1)
 			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
-
+			algVersion[2] = "0"
 			fmt.Fprintf(os.Stderr, "The minor algorithm version will be increased to %s.\n",
 				seed.Job.AlgorithmVersion)
 
@@ -107,11 +125,14 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			algVersion := strings.Split(seed.Job.AlgorithmVersion, ".")
 			majorVersion, _ := strconv.Atoi(algVersion[0])
 			algVersion[0] = strconv.Itoa(majorVersion + 1)
+			algVersion[1] = "0"
+			algVersion[2] = "0"
 			seed.Job.AlgorithmVersion = strings.Join(algVersion, ".")
 
 			fmt.Fprintf(os.Stderr, "The major algorithm version will be increased to %s.\n",
 				seed.Job.AlgorithmVersion)
-		} else {
+		}
+		if !increaseAlgMajor && !increaseAlgMinor && !increaseAlgPatch && !increasePkgMajor && !increasePkgMinor && !increasePkgPatch{
 			fmt.Fprintf(os.Stderr, "ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
 			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 			return errors.New("Image exists and no tag deconfliction method specified.")
@@ -239,15 +260,19 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 //PrintPublishUsage prints the seed publish usage information, then exits the program
 func PrintPublishUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed publish [-r REGISTRY_NAME] [-o ORG_NAME] [-f] [-p | -P | -a | -A] -d DIRECTORY IMAGE_NAME\n")
+	fmt.Fprintf(os.Stderr, "\nUsage:\tseed publish [-r REGISTRY_NAME] [-o ORG_NAME] [-f] [-p | -P | -a | -A]\n")
 	fmt.Fprintf(os.Stderr, "\nAllows for the publish of seed compliant images.\n")
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
 	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to publish\n",
+		constants.ShortImgNameFlag, constants.ImgNameFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization to publish the image\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
+	fmt.Fprintf(os.Stderr, "  -%s\t\tOverwrite remote image if publish conflict found\n",
+		constants.ForcePublishFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'packageVersion' in manifest on disk if publish conflict found\n",

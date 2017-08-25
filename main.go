@@ -177,7 +177,7 @@ func main() {
 		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
 		origImg := publishCmd.Arg(0)
 		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		deconflict := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
+		force := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
 
 		increasePkgMinor := publishCmd.Lookup(constants.PkgVersionMinor).Value.String() ==
 			constants.TrueString
@@ -188,7 +188,7 @@ func main() {
 		increaseAlgMajor := publishCmd.Lookup(constants.AlgVersionMajor).Value.String() ==
 			constants.TrueString
 
-		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory, deconflict,
+		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory, force,
 			increasePkgMinor, increasePkgMajor, increaseAlgMinor, increaseAlgMajor)
 		if err != nil {
 			panic(util.Exit{1})
