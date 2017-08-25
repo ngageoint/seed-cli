@@ -110,7 +110,7 @@ This will rebuild the extractor image with the appropriate name & label and publ
 to docker hub.  Finally, if the registry is private, a username and password can be specified with -u and -p options:
 
 ----
-seed publish -in extractor-0.1.0-seed:0.1.0 -r http://localhost:5000 -u testuser -p testpassword
+seed publish -in extractor-0.1.0-seed:0.1.0 -r localhost:5000 -u testuser -p testpassword
 ----
 
 === Validate

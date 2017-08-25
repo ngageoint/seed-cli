@@ -52,15 +52,18 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	}
 
 	// Check for image confliction.
-	matches, err := DockerSearch(registry, org, origImg, "", "")
+	images, err := DockerSearch(registry, org, "", username, password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Error searching for matching tag names.\n%s\n",
 			err.Error())
 	}
-	conflict := len(matches) > 0
+	conflict := util.ContainsString(images, origImg)
+	fmt.Fprintf(os.Stderr, "INFO: Image %s exists on registry %s\n", img, registry)
 
 	// If it conflicts, bump specified version number
 	if conflict && !force {
+		fmt.Fprintf(os.Stderr, "INFO: Force flag not specified, attempting to rebuild with new version number.\n")
+
 		//1. Verify we have a valid manifest (-d option or within the current directory)
 		seedFileName, err := util.SeedFileName(jobDirectory)
 		if err != nil {
@@ -85,6 +88,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			minorVersion, _ := strconv.Atoi(pkgVersion[1])
 			pkgVersion[1] = strconv.Itoa(minorVersion + 1)
+			pkgVersion[2] = "0"
 			seed.Job.PackageVersion = strings.Join(pkgVersion, ".")
 
 			fmt.Fprintf(os.Stderr, "The package version will be increased to %s.\n",
@@ -95,6 +99,8 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			pkgVersion := strings.Split(seed.Job.PackageVersion, ".")
 			majorVersion, _ := strconv.Atoi(pkgVersion[0])
 			pkgVersion[0] = strconv.Itoa(majorVersion + 1)
+			pkgVersion[1] = "0"
+			pkgVersion[2] = "0"
 			seed.Job.PackageVersion = strings.Join(pkgVersion, ".")
 
 			fmt.Fprintf(os.Stderr, "The major package version will be increased to %s.\n",
@@ -114,8 +120,8 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			jobVersion := strings.Split(seed.Job.JobVersion, ".")
 			minorVersion, _ := strconv.Atoi(jobVersion[1])
 			jobVersion[1] = strconv.Itoa(minorVersion + 1)
-			seed.Job.JobVersion = strings.Join(jobVersion, ".")
 			jobVersion[2] = "0"
+			seed.Job.JobVersion = strings.Join(jobVersion, ".")
 			fmt.Fprintf(os.Stderr, "The minor job version will be increased to %s.\n",
 				seed.Job.JobVersion)
 

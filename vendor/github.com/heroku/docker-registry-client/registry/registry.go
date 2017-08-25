@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/cookiejar"
 	"strings"
 )
 
@@ -42,7 +41,7 @@ type Registry struct {
 func New(registryUrl, username, password string) (*Registry, error) {
 	transport := http.DefaultTransport
 
-	return newFromTransport(registryUrl, username, password, transport, Log)
+	return newFromTransport(registryUrl, username, password, transport, Quiet)
 }
 
 /*
@@ -86,17 +85,16 @@ func WrapTransport(transport http.RoundTripper, url, username, password string) 
 func newFromTransport(registryUrl, username, password string, transport http.RoundTripper, logf LogfCallback) (*Registry, error) {
 	url := strings.TrimSuffix(registryUrl, "/")
 	transport = WrapTransport(transport, url, username, password)
-    jar, err := cookiejar.New(nil)
-    if err != nil {
-        log.Fatal(err)
-    }
 	registry := &Registry{
 		URL: url,
 		Client: &http.Client{
 			Transport: transport,
-			Jar: jar,
 		},
 		Logf: logf,
+	}
+
+	if err := registry.Ping(); err != nil {
+		return nil, err
 	}
 
 	return registry, nil
@@ -110,7 +108,7 @@ func (r *Registry) url(pathTemplate string, args ...interface{}) string {
 
 func (r *Registry) Ping() error {
 	url := r.url("/v2/")
-	//r.Logf("registry.ping url=%s", url)
+	r.Logf("registry.ping url=%s", url)
 	resp, err := r.Client.Get(url)
 	if resp != nil {
 		defer resp.Body.Close()

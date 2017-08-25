@@ -173,11 +173,11 @@ func main() {
 	if publishCmd.Parsed() {
 		registry := publishCmd.Lookup(constants.RegistryFlag).Value.String()
 		org := publishCmd.Lookup(constants.OrgFlag).Value.String()
-		user := searchCmd.Lookup(constants.UserFlag).Value.String()
-		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
-		origImg := publishCmd.Arg(0)
+		user := publishCmd.Lookup(constants.UserFlag).Value.String()
+		pass := publishCmd.Lookup(constants.PassFlag).Value.String()
+		origImg := publishCmd.Lookup(constants.ImgNameFlag).Value.String()
 		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		force := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == "false"
+		force := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == constants.TrueString
 
 		P := publishCmd.Lookup(constants.PkgVersionMajor).Value.String() == constants.TrueString
 		pm := publishCmd.Lookup(constants.PkgVersionMinor).Value.String() == constants.TrueString
@@ -353,6 +353,12 @@ func DefinePublishFlags() {
 	publishCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
 	publishCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
 
+	var imgNameFlag string
+	publishCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to publish")
+	publishCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to publish")
+
 	var d string
 	publishCmd.StringVar(&d, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
@@ -380,6 +386,14 @@ func DefinePublishFlags() {
 	var jMaj bool
 	publishCmd.BoolVar(&jMaj, constants.JobVersionMajor, false,
 		"Major version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+
+	var user string
+	publishCmd.StringVar(&user, constants.UserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+	publishCmd.StringVar(&user, constants.ShortUserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+
+	var password string
+	publishCmd.StringVar(&password, constants.PassFlag, "", "Specifies password to use for authorization (default is empty).")
+	publishCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
 
 	publishCmd.Usage = func() {
 		commands.PrintPublishUsage()
