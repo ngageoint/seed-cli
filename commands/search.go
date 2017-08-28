@@ -20,8 +20,10 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		url = constants.DefaultRegistry
 	}
 
+	httpFallback := ""
 	if !strings.HasPrefix(url, "http") {
-		url = "http://" + url
+		httpFallback = "http://" + url
+		url = "https://" + url
 	}
 
 	if org == "" {
@@ -39,8 +41,11 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-			return nil, err
+			hub, err = dockerHubRegistry.New(httpFallback)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, err.Error())
+				return nil, err
+			}
 		}
 		images, err = hub.UserRepositories(org)
 		if err != nil {
@@ -50,8 +55,11 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-			return nil, err
+			hub, err = registry.New(httpFallback, username, password)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, err.Error())
+				return nil, err
+			}
 		}
 		repositories, err := hub.Repositories()
 		if err != nil {

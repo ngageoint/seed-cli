@@ -69,7 +69,7 @@ algorithm.
 
 === List
 
-Simple command to list the local seed compliant images.  It can be run with the following command:
+Simple command to list the local Seed compliant images.  It can be run with the following command:
 
 ----
 seed list
@@ -98,7 +98,7 @@ seed search -r http://localhost:5000 -u testuser -p testpassword
 
 === Publish
 
-Provides a convenient way for algorithm developers to push a seed image to a registry.  This command will tag a seed
+Provides a convenient way for algorithm developers to push a Seed image to a registry.  This command will tag a seed
 image appropriately and push it to the specified registry.  If successful, it will then remove the local image as well.
 Here is an example of publishing the extractor image to the geoint organization on docker hub:
 
@@ -124,9 +124,9 @@ seed publish -in extractor-0.1.0-seed:0.1.0 -r localhost:5000 -u testuser -p tes
 
 === Validate
 
-The Validate command will validate a seed json file against the seed schema.  This is also done as part of the build and
-run commands, but if a user is having problems getting their seed file to validate this can be useful to debug without
-those additional steps.  This command will validate the seed file in the examples/extractor directory:
+The Validate command will validate a Seed json file against the Seed schema.  This is also done as part of the build and
+run commands, but if a user is having problems getting their Seed file to validate this can be useful to debug without
+those additional steps.  This command will validate the Seed file in the examples/extractor directory:
 
 ----
 seed validate -d examples/extractor
