@@ -252,7 +252,7 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                        "pattern": "^[a-zA-Z_-]+$"
+                    "pattern": "^[a-zA-Z_-]+$"
                   },
                   "path": {
                     "type": "string"

@@ -71,10 +71,23 @@
     },
     "resources": {
       "scalar": [
-        { "name": "cpu", "value": 1.0 },
-        { "name": "mem", "value": 1024.0 },
-        { "name": "sharedMem", "value": 0.0 },
-        { "name": "disk", "value": 10.0, "inputMultiplier": 4.0 }
+        {
+          "name": "cpu",
+          "value": 1
+        },
+        {
+          "name": "mem",
+          "value": 128
+        },
+        {
+          "name": "sharedMem",
+          "value": 0
+        },
+        {
+          "name": "disk",
+          "value": 10,
+          "inputMultiplier": 4
+        }
       ]
     },
     "errors": [
@@ -82,16 +95,10 @@
         "code": 1,
         "title": "Error Name",
         "description": "Error Description",
-        "category": "system"
-      },
-      {
-        "code": 2,
-        "title": "Error Name",
-        "description": "Error Description",
         "category": "data"
       },
       {
-        "code": 3,
+        "code": 2,
         "title": "Error Name",
         "description": "Error Description",
         "category": "job"
