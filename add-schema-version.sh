@@ -16,7 +16,7 @@ BASE_URL=https://github.com/ngageoint/seed/releases/download
 if [[ "${2}x" != "x" ]]
 then
     BASE_URL=$2
-    echo Updated base ULR to $2
+    echo Updated base URL to $2
 fi
 
 # Ensure script directory is CWD
