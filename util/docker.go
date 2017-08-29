@@ -125,7 +125,7 @@ func ImageMemoryUsage(imageName string) {
 
 }
 
-func Login(username, password, registry string) error {
+func Login(registry, username, password string) error {
 	var errs, out bytes.Buffer
 	args := []string{"login", "-u", username, "-p", password, registry}
 	cmd := exec.Command("docker", args...)

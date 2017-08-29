@@ -20,6 +20,12 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		url = constants.DefaultRegistry
 	}
 
+	httpFallback := ""
+	if !strings.HasPrefix(url, "http") {
+		httpFallback = "http://" + url
+		url = "https://" + url
+	}
+
 	if org == "" {
 		org = constants.DefaultOrg
 	}
@@ -30,15 +36,18 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		dockerHub = true
 	}
 
-	var repositories []string
+	var images []string
 	var err error
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
 		hub, err := dockerHubRegistry.New(url)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-			return nil, err
+			hub, err = dockerHubRegistry.New(httpFallback)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, err.Error())
+				return nil, err
+			}
 		}
-		repositories, err = hub.UserRepositories(org)
+		images, err = hub.UserRepositories(org)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
@@ -46,34 +55,42 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-			return nil, err
+			hub, err = registry.New(httpFallback, username, password)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, err.Error())
+				return nil, err
+			}
 		}
-		repositories, err = hub.Repositories()
+		repositories, err := hub.Repositories()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
 		}
+		for _, repo := range repositories {
+			tags, err := hub.Tags(repo)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, err.Error())
+				continue
+			}
+			for _, tag := range tags {
+				images = append(images, repo + ":" + tag)
+			}
+		}
+
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		return nil, err
 	}
 
-	var stringRepos []string
-	for _, repo := range repositories {
-		if strings.Contains(repo, "-seed") {
-			if filter != "" {
-				if strings.Contains(repo, filter) {
-					stringRepos = append(stringRepos, repo)
-				}
-			} else {
-				stringRepos = append(stringRepos, repo)
-			}
+	var stringImages []string
+	for _, image := range images {
+		if strings.Contains(image, "-seed") {
+			stringImages = append(stringImages, image)
 		}
 	}
 
-	return stringRepos, nil
+	return stringImages, nil
 }
 
 //PrintSearchUsage prints the seed search usage information, then exits the program

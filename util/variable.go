@@ -65,3 +65,13 @@ func RemoveString(s []string, r string) []string {
 	}
 	return s
 }
+
+//ContainsString checks if a string exists in a given slice of strings
+func ContainsString(s []string, r string) bool {
+	for _, v := range s {
+		if v == r {
+			return true
+		}
+	}
+	return true
+}
