@@ -6,10 +6,11 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/dockerHubRegistry"
+	"github.com/ngageoint/seed-cli/registry/dockerhub"
 	"github.com/ngageoint/seed-cli/util"
 
 	"github.com/heroku/docker-registry-client/registry"
+	"github.com/ngageoint/seed-cli/registry/containeryard"
 )
 
 //DockerSearch executes the seed search command
@@ -36,12 +37,25 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		dockerHub = true
 	}
 
+	containerYard := false
+	if !dockerHub {
+		yard, err := containeryard.New(url)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+		}
+		err = yard.Ping()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+		}
+		containerYard = (err == nil)
+	}
+
 	var images []string
 	var err error
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
-		hub, err := dockerHubRegistry.New(url)
+		hub, err := dockerhub.New(url)
 		if err != nil {
-			hub, err = dockerHubRegistry.New(httpFallback)
+			hub, err = dockerhub.New(httpFallback)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, err.Error())
 				return nil, err
@@ -52,11 +66,28 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
 		}
+	} else if containerYard {
+		yard, err := containeryard.New(url)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+			return nil, err
+		}
+		images, err = yard.Repositories()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+			return nil, err
+		}
+		return images, err //no need to filter again for "-seed" with container yard
 	} else {
 		hub, err := registry.New(url, username, password)
 		if err != nil {
-			hub, err = registry.New(httpFallback, username, password)
-			if err != nil {
+			if httpFallback != "" {
+				hub, err = registry.New(httpFallback, username, password)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, err.Error())
+					return nil, err
+				}
+			} else {
 				fmt.Fprintf(os.Stderr, err.Error())
 				return nil, err
 			}

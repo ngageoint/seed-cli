@@ -1,4 +1,4 @@
-package dockerHubRegistry
+package dockerhub
 
 type repositoriesResponse struct {
 	Count    int
