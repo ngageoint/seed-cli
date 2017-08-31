@@ -1,4 +1,4 @@
-package dockerHubRegistry
+package dockerhub
 
 import (
 	"fmt"

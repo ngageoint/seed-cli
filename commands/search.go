@@ -6,10 +6,11 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/dockerHubRegistry"
+	"github.com/ngageoint/seed-cli/registry/dockerhub"
 	"github.com/ngageoint/seed-cli/util"
 
 	"github.com/heroku/docker-registry-client/registry"
+	"github.com/ngageoint/seed-cli/registry/containeryard"
 )
 
 //DockerSearch executes the seed search command
@@ -36,12 +37,15 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		dockerHub = true
 	}
 
+	yard, _ := containeryard.New(url)
+	containerYard := !dockerHub && (yard.Ping() == nil)
+
 	var images []string
 	var err error
 	if dockerHub { //_catalog is disabled on docker hub, cannot get list of images so get all of the images for the org (if specified)
-		hub, err := dockerHubRegistry.New(url)
+		hub, err := dockerhub.New(url)
 		if err != nil {
-			hub, err = dockerHubRegistry.New(httpFallback)
+			hub, err = dockerhub.New(httpFallback)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, err.Error())
 				return nil, err
@@ -52,28 +56,40 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
 		}
-	} else {
-		hub, err := registry.New(url, username, password)
+	} else if containerYard {
+		images, err = yard.Repositories()
 		if err != nil {
-			hub, err = registry.New(httpFallback, username, password)
-			if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+			return nil, err
+		}
+		return images, err //no need to filter again for "-seed" with container yard
+	} else {
+		v2, err := registry.New(url, username, password)
+		if err != nil {
+			if httpFallback != "" {
+				v2, err = registry.New(httpFallback, username, password)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, err.Error())
+					return nil, err
+				}
+			} else {
 				fmt.Fprintf(os.Stderr, err.Error())
 				return nil, err
 			}
 		}
-		repositories, err := hub.Repositories()
+		repositories, err := v2.Repositories()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
 		}
 		for _, repo := range repositories {
-			tags, err := hub.Tags(repo)
+			tags, err := v2.Tags(repo)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, err.Error())
 				continue
 			}
 			for _, tag := range tags {
-				images = append(images, repo + ":" + tag)
+				images = append(images, repo+":"+tag)
 			}
 		}
 
