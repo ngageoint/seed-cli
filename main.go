@@ -535,7 +535,7 @@ func PrintUsage() {
 	fmt.Fprintf(os.Stderr, "A test runner for seed spec compliant algorithms\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")
 	fmt.Fprintf(os.Stderr, "  build \tBuilds Seed compliant Docker image\n")
-	fmt.Fprintf(os.Stderr, "  init \tInitialize new project with example seed.manifest.json file\n")
+	fmt.Fprintf(os.Stderr, "  init  \tInitialize new project with example seed.manifest.json file\n")
 	fmt.Fprintf(os.Stderr, "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
 	fmt.Fprintf(os.Stderr, "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
 	fmt.Fprintf(os.Stderr, "  run   \tExecutes Seed compliant Docker docker image\n")
