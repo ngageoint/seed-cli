@@ -6,25 +6,25 @@ type Response struct {
 
 type Results struct {
 	Community map[string]*Image
-	Imports map[string]*Image
+	Imports   map[string]*Image
 }
 
 type Image struct {
 	Author    string
-	Compliant     bool
-	Error bool
-	Labels  map[string]string
-	Obsolete bool
-	Pulls string
-	Stars int
-	Tags map[string]Tag
+	Compliant bool
+	Error     bool
+	Labels    map[string]string
+	Obsolete  bool
+	Pulls     string
+	Stars     int
+	Tags      map[string]Tag
 }
 
 type Tag struct {
-	Age int
+	Age     int
 	Created string
-	Digest string
-	Size string
+	Digest  string
+	Size    string
 }
 
 //Result struct representing JSON result

@@ -89,7 +89,7 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 				continue
 			}
 			for _, tag := range tags {
-				images = append(images, repo + ":" + tag)
+				images = append(images, repo+":"+tag)
 			}
 		}
 
