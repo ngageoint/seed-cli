@@ -37,18 +37,8 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		dockerHub = true
 	}
 
-	containerYard := false
-	if !dockerHub {
-		yard, err := containeryard.New(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-		}
-		err = yard.Ping()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-		}
-		containerYard = (err == nil)
-	}
+	yard, _ := containeryard.New(url)
+	containerYard := !dockerHub && (yard.Ping() == nil)
 
 	var images []string
 	var err error
@@ -67,11 +57,6 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 			return nil, err
 		}
 	} else if containerYard {
-		yard, err := containeryard.New(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
-			return nil, err
-		}
 		images, err = yard.Repositories()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
@@ -79,10 +64,10 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		}
 		return images, err //no need to filter again for "-seed" with container yard
 	} else {
-		hub, err := registry.New(url, username, password)
+		v2, err := registry.New(url, username, password)
 		if err != nil {
 			if httpFallback != "" {
-				hub, err = registry.New(httpFallback, username, password)
+				v2, err = registry.New(httpFallback, username, password)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, err.Error())
 					return nil, err
@@ -92,13 +77,13 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 				return nil, err
 			}
 		}
-		repositories, err := hub.Repositories()
+		repositories, err := v2.Repositories()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
 			return nil, err
 		}
 		for _, repo := range repositories {
-			tags, err := hub.Tags(repo)
+			tags, err := v2.Tags(repo)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, err.Error())
 				continue

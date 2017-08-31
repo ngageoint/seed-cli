@@ -32,7 +32,7 @@ func (r *ContainerYardRegistry) url(pathTemplate string, args ...interface{}) st
 func (r *ContainerYardRegistry) Ping() error {
 	//query that should quickly return an empty json response
 	url := r.url("/search?q=NoImagesWithThisName&t=json")
-	var response interface{}
-	err := r.getContainerYardJson(url, response)
+	var response Response
+	err := r.getContainerYardJson(url, &response)
 	return err
 }
