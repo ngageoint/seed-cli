@@ -29,6 +29,10 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		return errors.New("ERROR: No input image specified.")
 	}
 
+	if exists, err := util.ImageExists(imageName); !exists {
+		return err
+	}
+
 	// Parse seed information off of the label
 	seed := objects.SeedFromImageLabel(imageName)
 

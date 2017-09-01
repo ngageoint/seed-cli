@@ -108,7 +108,7 @@ func ImageExists(imageName string) (bool, error) {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		return false, err
 	} else if string(imgOut) == "" {
-		fmt.Fprintf(os.Stderr, "INFO: No docker image found for image name %s. Building image now...\n",
+		fmt.Fprintf(os.Stderr, "INFO: No docker image found locally for image name %s.\n",
 			imageName)
 		return false, nil
 	}
