@@ -621,8 +621,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 
 //PrintRunUsage prints the seed run usage arguments, then exits the program
 func PrintRunUsage() {
-	fmt.Fprintf(os.Stderr,
-		"\nUsage:\tseed run -in IMAGE_NAME [-i INPUT_KEY=INPUT_FILE ...] [-e SETTING_KEY=VALUE] [-m MOUNT_KEY=PATH] -o OUTPUT_DIRECTORY \n")
+	fmt.Fprintf(os.Stderr, "\nUsage:\tseed run -in IMAGE_NAME [OPTIONS] \n")
 
 	fmt.Fprintf(os.Stderr, "\nRuns Docker image defined by seed spec.\n")
 
