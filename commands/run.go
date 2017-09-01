@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
@@ -144,11 +145,32 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	// Run docker run
 	runTime := time.Now()
 	err := dockerRun.Run()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
-			err.Error())
-	}
 	util.TimeTrack(runTime, "INFO: "+imageName+" run")
+	if err != nil {
+		exitError, ok := err.(*exec.ExitError)
+		if ok {
+			ws := exitError.Sys().(syscall.WaitStatus)
+			exitCode := ws.ExitStatus()
+			fmt.Fprintf(os.Stderr, "Exited with error code %v\n", exitCode)
+			match := false
+			for _, e := range seed.Job.Errors {
+				if e.Code == exitCode {
+					fmt.Fprintf(os.Stderr, "Title: \t %s\n", e.Title)
+					fmt.Fprintf(os.Stderr, "Description: \t %s\n", e.Description)
+					fmt.Fprintf(os.Stderr, "Category: \t %s \n \n", e.Category)
+					match = true
+					fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+					return err
+				}
+			}
+			if !match {
+				fmt.Fprintf(os.Stderr, "No matching error code found in Seed manifest\n")
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "ERROR: error executing docker run. %s\n",
+				err.Error())
+		}
+	}
 
 	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error running image '%s':\n%s\n",
