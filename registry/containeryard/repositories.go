@@ -32,8 +32,49 @@ type Result struct {
 	Name string
 }
 
-//Repositories Returns repositories for the given user
-func (registry *ContainerYardRegistry) Repositories() ([]string, error) {
+func (registry *ContainerYardRegistry) Repositories(org string) ([]string, error) {
+	url := registry.url("/search?q=%s&t=json", "-seed")
+	repos := make([]string, 0, 10)
+	var err error //We create this here, otherwise url will be rescoped with :=
+	var response Response
+
+	err = registry.getContainerYardJson(url, &response)
+	if err == nil {
+		for repoName, _ := range response.Results.Community {
+			repos = append(repos, repoName)
+		}
+		for repoName, _ := range response.Results.Imports {
+			repos = append(repos, repoName)
+		}
+	}
+	return repos, err
+
+}
+
+func (registry *ContainerYardRegistry) Tags(repository, org string) ([]string, error) {
+	url := registry.url("/search?q=%s&t=json", repository)
+	tags := make([]string, 0, 10)
+	var err error //We create this here, otherwise url will be rescoped with :=
+	var response Response
+
+	err = registry.getContainerYardJson(url, &response)
+	if err == nil {
+		for _, image := range response.Results.Community {
+			for tagName, _ := range image.Tags {
+				tags = append(tags, tagName)
+			}
+		}
+		for _, image := range response.Results.Imports {
+			for tagName, _ := range image.Tags {
+				tags = append(tags, tagName)
+			}
+		}
+	}
+	return tags, err
+}
+
+//Images returns all seed images on the registry
+func (registry *ContainerYardRegistry) Images(org string) ([]string, error) {
 	url := registry.url("/search?q=%s&t=json", "-seed")
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=

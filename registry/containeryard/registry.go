@@ -12,6 +12,10 @@ type ContainerYardRegistry struct {
 	Client *http.Client
 }
 
+func (r *ContainerYardRegistry) Name() string {
+	return "ContainerYardRegistry"
+}
+
 //New creates a new docker hub registry from the given URL
 func New(registryUrl string) (*ContainerYardRegistry, error) {
 	url := strings.TrimSuffix(registryUrl, "/")

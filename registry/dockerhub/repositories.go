@@ -1,5 +1,9 @@
 package dockerhub
 
+import (
+	"strings"
+)
+
 type repositoriesResponse struct {
 	Count    int
 	Next     string
@@ -12,8 +16,8 @@ type Result struct {
 	Name string
 }
 
-//UserRepositories Returns repositories for the given user
-func (registry *DockerHubRegistry) UserRepositories(user string) ([]string, error) {
+//Repositories Returns seed repositories for the given user/organization
+func (registry *DockerHubRegistry) Repositories(user string) ([]string, error) {
 	url := registry.url("/v2/repositories/%s/", user)
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -22,14 +26,10 @@ func (registry *DockerHubRegistry) UserRepositories(user string) ([]string, erro
 		response.Next = ""
 		url, err = registry.getDockerHubPaginatedJson(url, &response)
 		for _, r := range response.Results {
-			// Add all tags if found
-			if rs, _ := registry.UserRepositoriesTags(user, r.Name); len(rs) > 0 {
-				repos = append(repos, rs...)
-
-				// No tags found - so just add the repo name
-			} else {
-				repos = append(repos, r.Name)
+			if !strings.HasSuffix(r.Name, "-seed") {
+				continue
 			}
+			repos = append(repos, r.Name)
 		}
 	}
 	if err != ErrNoMorePages {
@@ -38,9 +38,29 @@ func (registry *DockerHubRegistry) UserRepositories(user string) ([]string, erro
 	return repos, nil
 }
 
-//UserRepositoriesTags Returns repositories along with their tags
-func (registry *DockerHubRegistry) UserRepositoriesTags(user string, repository string) ([]string, error) {
+//Tags Returns tags for a given user/organization and repository
+func (registry *DockerHubRegistry) Tags(repository, user string) ([]string, error) {
 	url := registry.url("/v2/repositories/%s/%s/tags", user, repository)
+	tags := make([]string, 0, 10)
+	var err error //We create this here, otherwise url will be rescoped with :=
+	var response repositoriesResponse
+	for err == nil {
+		response.Next = ""
+		url, err = registry.getDockerHubPaginatedJson(url, &response)
+		for _, r := range response.Results {
+			tags = append(tags, r.Name)
+		}
+	}
+	if err != ErrNoMorePages {
+		return nil, err
+	}
+	return tags, nil
+}
+
+//Images returns seed images for a given user/repository.  It will grab all of the seed repositories and combine them
+//with any tags it can find to build a list of images.
+func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
+	url := registry.url("/v2/repositories/%s/", user)
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
 	var response repositoriesResponse
@@ -48,7 +68,18 @@ func (registry *DockerHubRegistry) UserRepositoriesTags(user string, repository 
 		response.Next = ""
 		url, err = registry.getDockerHubPaginatedJson(url, &response)
 		for _, r := range response.Results {
-			repos = append(repos, repository+":"+r.Name)
+			if !strings.HasSuffix(r.Name, "-seed") {
+				continue
+			}
+			// Add all tags if found
+			if rs, _ := registry.Tags(user, r.Name); len(rs) > 0 {
+				for _, tag := range rs {
+					repos = append(repos, r.Name+":"+tag)
+				}
+				// No tags found - so just add the repo name
+			} else {
+				repos = append(repos, r.Name)
+			}
 		}
 	}
 	if err != ErrNoMorePages {

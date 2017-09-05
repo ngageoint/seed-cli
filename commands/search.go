@@ -3,14 +3,10 @@ package commands
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/registry/dockerhub"
 	"github.com/ngageoint/seed-cli/util"
 
-	"github.com/heroku/docker-registry-client/registry"
-	"github.com/ngageoint/seed-cli/registry/containeryard"
 )
 
 //DockerSearch executes the seed search command
@@ -21,16 +17,10 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		url = constants.DefaultRegistry
 	}
 
-	httpFallback := ""
-	if !strings.HasPrefix(url, "http") {
-		httpFallback = "http://" + url
-		url = "https://" + url
-	}
-
 	if org == "" {
 		org = constants.DefaultOrg
 	}
-
+/*
 	dockerHub := false
 	if strings.Contains(url, "hub.docker.com") || strings.Contains(url, "index.docker.io") || strings.Contains(url, "registry-1.docker.io") {
 		url = "https://hub.docker.com"
@@ -106,7 +96,7 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		}
 	}
 
-	return stringImages, nil
+	return stringImages, nil*/ return nil, nil
 }
 
 //PrintSearchUsage prints the seed search usage information, then exits the program

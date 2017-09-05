@@ -28,3 +28,15 @@ func (r *DockerHubRegistry) url(pathTemplate string, args ...interface{}) string
 	url := fmt.Sprintf("%s%s", r.URL, pathSuffix)
 	return url
 }
+
+func (r *DockerHubRegistry) Name() string {
+	return "DockerHubRegistry"
+}
+
+func (r *DockerHubRegistry) Ping() error {
+	resp, err := r.Client.Get(r.URL)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	return err
+}
