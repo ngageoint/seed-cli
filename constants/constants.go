@@ -117,7 +117,7 @@ const SeedFileName = "seed.manifest.json"
 const ResultsFileManifestName = "seed.outputs.json"
 
 //DefaultRegistry defines the default registry address to use when searching for images
-const DefaultRegistry = "https://hub.docker.com/v2"
+const DefaultRegistry = "https://hub.docker.com/"
 
 //DefaultOrg defines the default organization to use when searching for images
 const DefaultOrg = "geoint"

@@ -1,9 +1,12 @@
 package dockerhub
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/ngageoint/seed-cli/constants"
 )
 
 //DockerHubRegistry type representing a Docker Hub registry
@@ -34,9 +37,13 @@ func (r *DockerHubRegistry) Name() string {
 }
 
 func (r *DockerHubRegistry) Ping() error {
-	resp, err := r.Client.Get(r.URL)
+	url := r.url("/v2/repositories/%s/", constants.DefaultOrg)
+	resp, err := r.Client.Get(url)
 	if resp != nil {
 		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			return errors.New(resp.Status)
+		}
 	}
 	return err
 }

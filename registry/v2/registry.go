@@ -1,14 +1,23 @@
 package v2
 
 import (
-	"github.com/heroku/docker-registry-client/registry"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/heroku/docker-registry-client/registry"
 )
 
 type v2registry struct {
 	r *registry.Registry
+}
+
+func New(url, username, password string) (*v2registry, error) {
+	reg, err := registry.New(url, username, password)
+	if reg != nil {
+		return &v2registry{r: reg}, err
+	}
+	return nil, err
 }
 
 func (r *v2registry) Name() string {
@@ -16,7 +25,8 @@ func (r *v2registry) Name() string {
 }
 
 func (r *v2registry) Ping() error {
-	return r.Ping()
+	_, err := r.r.Repositories()
+	return err
 }
 
 func (r *v2registry) Repositories(org string) ([]string, error) {
@@ -28,6 +38,8 @@ func (r *v2registry) Tags(repository, org string) ([]string, error) {
 }
 
 func (r *v2registry) Images(org string) ([]string, error) {
+	url := r.r.URL + "/v2/_catalog"
+	fmt.Fprintf(os.Stderr, "Searching %s for Seed images...\n", url)
 	repositories, err := r.r.Repositories()
 
 	var images []string
@@ -35,7 +47,7 @@ func (r *v2registry) Images(org string) ([]string, error) {
 		if !strings.HasSuffix(repo, "-seed") {
 			continue
 		}
-		tags, err := r.Tags(repo)
+		tags, err := r.Tags(repo, org)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, err.Error())
 			continue
