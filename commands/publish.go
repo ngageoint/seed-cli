@@ -295,8 +295,8 @@ func PrintPublishUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s\t\tOverwrite remote image if publish conflict found\n",
 		constants.ForcePublishFlag)
 
-
-	fmt.Fprintf(os.Stderr, "\nIf the force flag is not set, the following options specify how a publish conflict is handled:\n")
+	fmt.Fprintf(os.Stderr, "\nConflict Options:\n")
+	fmt.Fprintf(os.Stderr, "If the force flag (-f) is not set, the following options specify how a publish conflict is handled:\n")
 	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile to rebuild the image.\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Patch version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
@@ -312,7 +312,7 @@ func PrintPublishUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.JobVersionMajor)
 
-	fmt.Fprintf(os.Stderr, "\nExample: seed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -j path/to/example -jm -P\n")
-	fmt.Fprintf(os.Stderr, "Will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
+	fmt.Fprintf(os.Stderr, "\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -j path/to/example -jm -P\n")
+	fmt.Fprintf(os.Stderr, "\nThis will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
 	panic(util.Exit{0})
 }
