@@ -22,6 +22,18 @@ import (
 func DockerPublish(origImg, registry, org, username, password, jobDirectory string,
 	force, P, pm, pp, J, jm, jp bool) error {
 
+	if origImg == "" {
+		err := errors.New("ERROR: No input image specified.")
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		return err
+	}
+
+	if exists, err := util.ImageExists(origImg); !exists {
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		return err
+	}
+
+
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -58,7 +70,9 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			err.Error())
 	}
 	conflict := util.ContainsString(images, origImg)
-	fmt.Fprintf(os.Stderr, "INFO: Image %s exists on registry %s\n", img, registry)
+	if conflict {
+		fmt.Fprintf(os.Stderr, "INFO: Image %s exists on registry %s\n", img, registry)
+	}
 
 	// If it conflicts, bump specified version number
 	if conflict && !force {
@@ -265,19 +279,26 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 //PrintPublishUsage prints the seed publish usage information, then exits the program
 func PrintPublishUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed publish [-r REGISTRY_NAME] [-o ORG_NAME] [-f] [-p | -P | -a | -A]\n")
+	fmt.Fprintf(os.Stderr, "\nUsage:\tseed publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]\n")
 	fmt.Fprintf(os.Stderr, "\nAllows for the publish of seed compliant images.\n")
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile\n",
-		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to publish\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization to publish the image\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
+		constants.ShortUserFlag, constants.UserFlag)
+	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",
+		constants.ShortPassFlag, constants.PassFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tOverwrite remote image if publish conflict found\n",
 		constants.ForcePublishFlag)
+
+
+	fmt.Fprintf(os.Stderr, "\nIf the force flag is not set, the following options specify how a publish conflict is handled:\n")
+	fmt.Fprintf(os.Stderr, "  -%s -%s Specifies the directory containing the seed.manifest.json and dockerfile to rebuild the image.\n",
+		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Patch version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
 		constants.PkgVersionPatch)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
@@ -290,9 +311,8 @@ func PrintPublishUsage() {
 		constants.JobVersionMinor)
 	fmt.Fprintf(os.Stderr, "  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.JobVersionMajor)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
-		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",
-		constants.ShortPassFlag, constants.PassFlag)
+
+	fmt.Fprintf(os.Stderr, "\nExample: seed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -j path/to/example -jm -P\n")
+	fmt.Fprintf(os.Stderr, "Will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
 	panic(util.Exit{0})
 }
