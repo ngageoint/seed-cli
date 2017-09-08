@@ -73,5 +73,5 @@ func ContainsString(s []string, r string) bool {
 			return true
 		}
 	}
-	return true
+	return false
 }
