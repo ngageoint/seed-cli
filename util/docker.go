@@ -148,3 +148,80 @@ func Login(registry, username, password string) error {
 	fmt.Fprintf(os.Stderr, "%s", out.String())
 	return nil
 }
+
+func Tag(origImg, img string) error {
+	var errs bytes.Buffer
+
+	// Run docker tag
+	if img != origImg {
+		fmt.Fprintf(os.Stderr, "INFO: Tagging image %s as %s\n", origImg, img)
+		tagCmd := exec.Command("docker", "tag", origImg, img)
+		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+		tagCmd.Stdout = os.Stderr
+
+		if err := tagCmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error executing docker tag. %s\n",
+				err.Error())
+		}
+		if errs.String() != "" {
+			fmt.Fprintf(os.Stderr, "ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
+			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+			return errors.New(errs.String())
+		}
+	}
+
+	return nil
+}
+
+func Push(img string) error {
+	var errs bytes.Buffer
+
+	// docker push
+	fmt.Fprintf(os.Stderr, "INFO: Performing docker push %s\n", img)
+	errs.Reset()
+	pushCmd := exec.Command("docker", "push", img)
+	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	pushCmd.Stdout = os.Stdout
+
+	// Run docker push
+	if err := pushCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker push. %s\n",
+			err.Error())
+		return err
+	}
+
+	// Check for errors. Exit if error occurs
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error pushing image '%s':\n%s\n", img,
+			errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	return nil
+}
+
+func RemoveImage(img string) error {
+	var errs bytes.Buffer
+
+	fmt.Fprintf(os.Stderr, "INFO: Removing local image %s\n", img)
+	rmiCmd := exec.Command("docker", "rmi", img)
+	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	rmiCmd.Stdout = os.Stdout
+
+	if err := rmiCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker rmi. %s\n",
+			err.Error())
+		return err
+	}
+
+	// check for errors on stderr
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error removing image '%s':\n%s\n", img,
+			errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	return nil
+}

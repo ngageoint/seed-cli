@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -28,7 +29,7 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		return images, err
 	}
 
-	checkError(err, url, username, password)
+	err = errors.New(checkError(err, url, username, password))
 
 	return nil, err
 }
@@ -51,23 +52,25 @@ func PrintSearchUsage() {
 	panic(util.Exit{0})
 }
 
-func checkError(err error, url, username, password string) {
+func checkError(err error, url, username, password string) string {
 	if err == nil {
-		return
+		return ""
 	}
 
 	errStr := err.Error()
 
+	humanError := ""
+
 	if strings.Contains(errStr, "status=401") {
 		if username == "" || password == "" {
-			fmt.Fprintf(os.Stderr, "The specified registry requires a login.  Please try again with a username (-u) and password (-p).\n")
+			humanError = "The specified registry requires a login.  Please try again with a username (-u) and password (-p)."
 		} else {
-			fmt.Fprintf(os.Stderr, "Incorrect username/password.\n")
+			humanError = "Incorrect username/password."
 		}
 	} else if strings.Contains(errStr, "status=404") {
-		fmt.Fprintf(os.Stderr, "Connected to registry but received a 404 error. Please check the url and try again. \n")
+		humanError = "Connected to registry but received a 404 error. Please check the url and try again."
 	} else {
-		fmt.Fprintf(os.Stderr, "Could not connect to the specified registry. Please check the url and try again. \n")
+		humanError = "Could not connect to the specified registry. Please check the url and try again."
 	}
-
+	return humanError
 }

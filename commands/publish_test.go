@@ -8,8 +8,8 @@ import (
 
 func TestDockerPublish(t *testing.T) {
 	//build images to be used for testing in advance
-	imgDirs := []string{"../testdata/complete/", "../testdata/complete/"}
-	imgNames := []string{"test-seed", "my-job-0.1.0-seed:0.1.0"}
+	imgDirs := []string{"../testdata/complete/"}
+	imgNames := []string{"my-job-0.1.0-seed:0.1.0"}
 	for _, dir := range imgDirs {
 		err := DockerBuild(dir, "", "")
 		if err != nil {
@@ -33,16 +33,16 @@ func TestDockerPublish(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{imgDirs[1], imgNames[1], "localhost:5000", "",
+		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			false, false, false, false, false, false, false,
 			"localhost:5000/my-job-0.1.0-seed:0.1.0", true, ""},
-		{imgDirs[1], imgNames[1], "localhost:5000", "",
+		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			true, false, false, false, false, false, false,
 			"localhost:5000/my-job-0.1.0-seed:0.1.0", true, ""},
-		{imgDirs[1], imgNames[1], "localhost:5000", "",
+		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			false, false, false, false, false, false, false,
 			"localhost:5000/my-job-0.1.0-seed:0.1.0", false, "Image exists and no tag deconfliction method specified."},
-		{imgDirs[1], imgNames[1], "localhost:5000", "",
+		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			false, false, false, true, true, false, false,
 			"localhost:5000/my-job-0.1.1-seed:1.0.0", true, ""},
 	}
