@@ -4,9 +4,13 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/ngageoint/seed-cli/util"
 )
 
 func TestDockerPublish(t *testing.T) {
+	util.RestartRegistry()
+
 	//build images to be used for testing in advance
 	imgDirs := []string{"../testdata/complete/"}
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0"}
@@ -54,7 +58,7 @@ func TestDockerPublish(t *testing.T) {
 		if err != nil && c.expected == true {
 			t.Errorf("DockerPublish returned an error: %v\n", err)
 		}
-		if err != nil && !strings.Contains(err.Error(), c.expectedErrorMsg){
+		if err != nil && !strings.Contains(err.Error(), c.expectedErrorMsg) {
 			t.Errorf("DockerPublish returned an error: %v\n expected %v", err, c.expectedErrorMsg)
 		}
 		cmd := exec.Command("docker", "list")

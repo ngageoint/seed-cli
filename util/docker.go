@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -134,7 +135,7 @@ func Login(registry, username, password string) error {
 
 	// run images
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker login.\n%s\n",
 			err.Error())
 		return err
 	}
@@ -222,6 +223,34 @@ func RemoveImage(img string) error {
 		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
 		return errors.New(errs.String())
 	}
+
+	return nil
+}
+
+func RestartRegistry() error {
+	fmt.Print("RESTARTING REGISTRY........................\n\n\n\n\n.\n.\n.\n.\n.\n.\n")
+	var errs bytes.Buffer
+
+	fmt.Fprintf(os.Stderr, "INFO: Restarting test registry...\n")
+	cmd := exec.Command("../restartRegistry.sh")
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stdout
+
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error restarting registry. %s\n",
+			err.Error())
+		return err
+	}
+
+	// check for errors on stderr
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error restarting registry. %s\n", errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	// wait 50 milliseconds for registry to be running
+	time.Sleep(50 * time.Millisecond)
 
 	return nil
 }

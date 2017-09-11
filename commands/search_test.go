@@ -11,6 +11,8 @@ import (
 )
 
 func TestDockerSearch(t *testing.T) {
+	util.RestartRegistry()
+
 	registry := "localhost:5000"
 	username := "testuser"
 	password := "testpassword"
