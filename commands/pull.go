@@ -25,6 +25,7 @@ func DockerPull(image, registry, org, username, password string) error {
 		err := util.Login(registry, username, password)
 		if err != nil {
 			fmt.Println(err)
+			return err
 		}
 	}
 
@@ -32,11 +33,11 @@ func DockerPull(image, registry, org, username, password string) error {
 		registry = constants.DefaultRegistry
 	}
 
-	if org == "" {
-		org = constants.DefaultOrg
-	}
+	remoteImage := fmt.Sprintf("%s/%s", registry, image)
 
-	remoteImage := fmt.Sprintf("%s/%s/%s", registry, org, image)
+	if org != "" {
+		remoteImage = fmt.Sprintf("%s/%s/%s", registry, org, image)
+	}
 
 	var errs, out bytes.Buffer
 	// pull image
@@ -80,7 +81,7 @@ func DockerPull(image, registry, org, username, password string) error {
 	return nil
 }
 
-//PrintListUsage prints the seed list usage information, then exits the program
+//PrintPullUsage prints the seed pull usage information, then exits the program
 func PrintPullUsage() {
 	fmt.Fprintf(os.Stderr, "\nUsage:\tseed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u Username] [-p password]\n")
 	fmt.Fprintf(os.Stderr, "\nPulls seed image from remote repository.\n")

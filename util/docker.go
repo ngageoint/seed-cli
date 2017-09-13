@@ -133,17 +133,18 @@ func Login(registry, username, password string) error {
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	cmd.Stdout = &out
 
-	// run images
-	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker login.\n%s\n",
-			err.Error())
-		return err
-	}
+	err := cmd.Run()
 
 	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
 			errs.String())
 		return errors.New(errs.String())
+	}
+
+	if err != nil {
+		errMsg := fmt.Sprintf("ERROR: Error executing docker login.\n%s\n", err.Error())
+		errors.New(errMsg)
+		return err
 	}
 
 	fmt.Fprintf(os.Stderr, "%s", out.String())
@@ -249,8 +250,8 @@ func RestartRegistry() error {
 		return errors.New(errs.String())
 	}
 
-	// wait 50 milliseconds for registry to be running
-	time.Sleep(50 * time.Millisecond)
+	// wait 100 milliseconds for registry to be running
+	time.Sleep(100 * time.Millisecond)
 
 	return nil
 }

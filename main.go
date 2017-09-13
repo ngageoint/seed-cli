@@ -509,6 +509,10 @@ func DefineFlags() {
 		cmd = publishCmd
 		minArgs = 3
 
+	case constants.PullCommand:
+		cmd = pullCmd
+		minArgs = 3
+
 	case constants.ValidateCommand:
 		cmd = validateCmd
 		minArgs = 3
@@ -540,6 +544,7 @@ func PrintUsage() {
 	fmt.Fprintf(os.Stderr, "  init  \tInitialize new project with example seed.manifest.json file\n")
 	fmt.Fprintf(os.Stderr, "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
 	fmt.Fprintf(os.Stderr, "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
+	fmt.Fprintf(os.Stderr, "  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
 	fmt.Fprintf(os.Stderr, "  run   \tExecutes Seed compliant Docker docker image\n")
 	fmt.Fprintf(os.Stderr, "  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
 	fmt.Fprintf(os.Stderr, "  validate\tValidates a Seed spec\n")
