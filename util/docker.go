@@ -132,12 +132,7 @@ func Login(registry, username, password string) error {
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	cmd.Stdout = &out
 
-	// run images
-	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
-			err.Error())
-		return err
-	}
+	err := cmd.Run()
 
 	if errs.String() != "" {
 		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
@@ -145,6 +140,116 @@ func Login(registry, username, password string) error {
 		return errors.New(errs.String())
 	}
 
+	if err != nil {
+		errMsg := fmt.Sprintf("ERROR: Error executing docker login.\n%s\n", err.Error())
+		errors.New(errMsg)
+		return err
+	}
+
 	fmt.Fprintf(os.Stderr, "%s", out.String())
+	return nil
+}
+
+func Tag(origImg, img string) error {
+	var errs bytes.Buffer
+
+	// Run docker tag
+	if img != origImg {
+		fmt.Fprintf(os.Stderr, "INFO: Tagging image %s as %s\n", origImg, img)
+		tagCmd := exec.Command("docker", "tag", origImg, img)
+		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+		tagCmd.Stdout = os.Stderr
+
+		if err := tagCmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error executing docker tag. %s\n",
+				err.Error())
+		}
+		if errs.String() != "" {
+			fmt.Fprintf(os.Stderr, "ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
+			fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+			return errors.New(errs.String())
+		}
+	}
+
+	return nil
+}
+
+func Push(img string) error {
+	var errs bytes.Buffer
+
+	// docker push
+	fmt.Fprintf(os.Stderr, "INFO: Performing docker push %s\n", img)
+	errs.Reset()
+	pushCmd := exec.Command("docker", "push", img)
+	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	pushCmd.Stdout = os.Stdout
+
+	// Run docker push
+	if err := pushCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker push. %s\n",
+			err.Error())
+		return err
+	}
+
+	// Check for errors. Exit if error occurs
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error pushing image '%s':\n%s\n", img,
+			errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	return nil
+}
+
+func RemoveImage(img string) error {
+	var errs bytes.Buffer
+
+	fmt.Fprintf(os.Stderr, "INFO: Removing local image %s\n", img)
+	rmiCmd := exec.Command("docker", "rmi", img)
+	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	rmiCmd.Stdout = os.Stdout
+
+	if err := rmiCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker rmi. %s\n",
+			err.Error())
+		return err
+	}
+
+	// check for errors on stderr
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error removing image '%s':\n%s\n", img,
+			errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	return nil
+}
+
+func RestartRegistry() error {
+	fmt.Print("RESTARTING REGISTRY........................\n.\n.\n.\n.\n.\n")
+	var errs bytes.Buffer
+
+	fmt.Fprintf(os.Stderr, "INFO: Restarting test registry...\n")
+	cmd := exec.Command("../restartRegistry.sh")
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stdout
+
+	err := cmd.Run()
+
+	// check for errors on stderr first; it will likely have more explanation than cmd.Run
+	if errs.String() != "" {
+		fmt.Fprintf(os.Stderr, "ERROR: Error restarting registry. %s\n", errs.String())
+		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Error restarting registry. %s\n",
+			err.Error())
+		return err
+	}
+
 	return nil
 }

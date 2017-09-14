@@ -8,9 +8,10 @@ import (
 
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/util"
+	"strings"
 )
 
-func TestDockerSearch(t *testing.T) {
+func TestDockerPull(t *testing.T) {
 	util.RestartRegistry()
 
 	registry := "localhost:5000"
@@ -31,55 +32,53 @@ func TestDockerSearch(t *testing.T) {
 	imgDirs := []string{"../testdata/complete/"}
 	origImg := "my-job-0.1.0-seed:0.1.0"
 	remoteImg := []string{"localhost:5000/my-job-0.1.0-seed:0.1.0", "localhost:5000/my-job-1.0.0-seed:1.0.0", "localhost:5000/not-a-valid-image"}
-	validImgNames := []string{"my-job-0.1.0-seed:0.1.0", "my-job-1.0.0-seed:1.0.0"}
-	validImgNameStr := fmt.Sprintf("%s", validImgNames)
+
 	for _, dir := range imgDirs {
 		err := DockerBuild(dir, "", "")
 		if err != nil {
-			t.Errorf("Error building image from %v for DockerSearch test: %v", dir, err)
+			t.Errorf("Error building image from %v for DockerPull test: %v", dir, err)
 		}
 	}
 
 	for _, img := range remoteImg {
 		err := util.Tag(origImg, img)
 		if err != nil {
-			t.Errorf("Error tagging image %v for DockerSearch test: %v", img, err)
+			t.Errorf("Error tagging image %v for DockerPull test: %v", img, err)
 		}
 
 		err = util.Push(img)
 		if err != nil {
-			t.Errorf("Error pushing image %v for DockerSearch test: %v", img, err)
+			t.Errorf("Error pushing image %v for DockerPull test: %v", img, err)
 		}
 	}
 
 	cases := []struct {
+		image string
 		registry         string
 		org              string
 		username         string
 		password         string
-		expectedResult   string
+		expectedResult   bool
 		expectedErrorMsg string
 	}{
-		{"localhost:5000", "", "", "",
-			"[]", "The specified registry requires a login.  Please try again with a username (-u) and password (-p)."},
-		{"localhost:5000", "", "testuser", "wrongpassword",
-			"[]", "Incorrect username/password."},
-		{"localhost:5000", "", "testuser", "testpassword",
-			validImgNameStr, ""},
+		{"my-job-1.0.0-seed:1.0.0","localhost:5000", "", "testuser", "wrongpassword",
+			false, "401 Unauthorized"},
+		{"not-a-valid-image","localhost:5000", "", "testuser", "testpassword",
+			true, ""},
 	}
 
 	for _, c := range cases {
-		results, err := DockerSearch(c.registry, c.org, "", c.username, c.password)
+		err := DockerPull(c.image, c.registry, c.org, c.username, c.password)
 
-		resultStr := fmt.Sprintf("%s", results)
-		if resultStr != c.expectedResult {
-			t.Errorf("DockerSearch returned %v, expected %v\n", resultStr, c.expectedResult)
+		success := err == nil
+		if success != c.expectedResult {
+			t.Errorf("DockerPull returned %v, expected %v\n", success, c.expectedResult)
 		}
 
 		if err != nil {
 			errMsg := err.Error()
-			if errMsg != c.expectedErrorMsg {
-				t.Errorf("DockerSearch returned error %v, expected %v\n", errMsg, c.expectedErrorMsg)
+			if !strings.Contains(errMsg, c.expectedErrorMsg) {
+				t.Errorf("DockerPull returned error %v, expected %v\n", errMsg, c.expectedErrorMsg)
 			}
 		}
 	}
