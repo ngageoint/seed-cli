@@ -66,6 +66,7 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
+var batchCmd *flag.FlagSet
 var buildCmd *flag.FlagSet
 var initCmd *flag.FlagSet
 var listCmd *flag.FlagSet
@@ -153,8 +154,25 @@ func main() {
 		panic(util.Exit{0})
 	}
 
+	// seed batch: Run Docker image on all files in directory
+	if batchCmd.Parsed() {
+		batchDir := batchCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		imageName := batchCmd.Lookup(constants.ImgNameFlag).Value.String()
+		settings := strings.Split(batchCmd.Lookup(constants.SettingFlag).Value.String(), ",")
+		mounts := strings.Split(batchCmd.Lookup(constants.MountFlag).Value.String(), ",")
+		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
+		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
+		err := commands.BatchRun(batchDir, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		if err != nil {
+			panic(util.Exit{1})
+		}
+		panic(util.Exit{0})
+	}
+
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
+		//batch := runCmd.Lookup(constants.BatchFlag).Value.String() == constants.TrueString
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
 		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
@@ -162,10 +180,12 @@ func main() {
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
+
 		err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			panic(util.Exit{1})
+
 		}
 		panic(util.Exit{0})
 	}
@@ -253,6 +273,56 @@ func DefineInitFlags() {
 	// Print usage function
 	initCmd.Usage = func() {
 		commands.PrintInitUsage()
+	}
+}
+
+//DefineRunFlags defines the flags for the seed run command
+func DefineBatchFlags() {
+	batchCmd = flag.NewFlagSet(constants.BatchCommand, flag.ContinueOnError)
+
+	var directory string
+	batchCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory).")
+	batchCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory).")
+
+	var imgNameFlag string
+	batchCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to run")
+	batchCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to run")
+
+	var settings objects.ArrayFlags
+	batchCmd.Var(&settings, constants.SettingFlag,
+		"Defines the value to be applied to setting")
+	batchCmd.Var(&settings, constants.ShortSettingFlag,
+		"Defines the value to be applied to setting")
+
+	var mounts objects.ArrayFlags
+	batchCmd.Var(&mounts, constants.MountFlag,
+		"Defines the full path to be mapped via mount")
+	batchCmd.Var(&mounts, constants.ShortMountFlag,
+		"Defines the full path to be mapped via mount")
+
+	var outdir string
+	batchCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
+		"Full path to the job output directory")
+	batchCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
+		"Full path to the job output directory")
+
+	var rmVar bool
+	batchCmd.BoolVar(&rmVar, constants.RmFlag, false,
+		"Specifying the -rm flag automatically removes the image after executing docker run")
+
+	var metadataSchema string
+	batchCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+	batchCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	// Run usage function
+	batchCmd.Usage = func() {
+		commands.PrintBatchUsage()
 	}
 }
 
@@ -455,6 +525,7 @@ func DefineValidateFlags() {
 //DefineFlags defines the flags available for the seed runner.
 func DefineFlags() {
 	// Seed subcommand flags
+	DefineBatchFlags()
 	DefineBuildFlags()
 	DefineInitFlags()
 	DefineRunFlags()
@@ -478,6 +549,11 @@ func DefineFlags() {
 
 	// Parse commands
 	switch os.Args[1] {
+
+	case constants.BatchCommand:
+		cmd = batchCmd
+		minArgs = 3
+
 	case constants.BuildCommand:
 		cmd = buildCmd
 

@@ -4,6 +4,7 @@ package constants
 const TrueString = "true"
 
 // Subcommands supported by CLI
+const BatchCommand = "batch"
 const BuildCommand = "build"
 const InitCommand = "init"
 const ListCommand = "list"
@@ -109,6 +110,12 @@ const JobVersionMajor = "J"
 
 //JobVersionPatch specifies to bump job patch version
 const JobVersionPatch = "jp"
+
+//BatchFlag defines whether to run in batch mode
+const BatchFlag = "batch"
+
+//ShortBatchFlag - shorthand flag for batch
+const ShortBatchFlag = "b"
 
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"

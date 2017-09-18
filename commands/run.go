@@ -198,19 +198,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	var mountArgs []string
 	var sizeMiB float64
 
-	// Ingest inputs into a map key = inputkey, value=inputpath
-
-	inMap := make(map[string]string)
-	for _, f := range inputs {
-		x := strings.SplitN(f, "=", 2)
-		if len(x) != 2 {
-			fmt.Fprintf(os.Stderr, "ERROR: Input files should be specified in KEY=VALUE format.\n")
-			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
-				x)
-			continue
-		}
-		inMap[x[0]] = x[1]
-	}
+	inMap := inputMap(inputs)
 
 	// Valid by default
 	valid := true
@@ -365,18 +353,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 
 //DefineMounts defines any seed specified mounts.
 func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
-	// Ingest mounts into a map key = inputkey, value=inputpath
-	inMap := make(map[string]string)
-	for _, f := range inputs {
-		x := strings.SplitN(f, "=", 2)
-		if len(x) != 2 {
-			fmt.Fprintf(os.Stderr, "ERROR: Mount should be specified in KEY=VALUE format.\n")
-			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for mount %v encountered.\n",
-				x)
-			continue
-		}
-		inMap[x[0]] = util.GetFullPath(x[1], "")
-	}
+	inMap := inputMap(inputs)
 
 	// Valid by default
 	valid := true
@@ -404,7 +381,8 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 	if seed.Job.Interface.Mounts != nil {
 		for _, mount := range seed.Job.Interface.Mounts {
 			mounts = append(mounts, "-v")
-			mountPath := inMap[mount.Name] + ":" + mount.Path
+			localPath := util.GetFullPath(inMap[mount.Name], "")
+			mountPath := localPath + ":" + mount.Path
 
 			if mount.Mode != "" {
 				mountPath += ":" + mount.Mode
@@ -423,18 +401,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 // Return []string of docker command arguments in form of:
 //	"-?? setting1=val1 -?? setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
-	// Ingest inputs into a map key = inputkey, value=inputpath
-	inMap := make(map[string]string)
-	for _, f := range inputs {
-		x := strings.SplitN(f, "=", 2)
-		if len(x) != 2 {
-			fmt.Fprintf(os.Stderr, "ERROR: Setting should be specified in KEY=VALUE format.\n")
-			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for setting %v encountered.\n",
-				x)
-			continue
-		}
-		inMap[x[0]] = x[1]
-	}
+	inMap := inputMap(inputs)
 
 	// Valid by default
 	valid := true
@@ -667,4 +634,20 @@ func PrintRunUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	panic(util.Exit{0})
+}
+
+func inputMap(inputs []string) map[string]string {
+	// Ingest inputs into a map key = inputkey, value=inputpath
+	inMap := make(map[string]string)
+	for _, f := range inputs {
+		x := strings.SplitN(f, "=", 2)
+		if len(x) != 2 {
+			fmt.Fprintf(os.Stderr, "ERROR: Input should be specified in KEY=VALUE format.\n")
+			fmt.Fprintf(os.Stderr, "ERROR: Unknown key for input %v encountered.\n",
+				x)
+			continue
+		}
+		inMap[x[0]] = x[1]
+	}
+	return inMap
 }
