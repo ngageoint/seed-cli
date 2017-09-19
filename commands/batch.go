@@ -2,19 +2,22 @@ package commands
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
+	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
-
-	"os"
-	"fmt"
-	"github.com/ngageoint/seed-cli-bak/commands"
-	"time"
-	"strings"
-	"github.com/ngageoint/seed-cli/constants"
-	"io/ioutil"
-	"path/filepath"
 )
+
+type BatchIO struct {
+	Inputs []string
+	Outdir string
+}
 
 func BatchRun(batchDir, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
 	if imageName == "" {
@@ -36,6 +39,8 @@ func BatchRun(batchDir, imageName, outputDir, metadataSchema string, settings, m
 	outdir := getOutputDir(outputDir, imageName)
 
 	inputs, err := ParseDirectory(seed, batchDir, outdir)
+
+	_ = inputs
 
 	return err
 }
@@ -83,7 +88,7 @@ func getOutputDir(outputDir, imageName string) string {
 	return outdir
 }
 
-func ParseDirectory(seed objects.Seed, batchDir, outdir string) ([][]string, error) {
+func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, error) {
 	key := ""
 	unrequired := ""
 	for _, f := range seed.Job.Interface.Inputs.Files {
@@ -95,7 +100,7 @@ func ParseDirectory(seed objects.Seed, batchDir, outdir string) ([][]string, err
 				return nil, errors.New("ERROR: Batch processing does not support multiple required inputs.")
 			}
 			key = f.Name
-		} else if unrequired == ""{
+		} else if unrequired == "" {
 			unrequired = f.Name
 		}
 	}
@@ -117,7 +122,7 @@ func ParseDirectory(seed objects.Seed, batchDir, outdir string) ([][]string, err
 		return nil, err
 	}
 
-	inputs := [][]string{}
+	batchIO := []BatchIO{}
 
 	for _, file := range files {
 		if file.IsDir() {
@@ -126,9 +131,64 @@ func ParseDirectory(seed objects.Seed, batchDir, outdir string) ([][]string, err
 		fileDir := filepath.Join(outdir, file.Name())
 		filePath := filepath.Join(batchDir, file.Name())
 		fileInputs := []string{}
-		fileInputs = append(fileInputs, key + "=" + filePath)
-		inputs = append(inputs, fileInputs)
+		fileInputs = append(fileInputs, key+"="+filePath)
+		row := BatchIO{fileInputs, fileDir}
+		batchIO = append(batchIO, row)
 	}
 
-	return inputs, err
+	return batchIO, err
+}
+
+func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, error) {
+	lines, err := util.ReadLinesFromFile(batchFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(lines) == 0 {
+		return nil, errors.New("ERROR: Empty batch file")
+	}
+
+	keys := strings.Split(lines[0], ",")
+	extraKeys := keys
+
+	if len(keys) == 0 {
+		return nil, errors.New("ERROR: Empty keys list on first line of batch file.")
+	}
+
+	for _, f := range seed.Job.Interface.Inputs.Files {
+		hasKey := util.ContainsString(keys, f.Name)
+		if f.Required && !hasKey {
+			msg := fmt.Sprintf("ERROR: Batch file is missing required key %v", f.Name)
+			return nil, errors.New(msg)
+		} else if !hasKey {
+			fmt.Println("WARN: Missing input for key " + f.Name)
+		}
+		util.RemoveString(extraKeys, f.Name)
+	}
+
+	if len(extraKeys) > 0 {
+		msg := fmt.Sprintf("WARN: These input keys don't match any specified keys in the Seed manifest: %v\n", extraKeys)
+		fmt.Println(msg)
+	}
+
+	batchIO := []BatchIO{}
+	for i, line := range lines {
+		if i == 0 {
+			continue
+		}
+		values := strings.Split(line, ",")
+		fileInputs := []string{}
+		for j, file := range values {
+			if j > len(keys) {
+				fmt.Println("WARN: More files provided than keys")
+			}
+			fileInputs = append(fileInputs, keys[j]+"="+file)
+		}
+		fileDir := filepath.Join(outdir, fmt.Sprintf("%s", i))
+		row := BatchIO{fileInputs, fileDir}
+		batchIO = append(batchIO, row)
+	}
+
+	return batchIO, err
 }
