@@ -33,68 +33,9 @@ func BatchRun(batchDir, imageName, outputDir, metadataSchema string, settings, m
 
 	seed := objects.SeedFromImageLabel(imageName)
 
-	key := ""
-	unrequired := ""
-	for _, f := range seed.Job.Interface.Inputs.Files {
-		if f.Multiple {
-			continue
-		}
-		if f.Required {
-			if key != "" {
-				return errors.New("ERROR: Batch processing does not support multiple required inputs.")
-			}
-			key = f.Name
-		} else if unrequired == ""{
-			unrequired = f.Name
-		}
-	}
+	outdir := getOutputDir(outputDir, imageName)
 
-	if key == "" {
-		key = unrequired
-	}
-
-	if key == "" {
-		return errors.New("ERROR: Could not determine which input to use from Seed manifest.")
-	}
-
-	files, err := ioutil.ReadDir(batchDir)
-	if err != nil {
-		return err
-	}
-
-	if err != nil {
-		return err
-	}
-
-	if outputDir == "" {
-		outputDir = "batch-" + imageName + "-" + time.Now().Format(time.RFC3339)
-		outputDir = strings.Replace(outputDir, ":", "_", -1)
-	}
-
-	outdir := util.GetFullPath(outputDir, "")
-
-	// Check if outputDir exists. Create if not
-	if _, err := os.Stat(outdir); os.IsNotExist(err) {
-		// Create the directory
-		// Didn't find the specified directory
-		fmt.Fprintf(os.Stderr, "INFO: %s not found; creating directory...\n",
-			outdir)
-		os.Mkdir(outdir, os.ModePerm)
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		fileDir := filepath.Join(outdir, file.Name())
-		filePath := filepath.Join(batchDir, file.Name())
-		fmt.Println(file)
-		fmt.Println(fileDir)
-		inputs := []string{}
-		inputs = append(inputs, key + "=" + filePath)
-		fmt.Println(inputs)
-		commands.DockerRun(imageName, fileDir, metadataSchema, inputs, settings, mounts, rmFlag)
-	}
+	inputs, err := ParseDirectory(seed, batchDir, outdir)
 
 	return err
 }
@@ -121,4 +62,73 @@ func PrintBatchUsage() {
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	panic(util.Exit{0})
+}
+
+func getOutputDir(outputDir, imageName string) string {
+	if outputDir == "" {
+		outputDir = "batch-" + imageName + "-" + time.Now().Format(time.RFC3339)
+		outputDir = strings.Replace(outputDir, ":", "_", -1)
+	}
+
+	outdir := util.GetFullPath(outputDir, "")
+
+	// Check if outputDir exists. Create if not
+	if _, err := os.Stat(outdir); os.IsNotExist(err) {
+		// Create the directory
+		// Didn't find the specified directory
+		fmt.Fprintf(os.Stderr, "INFO: %s not found; creating directory...\n",
+			outdir)
+		os.Mkdir(outdir, os.ModePerm)
+	}
+	return outdir
+}
+
+func ParseDirectory(seed objects.Seed, batchDir, outdir string) ([][]string, error) {
+	key := ""
+	unrequired := ""
+	for _, f := range seed.Job.Interface.Inputs.Files {
+		if f.Multiple {
+			continue
+		}
+		if f.Required {
+			if key != "" {
+				return nil, errors.New("ERROR: Batch processing does not support multiple required inputs.")
+			}
+			key = f.Name
+		} else if unrequired == ""{
+			unrequired = f.Name
+		}
+	}
+
+	if key == "" {
+		key = unrequired
+	}
+
+	if key == "" {
+		return nil, errors.New("ERROR: Could not determine which input to use from Seed manifest.")
+	}
+
+	files, err := ioutil.ReadDir(batchDir)
+	if err != nil {
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	inputs := [][]string{}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		fileDir := filepath.Join(outdir, file.Name())
+		filePath := filepath.Join(batchDir, file.Name())
+		fileInputs := []string{}
+		fileInputs = append(fileInputs, key + "=" + filePath)
+		inputs = append(inputs, fileInputs)
+	}
+
+	return inputs, err
 }
