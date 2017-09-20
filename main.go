@@ -157,13 +157,14 @@ func main() {
 	// seed batch: Run Docker image on all files in directory
 	if batchCmd.Parsed() {
 		batchDir := batchCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		batchFile := batchCmd.Lookup(constants.BatchFlag).Value.String()
 		imageName := batchCmd.Lookup(constants.ImgNameFlag).Value.String()
 		settings := strings.Split(batchCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(batchCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
-		err := commands.BatchRun(batchDir, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
 		if err != nil {
 			panic(util.Exit{1})
 		}
@@ -282,9 +283,15 @@ func DefineBatchFlags() {
 
 	var directory string
 	batchCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
-		"Directory of files to batch process (default is current directory).")
+		"Directory of files to batch process (default is current directory)")
 	batchCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
-		"Directory of files to batch process (default is current directory).")
+		"Directory of files to batch process (default is current directory)")
+
+	var batchFile string
+	batchCmd.StringVar(&batchFile, constants.BatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
+	batchCmd.StringVar(&batchFile, constants.ShortBatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
 
 	var imgNameFlag string
 	batchCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",

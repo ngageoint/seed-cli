@@ -19,7 +19,7 @@ type BatchIO struct {
 	Outdir string
 }
 
-func BatchRun(batchDir, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
+func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
 	if imageName == "" {
 		return errors.New("ERROR: No input image specified.")
 	}
@@ -38,9 +38,31 @@ func BatchRun(batchDir, imageName, outputDir, metadataSchema string, settings, m
 
 	outdir := getOutputDir(outputDir, imageName)
 
-	inputs, err := ParseDirectory(seed, batchDir, outdir)
+	var inputs []BatchIO
+	var err error
 
-	_ = inputs
+	if batchFile != "" {
+		inputs, err = ProcessBatchFile(seed, batchFile, outdir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error processing batch file: %s\n", err.Error())
+			return err
+		}
+	} else {
+		inputs, err = ProcessDirectory(seed, batchDir, outdir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error processing batch directory: %s\n", err.Error())
+			return err
+		}
+	}
+
+
+
+	for _, in := range inputs {
+		err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Error running docker image. \n %s \n", err.Error())
+		}
+	}
 
 	return err
 }
@@ -54,7 +76,9 @@ func PrintBatchUsage() {
 	fmt.Fprintf(os.Stderr, "\nOptions:\n")
 	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s Specifies the directory of files to batch process\n",
+	fmt.Fprintf(os.Stderr, "  -%s  -%s Optional file specifying input keys and file mapping for batch processing\n",
+		constants.ShortBatchFlag, constants.BatchFlag)
+	fmt.Fprintf(os.Stderr, "  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
@@ -185,7 +209,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 			}
 			fileInputs = append(fileInputs, keys[j]+"="+file)
 		}
-		fileDir := filepath.Join(outdir, fmt.Sprintf("%s", i))
+		fileDir := filepath.Join(outdir, fmt.Sprintf("%d", i))
 		row := BatchIO{fileInputs, fileDir}
 		batchIO = append(batchIO, row)
 	}
