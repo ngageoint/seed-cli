@@ -10,6 +10,10 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
+func init() {
+	util.InitPrinter(false)
+}
+
 func TestDockerSearch(t *testing.T) {
 	util.RestartRegistry()
 

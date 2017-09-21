@@ -9,6 +9,10 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
+func init() {
+	util.InitPrinter(false)
+}
+
 func TestDockerBuild(t *testing.T) {
 	cases := []struct {
 		directory        string

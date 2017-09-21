@@ -48,13 +48,13 @@ func DockerPull(image, registry, org, username, password string) error {
 
 	err := pullCmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker pull.\n%s\n",
+		util.PrintUtil( "ERROR: Error executing docker pull.\n%s\n",
 			err.Error())
 		return err
 	}
 
 	if errs.String() != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+		util.PrintUtil( "ERROR: Error reading stderr %s\n",
 			errs.String())
 		return errors.New(errs.String())
 	}
@@ -67,13 +67,13 @@ func DockerPull(image, registry, org, username, password string) error {
 
 	err = tagCmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker tag.\n%s\n",
+		util.PrintUtil( "ERROR: Error executing docker tag.\n%s\n",
 			err.Error())
 		return err
 	}
 
 	if errs.String() != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+		util.PrintUtil( "ERROR: Error reading stderr %s\n",
 			errs.String())
 		return errors.New(errs.String())
 	}
@@ -83,18 +83,18 @@ func DockerPull(image, registry, org, username, password string) error {
 
 //PrintPullUsage prints the seed pull usage information, then exits the program
 func PrintPullUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u Username] [-p password]\n")
-	fmt.Fprintf(os.Stderr, "\nPulls seed image from remote repository.\n")
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to pull\n",
+	util.PrintUtil( "\nUsage:\tseed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u Username] [-p password]\n")
+	util.PrintUtil( "\nPulls seed image from remote repository.\n")
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil( "  -%s -%s Docker image name to pull\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry (default is index.docker.io).\n",
+	util.PrintUtil( "  -%s -%s\tSpecifies a specific registry (default is index.docker.io).\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization (default is no organization).\n",
+	util.PrintUtil( "  -%s -%s\tSpecifies a specific organization (default is no organization).\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login to remote registry (default anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tUsername to login to remote registry (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login to remote registry (default anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tPassword to login to remote registry (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

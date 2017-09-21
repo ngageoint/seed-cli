@@ -25,17 +25,17 @@ func DockerBuild(jobDirectory, username, password string) error {
 
 		registry, err := util.DockerfileBaseRegistry(jobDirectory)
 		if err != nil {
-			fmt.Fprintf(os.Stderr,"Error getting registry from dockerfile: %s\n", err.Error())
+			util.PrintUtil("Error getting registry from dockerfile: %s\n", err.Error())
 		}
 		err = util.Login(registry, username, password)
 		if err != nil {
-			fmt.Fprintf(os.Stderr,"Error calling docker login: %s\n", err.Error())
+			util.PrintUtil("Error calling docker login: %s\n", err.Error())
 		}
 	}
 
 	seedFileName, err := util.SeedFileName(jobDirectory)
 	if err != nil && !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+		util.PrintUtil( "ERROR: %s\n", err.Error())
 		return err
 	}
 
@@ -43,8 +43,8 @@ func DockerBuild(jobDirectory, username, password string) error {
 	err = ValidateSeedFile("", seedFileName, constants.SchemaManifest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
-		fmt.Fprintf(os.Stderr, "%s", err.Error())
-		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		util.PrintUtil( "%s", err.Error())
+		util.PrintUtil( "Exiting seed...\n")
 		return err
 	}
 
@@ -55,7 +55,7 @@ func DockerBuild(jobDirectory, username, password string) error {
 	imageName := objects.BuildImageName(&seed)
 
 	// Build Docker image
-	fmt.Fprintf(os.Stderr, "INFO: Building %s\n", imageName)
+	util.PrintUtil( "INFO: Building %s\n", imageName)
 	buildArgs := []string{"build", "-t", imageName, jobDirectory}
 	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label
@@ -69,16 +69,16 @@ func DockerBuild(jobDirectory, username, password string) error {
 
 	// Run docker build
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker build. %s\n",
+		util.PrintUtil( "ERROR: Error executing docker build. %s\n",
 			err.Error())
 		return err
 	}
 
 	// check for errors on stderr
 	if errs.String() != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error building image '%s':\n%s\n",
+		util.PrintUtil( "ERROR: Error building image '%s':\n%s\n",
 			imageName, errs.String())
-		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		util.PrintUtil( "Exiting seed...\n")
 		return errors.New(errs.String())
 	}
 
@@ -87,14 +87,14 @@ func DockerBuild(jobDirectory, username, password string) error {
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintBuildUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr,
+	util.PrintUtil( "\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil(
 		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tPassword to login if needed to pull images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

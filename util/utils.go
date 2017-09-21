@@ -6,11 +6,36 @@ import (
 	"time"
 )
 
+type PrintCallback func(format string, args ...interface{})
+
+/*
+ * Print messages to stderr
+ */
+func PrintErr(format string, args ...interface{}){
+	fmt.Fprintf(os.Stderr, format, args)
+}
+
+/*
+ * Discard messages silently.
+ */
+func Quiet(format string, args ...interface{}){
+	//discard message
+}
+
+var PrintUtil PrintCallback
+
+func InitPrinter(quiet bool) {
+	PrintUtil = PrintErr
+	if quiet {
+		PrintUtil = Quiet
+	}
+}
+
 //TimeTrack function for timing function calls. Usage:
 // defer TimeTrack(time.Now()) at the beginning of the timed function
 func TimeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
-	fmt.Fprintf(os.Stderr, "%s took %s\n", name, elapsed)
+	PrintUtil( "%s took %s\n", name, elapsed)
 }
 
 //Exit type to handle exiting

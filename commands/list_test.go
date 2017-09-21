@@ -4,7 +4,13 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/ngageoint/seed-cli/util"
 )
+
+func init() {
+	util.InitPrinter(false)
+}
 
 func TestDockerList(t *testing.T) {
 	cases := []struct {

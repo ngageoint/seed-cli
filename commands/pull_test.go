@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+func init() {
+	util.InitPrinter(false)
+}
+
 func TestDockerPull(t *testing.T) {
 	util.RestartRegistry()
 

@@ -44,13 +44,13 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	if batchFile != "" {
 		inputs, err = ProcessBatchFile(seed, batchFile, outdir)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error processing batch file: %s\n", err.Error())
+			util.PrintUtil( "ERROR: Error processing batch file: %s\n", err.Error())
 			return err
 		}
 	} else {
 		inputs, err = ProcessDirectory(seed, batchDir, outdir)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error processing batch directory: %s\n", err.Error())
+			util.PrintUtil( "ERROR: Error processing batch directory: %s\n", err.Error())
 			return err
 		}
 	}
@@ -58,9 +58,9 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 
 	for _, in := range inputs {
-		err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag)
+		err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, true)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error running docker image. \n %s \n", err.Error())
+			util.PrintUtil( "ERROR: Error running docker image. \n %s \n", err.Error())
 		}
 	}
 
@@ -69,26 +69,26 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 //PrintBatchUsage prints the seed batch usage arguments, then exits the program
 func PrintBatchUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed batch -in IMAGE_NAME [OPTIONS] \n")
+	util.PrintUtil( "\nUsage:\tseed batch -in IMAGE_NAME [OPTIONS] \n")
 
-	fmt.Fprintf(os.Stderr, "\nRuns Docker image defined by seed spec.\n")
+	util.PrintUtil( "\nRuns Docker image defined by seed spec.\n")
 
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s -%s Docker image name to run\n",
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil( "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s Optional file specifying input keys and file mapping for batch processing\n",
+	util.PrintUtil( "  -%s  -%s Optional file specifying input keys and file mapping for batch processing\n",
 		constants.ShortBatchFlag, constants.BatchFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
+	util.PrintUtil( "  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
+	util.PrintUtil( "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
+	util.PrintUtil( "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
 		constants.ShortMountFlag, constants.MountFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s \t Job Output Directory Location\n",
+	util.PrintUtil( "  -%s  -%s \t Job Output Directory Location\n",
 		constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
-	fmt.Fprintf(os.Stderr, "  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
+	util.PrintUtil( "  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
 		constants.RmFlag)
-	fmt.Fprintf(os.Stderr, "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
+	util.PrintUtil( "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	panic(util.Exit{0})
 }
@@ -105,7 +105,7 @@ func getOutputDir(outputDir, imageName string) string {
 	if _, err := os.Stat(outdir); os.IsNotExist(err) {
 		// Create the directory
 		// Didn't find the specified directory
-		fmt.Fprintf(os.Stderr, "INFO: %s not found; creating directory...\n",
+		util.PrintUtil( "INFO: %s not found; creating directory...\n",
 			outdir)
 		os.Mkdir(outdir, os.ModePerm)
 	}
@@ -188,7 +188,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 		} else if !hasKey {
 			fmt.Println("WARN: Missing input for key " + f.Name)
 		}
-		util.RemoveString(extraKeys, f.Name)
+		extraKeys = util.RemoveString(extraKeys, f.Name)
 	}
 
 	if len(extraKeys) > 0 {

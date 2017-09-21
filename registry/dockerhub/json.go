@@ -3,9 +3,7 @@ package dockerhub
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
-	"os"
 )
 
 var (
@@ -28,7 +26,7 @@ func (registry *DockerHubRegistry) getDockerHubPaginatedJson(url string, respons
 	err = decoder.Decode(response)
 	r := response.(*repositoriesResponse)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Returning error")
+		registry.Print( "Returning error")
 		return "", err
 	}
 	if r.Next == "" {

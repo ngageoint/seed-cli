@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -27,13 +26,13 @@ func DockerList() (string, error) {
 		dCmd.Stderr = &dErr
 		dOut, err := dCmd.StdoutPipe()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: Error attaching to std output pipe. %s\n",
+			util.PrintUtil( "ERROR: Error attaching to std output pipe. %s\n",
 				err.Error())
 		}
 
 		dCmd.Start()
 		if string(dErr.Bytes()) != "" {
-			fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+			util.PrintUtil( "ERROR: Error reading stderr %s\n",
 				string(dErr.Bytes()))
 		}
 
@@ -46,28 +45,28 @@ func DockerList() (string, error) {
 	// run images
 	err := cmd.Run()
 	if reference && err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker images.\n%s\n",
+		util.PrintUtil( "ERROR: Error executing docker images.\n%s\n",
 			err.Error())
 		return "", err
 	}
 
 	if errs.String() != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error reading stderr %s\n",
+		util.PrintUtil( "ERROR: Error reading stderr %s\n",
 			errs.String())
 		return "", errors.New(errs.String())
 	}
 
 	if !strings.Contains(out.String(), "seed") {
-		fmt.Fprintf(os.Stderr, "No seed images found!\n")
+		util.PrintUtil( "No seed images found!\n")
 		return "", nil
 	}
-	fmt.Fprintf(os.Stderr, "%s", out.String())
+	util.PrintUtil( "%s", out.String())
 	return out.String(), nil
 }
 
 //PrintListUsage prints the seed list usage information, then exits the program
 func PrintListUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed list\n")
-	fmt.Fprintf(os.Stderr, "\nLists all Seed compliant docker images residing on the local system.\n")
+	util.PrintUtil( "\nUsage:\tseed list\n")
+	util.PrintUtil( "\nLists all Seed compliant docker images residing on the local system.\n")
 	panic(util.Exit{0})
 }

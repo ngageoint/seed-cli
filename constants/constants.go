@@ -54,6 +54,12 @@ const ImgNameFlag = "imageName"
 //RmFlag defines if the docker image should be removed after docker run is executed
 const RmFlag = "rm"
 
+//QuietFlag defines if output from the docker image being run should be suppressed
+const QuietFlag = "quiet"
+
+//QuietFlag shorthand flag that defines if output from the docker image being run should be suppressed
+const ShortQuietFlag = "q"
+
 //SchemaFlag defines a schema file to validate seed against
 const SchemaFlag = "schema"
 
