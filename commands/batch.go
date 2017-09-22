@@ -56,13 +56,18 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	}
 
 
-
+	out := "Results: \n"
 	for _, in := range inputs {
 		err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, true)
 		if err != nil {
 			util.PrintUtil( "ERROR: Error running docker image. \n %s \n", err.Error())
+		} else {
+			out += fmt.Sprintf("Input %v \t = SUCCESS. Output: \t %s \n", in.Inputs, in.Outdir)
 		}
 	}
+
+	util.InitPrinter(false)
+	util.PrintUtil("%s", out)
 
 	return err
 }
