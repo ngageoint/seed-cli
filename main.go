@@ -183,7 +183,7 @@ func main() {
 		quiet := runCmd.Lookup(constants.QuietFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
 
-		err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
+		_, err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
 		if err != nil {
 			util.PrintUtil( "%s\n", err.Error())
 			panic(util.Exit{1})

@@ -24,15 +24,15 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) error {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(quiet)
 	
 	if imageName == "" {
-		return errors.New("ERROR: No input image specified.")
+		return 0, errors.New("ERROR: No input image specified.")
 	}
 
 	if exists, err := util.ImageExists(imageName); !exists {
-		return err
+		return 0, err
 	}
 
 	// Parse seed information off of the label
@@ -149,11 +149,12 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	runTime := time.Now()
 	err := dockerRun.Run()
 	util.TimeTrack(runTime, "INFO: "+imageName+" run")
+	exitCode := 0
 	if err != nil {
 		exitError, ok := err.(*exec.ExitError)
 		if ok {
 			ws := exitError.Sys().(syscall.WaitStatus)
-			exitCode := ws.ExitStatus()
+			exitCode = ws.ExitStatus()
 			util.PrintUtil( "Exited with error code %v\n", exitCode)
 			match := false
 			for _, e := range seed.Job.Errors {
@@ -163,7 +164,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 					util.PrintUtil( "Category: \t %s \n \n", e.Category)
 					match = true
 					util.PrintUtil( "Exiting seed...\n")
-					return err
+					return exitCode, err
 				}
 			}
 			if !match {
@@ -179,7 +180,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		util.PrintUtil( "ERROR: Error running image '%s':\n%s\n",
 			imageName, errs.String())
 		util.PrintUtil( "Exiting seed...\n")
-		return errors.New(errs.String())
+		return exitCode, errors.New(errs.String())
 	}
 
 	// Validate output against pattern
@@ -188,7 +189,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		CheckRunOutput(&seed, outDir, metadataSchema, outputSize)
 	}
 
-	return err
+	return exitCode, err
 }
 
 //DefineInputs extracts the paths to any input data given by the 'run' command

@@ -58,16 +58,28 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 	out := "Results: \n"
 	for _, in := range inputs {
-		err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, true)
+		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, true)
+
+		//trim inputs to print only the key values and filenames
+		truncatedInputs := []string{}
+		for _, i := range in.Inputs {
+			begin := strings.Index(i, "=") + 1
+			end := strings.LastIndex(i, "/")
+			truncatedInputs = append(truncatedInputs, i[0:begin] + "..." + i[end:])
+		}
+
+		//trim path to specified (or generated) batch output directory
+		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
+
 		if err != nil {
-			util.PrintUtil( "ERROR: Error running docker image. \n %s \n", err.Error())
+			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
 		} else {
-			out += fmt.Sprintf("Input %v \t = SUCCESS. Output: \t %s \n", in.Inputs, in.Outdir)
+			out += fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
 		}
 	}
 
 	util.InitPrinter(false)
-	util.PrintUtil("%s", out)
+	util.PrintUtil("%v", out)
 
 	return err
 }
@@ -165,6 +177,8 @@ func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, er
 		batchIO = append(batchIO, row)
 	}
 
+	util.PrintUtil("Batch Input Dir = %v \t Batch Output Dir = %v \n", batchDir, outdir)
+
 	return batchIO, err
 }
 
@@ -208,16 +222,21 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 		}
 		values := strings.Split(line, ",")
 		fileInputs := []string{}
+		inputNames := fmt.Sprintf("%d", i)
 		for j, file := range values {
 			if j > len(keys) {
 				fmt.Println("WARN: More files provided than keys")
 			}
 			fileInputs = append(fileInputs, keys[j]+"="+file)
+			inputNames += "-" + filepath.Base(file)
 		}
-		fileDir := filepath.Join(outdir, fmt.Sprintf("%d", i))
+		fileDir := filepath.Join(outdir, inputNames)
 		row := BatchIO{fileInputs, fileDir}
 		batchIO = append(batchIO, row)
 	}
+
+	util.PrintUtil("Batch Input = %s \t", batchFile)
+	util.PrintUtil("Batch Output Dir = %s \n", outdir)
 
 	return batchIO, err
 }

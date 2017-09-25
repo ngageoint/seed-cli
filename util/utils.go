@@ -12,7 +12,7 @@ type PrintCallback func(format string, args ...interface{})
  * Print messages to stderr
  */
 func PrintErr(format string, args ...interface{}){
-	fmt.Fprintf(os.Stderr, format, args)
+	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 /*
