@@ -63,6 +63,8 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
+	"strconv"
+	"fmt"
 )
 
 var batchCmd *flag.FlagSet
@@ -173,7 +175,6 @@ func main() {
 
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
-		//batch := runCmd.Lookup(constants.BatchFlag).Value.String() == constants.TrueString
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
 		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
@@ -183,11 +184,23 @@ func main() {
 		quiet := runCmd.Lookup(constants.QuietFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
 
-		_, err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
+		repeat := runCmd.Lookup(constants.RepeatFlag).Value.String()
+		reps, err := strconv.Atoi(repeat)
 		if err != nil {
-			util.PrintUtil( "%s\n", err.Error())
+			util.PrintUtil("Error reading repeat flag: %s\n", err.Error())
 			panic(util.Exit{1})
+		}
 
+		for i := 0; i < reps; i++ {
+			outputDirRep := outputDir
+			if outputDir != "" {
+				outputDirRep = outputDir + fmt.Sprintf("-%d", i)
+			}
+			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
+			if err != nil {
+				util.PrintUtil("%s\n", err.Error())
+				panic(util.Exit{1})
+			}
 		}
 		panic(util.Exit{0})
 	}
@@ -383,6 +396,12 @@ func DefineRunFlags() {
 		"Metadata schema file to override built in schema in validating side-car metadata files")
 	runCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
 		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	var repeat int
+	runCmd.IntVar(&repeat, constants.RepeatFlag, 1,
+		"Run the docker image the specified number of times")
+	runCmd.IntVar(&repeat, constants.ShortRepeatFlag, 1,
+		"Run the docker image the specified number of times")
 
 	// Run usage function
 	runCmd.Usage = func() {

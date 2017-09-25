@@ -123,6 +123,12 @@ const BatchFlag = "batch"
 //ShortBatchFlag - shorthand flag for batch
 const ShortBatchFlag = "b"
 
+//RepeatFlag defines how many times to run a docker image
+const RepeatFlag = "repetitions"
+
+//ShortRepeatFlag - shorthand flag for repetitions
+const ShortRepeatFlag = "rep"
+
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"
 
