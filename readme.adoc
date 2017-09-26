@@ -67,6 +67,30 @@ This will volume mount `/tmp/file_input.txt` as read only and `/tmp/outputs` int
 with the container relative locations and injecting into the defined `args` placeholders for consumption by the
 algorithm.
 
+=== Batch
+
+Related to the run command, the `seed batch` command will run an image multiple times with varying inputs.  It will take
+an image name and either a directory with files to use as input or a csv file specifying keys and files (preferred).
+
+For an Seed interface with two `inputData.files` elements with a `name` of `MY_INPUT` and `MY_INPUT2` the `seed batch` command would
+be as follows:
+
+----
+seed batch -in process-file:0.1.0-seed:0.1.0 -b batch.csv -o /tmp/outputs
+----
+
+and the batch.csv file would look something like this:
+
+....
+MY_INPUT, MY_INPUT2
+/path/to/input1.txt, input2.txt
+/path/to/different/input.txt, input2.txt
+currentDirectoryInput.txt, input2.txt
+....
+
+The image will be run three times and success or failure will be reported for each run along with the location of any
+output.
+
 === List
 
 Simple command to list the local Seed compliant images.  It can be run with the following command:
