@@ -93,7 +93,7 @@ func PrintBatchUsage() {
 	util.PrintUtil( "\nOptions:\n")
 	util.PrintUtil( "  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil( "  -%s  -%s Optional file specifying input keys and file mapping for batch processing\n",
+	util.PrintUtil( "  -%s  -%s Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.\n",
 		constants.ShortBatchFlag, constants.BatchFlag)
 	util.PrintUtil( "  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
@@ -138,7 +138,7 @@ func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, er
 		}
 		if f.Required {
 			if key != "" {
-				return nil, errors.New("ERROR: Batch processing does not support multiple required inputs.")
+				return nil, errors.New("ERROR: Multiple required inputs are not supported when batch processing directories.")
 			}
 			key = f.Name
 		} else if unrequired == "" {
@@ -155,10 +155,6 @@ func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, er
 	}
 
 	files, err := ioutil.ReadDir(batchDir)
-	if err != nil {
-		return nil, err
-	}
-
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +191,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 	keys := strings.Split(lines[0], ",")
 	extraKeys := keys
 
-	if len(keys) == 0 {
+	if len(keys) == 0 || len(keys[0]) == 0{
 		return nil, errors.New("ERROR: Empty keys list on first line of batch file.")
 	}
 
