@@ -2,7 +2,6 @@ package util
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,9 +70,9 @@ func DockerfileBaseRegistry(dir string) (string, error) {
 	// Verify dockerfile exists within specified directory.
 	_, err := os.Stat(dockerfile)
 	if os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
+		PrintUtil( "ERROR: %s cannot be found.\n",
 			dockerfile)
-		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+		PrintUtil( "Make sure you have specified the correct directory.\n")
 	}
 
 	file, err := os.Open(dockerfile)
@@ -129,9 +128,9 @@ func GetSeedFileName(dir string) (string, bool, error) {
 func SeedFileName(dir string) (string, error) {
 	seedFileName, exists, err := GetSeedFileName(dir)
 	if !exists {
-		fmt.Fprintf(os.Stderr, "ERROR: %s cannot be found.\n",
+		PrintUtil( "ERROR: %s cannot be found.\n",
 			seedFileName)
-		fmt.Fprintf(os.Stderr, "Make sure you have specified the correct directory.\n")
+		PrintUtil( "Make sure you have specified the correct directory.\n")
 	}
 
 	return seedFileName, err
@@ -141,6 +140,26 @@ func SeedFileName(dir string) (string, error) {
 func RemoveAllFiles(v string) {
 	err := os.RemoveAll(v)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error removing directory: %s\n", err.Error())
+		PrintUtil( "Error removing directory: %s\n", err.Error())
 	}
+}
+
+func ReadLinesFromFile(filename string) ([]string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	lines := []string{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }

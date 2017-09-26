@@ -7,12 +7,14 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/util"
 )
 
 //DockerHubRegistry type representing a Docker Hub registry
 type DockerHubRegistry struct {
 	URL    string
 	Client *http.Client
+	Print  util.PrintCallback
 }
 
 //New creates a new docker hub registry from the given URL
@@ -21,6 +23,7 @@ func New(registryUrl string) (*DockerHubRegistry, error) {
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
+		Print: util.PrintUtil,
 	}
 
 	return registry, nil

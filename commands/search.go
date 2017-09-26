@@ -2,8 +2,6 @@ package commands
 
 import (
 	"errors"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
@@ -36,18 +34,18 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 
 //PrintSearchUsage prints the seed search usage information, then exits the program
 func PrintSearchUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
-	fmt.Fprintf(os.Stderr, "\nAllows for discovery of seed compliant images hosted within a Docker registry.\n")
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific registry to search (default is index.docker.io).\n",
+	util.PrintUtil( "\nUsage:\tseed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
+	util.PrintUtil( "\nAllows for discovery of seed compliant images hosted within a Docker registry.\n")
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil( "  -%s -%s\tSpecifies a specific registry to search (default is index.docker.io).\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a specific organization to filter (default is no filter).\n",
+	util.PrintUtil( "  -%s -%s\tSpecifies a specific organization to filter (default is no filter).\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies a filter to apply (default is no filter).\n",
+	util.PrintUtil( "  -%s -%s\tSpecifies a filter to apply (default is no filter).\n",
 		constants.ShortFilterFlag, constants.FilterFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tUsername to login to remote registry (default is anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tUsername to login to remote registry (default is anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tPassword to login to remote registry (default is anonymous).\n",
+	util.PrintUtil( "  -%s -%s\tPassword to login to remote registry (default is anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

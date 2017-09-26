@@ -2,7 +2,6 @@ package commands
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -18,12 +17,12 @@ func SeedInit(directory string) error {
 	seedFileName, exists, err := util.GetSeedFileName(directory)
 	if err != nil && exists {
 		//an error occurred other than the file not existing, i.e. permission error
-		fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
+		util.PrintUtil( "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
 			seedFileName, err.Error())
 		return errors.New("Error writing example Seed manifest.")
 	} else if exists {
 		msg := "Pre-existing " + seedFileName + " found. Existing file left unmodified."
-		fmt.Fprintf(os.Stderr, "%s\n", msg)
+		util.PrintUtil( "%s\n", msg)
 		return nil
 	}
 
@@ -33,21 +32,21 @@ func SeedInit(directory string) error {
 
 	err = ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
+		util.PrintUtil( "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
 			seedFileName, err.Error())
 		return errors.New("Error writing example Seed manifest.")
 	}
 
-	fmt.Fprintf(os.Stderr, "Created Seed file: %s\n", seedFileName)
+	util.PrintUtil( "Created Seed file: %s\n", seedFileName)
 
 	return nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintInitUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed init [-d JOB_DIRECTORY]\n")
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr,
+	util.PrintUtil( "\nUsage:\tseed init [-d JOB_DIRECTORY]\n")
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil(
 		"  -%s  -%s\tDirectory to place seed.manifest.json example. (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	panic(util.Exit{0})

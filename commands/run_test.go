@@ -9,6 +9,10 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
+func init() {
+	util.InitPrinter(false)
+}
+
 func TestDockerRun(t *testing.T) {
 	cases := []struct {
 		directory        string
@@ -35,15 +39,15 @@ func TestDockerRun(t *testing.T) {
 		outputDir := "output"
 		metadataSchema := ""
 		DockerBuild(c.directory, "", "")
-		err := DockerRun(c.imageName, outputDir, metadataSchema,
-			c.inputs, c.settings, c.mounts, true)
+		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
+			c.inputs, c.settings, c.mounts, true, true)
 		success := err == nil
 		if success != c.expected {
-			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
+			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {
-				t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err.Error(), c.expectedErrorMsg)
+				t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err.Error(), c.expectedErrorMsg)
 			}
 		}
 	}

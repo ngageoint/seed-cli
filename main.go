@@ -56,7 +56,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 
@@ -64,8 +63,11 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
+	"strconv"
+	"fmt"
 )
 
+var batchCmd *flag.FlagSet
 var buildCmd *flag.FlagSet
 var initCmd *flag.FlagSet
 var listCmd *flag.FlagSet
@@ -78,6 +80,7 @@ var versionCmd *flag.FlagSet
 var version string
 
 func main() {
+	util.InitPrinter(false)
 	// Handles any panics/actual exits. Ensures deferred functions are called
 	// before program exit.
 	defer util.HandleExit()
@@ -119,12 +122,12 @@ func main() {
 		}
 
 		if len(results) > 0 {
-			fmt.Fprintf(os.Stderr, "Found %v Repositories:\n", len(results))
+			util.PrintUtil( "Found %v Repositories:\n", len(results))
 			for _, r := range results {
-				fmt.Fprintf(os.Stderr, "%s\n", r)
+				util.PrintUtil( "%s\n", r)
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "No repositories found.\n")
+			util.PrintUtil( "No repositories found.\n")
 		}
 		panic(util.Exit{0})
 	}
@@ -153,6 +156,23 @@ func main() {
 		panic(util.Exit{0})
 	}
 
+	// seed batch: Run Docker image on all files in directory
+	if batchCmd.Parsed() {
+		batchDir := batchCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		batchFile := batchCmd.Lookup(constants.BatchFlag).Value.String()
+		imageName := batchCmd.Lookup(constants.ImgNameFlag).Value.String()
+		settings := strings.Split(batchCmd.Lookup(constants.SettingFlag).Value.String(), ",")
+		mounts := strings.Split(batchCmd.Lookup(constants.MountFlag).Value.String(), ",")
+		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
+		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
+		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		if err != nil {
+			panic(util.Exit{1})
+		}
+		panic(util.Exit{0})
+	}
+
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
@@ -161,11 +181,26 @@ func main() {
 		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		quiet := runCmd.Lookup(constants.QuietFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
-		err := commands.DockerRun(imageName, outputDir, metadataSchema, inputs, settings, mounts, rmFlag)
+
+		repeat := runCmd.Lookup(constants.RepeatFlag).Value.String()
+		reps, err := strconv.Atoi(repeat)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			util.PrintUtil("Error reading repeat flag: %s\n", err.Error())
 			panic(util.Exit{1})
+		}
+
+		for i := 0; i < reps; i++ {
+			outputDirRep := outputDir
+			if outputDir != "" {
+				outputDirRep = outputDir + fmt.Sprintf("-%d", i)
+			}
+			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
+			if err != nil {
+				util.PrintUtil("%s\n", err.Error())
+				panic(util.Exit{1})
+			}
 		}
 		panic(util.Exit{0})
 	}
@@ -257,6 +292,62 @@ func DefineInitFlags() {
 }
 
 //DefineRunFlags defines the flags for the seed run command
+func DefineBatchFlags() {
+	batchCmd = flag.NewFlagSet(constants.BatchCommand, flag.ContinueOnError)
+
+	var directory string
+	batchCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory)")
+	batchCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory)")
+
+	var batchFile string
+	batchCmd.StringVar(&batchFile, constants.BatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
+	batchCmd.StringVar(&batchFile, constants.ShortBatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
+
+	var imgNameFlag string
+	batchCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to run")
+	batchCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to run")
+
+	var settings objects.ArrayFlags
+	batchCmd.Var(&settings, constants.SettingFlag,
+		"Defines the value to be applied to setting")
+	batchCmd.Var(&settings, constants.ShortSettingFlag,
+		"Defines the value to be applied to setting")
+
+	var mounts objects.ArrayFlags
+	batchCmd.Var(&mounts, constants.MountFlag,
+		"Defines the full path to be mapped via mount")
+	batchCmd.Var(&mounts, constants.ShortMountFlag,
+		"Defines the full path to be mapped via mount")
+
+	var outdir string
+	batchCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
+		"Full path to the job output directory")
+	batchCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
+		"Full path to the job output directory")
+
+	var rmVar bool
+	batchCmd.BoolVar(&rmVar, constants.RmFlag, false,
+		"Specifying the -rm flag automatically removes the image after executing docker run")
+
+	var metadataSchema string
+	batchCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+	batchCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	// Run usage function
+	batchCmd.Usage = func() {
+		commands.PrintBatchUsage()
+	}
+}
+
+//DefineRunFlags defines the flags for the seed run command
 func DefineRunFlags() {
 	runCmd = flag.NewFlagSet(constants.RunCommand, flag.ContinueOnError)
 
@@ -294,11 +385,23 @@ func DefineRunFlags() {
 	runCmd.BoolVar(&rmVar, constants.RmFlag, false,
 		"Specifying the -rm flag automatically removes the image after executing docker run")
 
+	var quiet bool
+	runCmd.BoolVar(&quiet, constants.QuietFlag, false,
+		"Specifying the -q flag disables output from the docker image being run")
+	runCmd.BoolVar(&quiet, constants.ShortQuietFlag, false,
+		"Specifying the -q flag disables output from the docker image being run")
+
 	var metadataSchema string
 	runCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
 		"Metadata schema file to override built in schema in validating side-car metadata files")
 	runCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
 		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	var repeat int
+	runCmd.IntVar(&repeat, constants.RepeatFlag, 1,
+		"Run the docker image the specified number of times")
+	runCmd.IntVar(&repeat, constants.ShortRepeatFlag, 1,
+		"Run the docker image the specified number of times")
 
 	// Run usage function
 	runCmd.Usage = func() {
@@ -455,6 +558,7 @@ func DefineValidateFlags() {
 //DefineFlags defines the flags available for the seed runner.
 func DefineFlags() {
 	// Seed subcommand flags
+	DefineBatchFlags()
 	DefineBuildFlags()
 	DefineInitFlags()
 	DefineRunFlags()
@@ -478,6 +582,11 @@ func DefineFlags() {
 
 	// Parse commands
 	switch os.Args[1] {
+
+	case constants.BatchCommand:
+		cmd = batchCmd
+		minArgs = 3
+
 	case constants.BuildCommand:
 		cmd = buildCmd
 
@@ -522,7 +631,7 @@ func DefineFlags() {
 		PrintVersion()
 
 	default:
-		fmt.Fprintf(os.Stderr, "%q is not a valid command.\n", os.Args[1])
+		util.PrintUtil( "%q is not a valid command.\n", os.Args[1])
 		PrintUsage()
 		panic(util.Exit{0})
 	}
@@ -537,37 +646,37 @@ func DefineFlags() {
 
 //PrintUsage prints the seed usage arguments
 func PrintUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed COMMAND\n\n")
-	fmt.Fprintf(os.Stderr, "A test runner for seed spec compliant algorithms\n\n")
-	fmt.Fprintf(os.Stderr, "Commands:\n")
-	fmt.Fprintf(os.Stderr, "  build \tBuilds Seed compliant Docker image\n")
-	fmt.Fprintf(os.Stderr, "  init  \tInitialize new project with example seed.manifest.json file\n")
-	fmt.Fprintf(os.Stderr, "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
-	fmt.Fprintf(os.Stderr, "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
-	fmt.Fprintf(os.Stderr, "  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
-	fmt.Fprintf(os.Stderr, "  run   \tExecutes Seed compliant Docker docker image\n")
-	fmt.Fprintf(os.Stderr, "  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
-	fmt.Fprintf(os.Stderr, "  validate\tValidates a Seed spec\n")
-	fmt.Fprintf(os.Stderr, "  version\tPrints the version of Seed spec\n")
-	fmt.Fprintf(os.Stderr, "\nRun 'seed COMMAND --help' for more information on a command.\n")
+	util.PrintUtil( "\nUsage:\tseed COMMAND\n\n")
+	util.PrintUtil( "A test runner for seed spec compliant algorithms\n\n")
+	util.PrintUtil( "Commands:\n")
+	util.PrintUtil( "  build \tBuilds Seed compliant Docker image\n")
+	util.PrintUtil( "  init  \tInitialize new project with example seed.manifest.json file\n")
+	util.PrintUtil( "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
+	util.PrintUtil( "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
+	util.PrintUtil( "  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
+	util.PrintUtil( "  run   \tExecutes Seed compliant Docker docker image\n")
+	util.PrintUtil( "  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
+	util.PrintUtil( "  validate\tValidates a Seed spec\n")
+	util.PrintUtil( "  version\tPrints the version of Seed spec\n")
+	util.PrintUtil( "\nRun 'seed COMMAND --help' for more information on a command.\n")
 	panic(util.Exit{0})
 }
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed version \n")
-	fmt.Fprintf(os.Stderr, "\nOutputs the version of the Seed CLI and specification.\n")
+	util.PrintUtil( "\nUsage:\tseed version \n")
+	util.PrintUtil( "\nOutputs the version of the Seed CLI and specification.\n")
 	panic(util.Exit{0})
 }
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
-	fmt.Fprintf(os.Stderr, "Seed v%s\n", version)
+	util.PrintUtil( "Seed v%s\n", version)
 	schemas, err := constants.AssetDir("schema")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error getting supported schema versions: %s \n", err.Error())
+		util.PrintUtil( "Error getting supported schema versions: %s \n", err.Error())
 		panic(util.Exit{1})
 	}
-	fmt.Fprintf(os.Stderr, "Supported schema versions: %s\n", schemas)
+	util.PrintUtil( "Supported schema versions: %s\n", schemas)
 	panic(util.Exit{0})
 }

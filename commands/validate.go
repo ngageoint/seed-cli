@@ -3,8 +3,6 @@ package commands
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
@@ -20,7 +18,7 @@ func Validate(schemaFile, dir string) error {
 
 	seedFileName, err = util.SeedFileName(dir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+		util.PrintUtil( "ERROR: %s\n", err.Error())
 		return err
 	}
 
@@ -30,7 +28,7 @@ func Validate(schemaFile, dir string) error {
 
 	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err.Error())
+		util.PrintUtil( "%s", err.Error())
 	}
 
 	return err
@@ -38,13 +36,13 @@ func Validate(schemaFile, dir string) error {
 
 //PrintValidateUsage prints the seed validate usage, then exits the program
 func PrintValidateUsage() {
-	fmt.Fprintf(os.Stderr, "\nUsage:\tseed validate [OPTIONS] \n")
-	fmt.Fprintf(os.Stderr, "\nValidates the given %s by verifying it is compliant with the Seed spec.\n",
+	util.PrintUtil( "\nUsage:\tseed validate [OPTIONS] \n")
+	util.PrintUtil( "\nValidates the given %s by verifying it is compliant with the Seed spec.\n",
 		constants.SeedFileName)
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	fmt.Fprintf(os.Stderr, "  -%s -%s\tSpecifies directory in which Seed is located (default is current directory)\n",
+	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil( "  -%s -%s\tSpecifies directory in which Seed is located (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	fmt.Fprintf(os.Stderr, "  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
+	util.PrintUtil( "  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	panic(util.Exit{0})
 }
@@ -61,7 +59,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 
 	// Load supplied schema file
 	if schemaFile != "" {
-		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema file %s...\n",
+		util.PrintUtil( "INFO: Validating seed %s file %s against schema file %s...\n",
 			typeStr, seedFileName, schemaFile)
 		schemaLoader := gojsonschema.NewReferenceLoader(schemaFile)
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
@@ -69,7 +67,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 
 		// Load baked-in schema file
 	} else {
-		fmt.Fprintf(os.Stderr, "INFO: Validating seed %s file %s against schema...\n",
+		util.PrintUtil( "INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
 		// TODO: We need to support validation of all supported schema versions in the future
 		schemaBytes, _ := constants.Asset("schema/0.1.0/seed.manifest.schema.json")
@@ -99,7 +97,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 
 	//Identify any name collisions for the follwing reserved variables:
 	//		OUTPUT_DIR, ALLOCATED_CPUS, ALLOCATED_MEM, ALLOCATED_SHARED_MEM, ALLOCATED_STORAGE
-	fmt.Fprintf(os.Stderr, "INFO: Checking for variable name collisions...\n")
+	util.PrintUtil( "INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 
 	//skip resource and name collision checking for metadata files
@@ -117,9 +115,9 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		}
 	}
 	if len(recommendedResources) > 0 {
-		fmt.Fprintf(os.Stderr, "WARNING: %s does not specify some recommended resources\n", seedFileName)
-		fmt.Print("Specifying cpu, memory and disk requirements are highly recommended\n")
-		fmt.Fprintf(os.Stderr, "The following resources are not defined: %s\n", recommendedResources)
+		util.PrintUtil( "WARNING: %s does not specify some recommended resources\n", seedFileName)
+		util.PrintUtil("Specifying cpu, memory and disk requirements are highly recommended\n")
+		util.PrintUtil( "The following resources are not defined: %s\n", recommendedResources)
 	}
 
 	// Grab all scalar resource names (verify none are set to OUTPUT_DIR)
@@ -223,6 +221,6 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	}
 
 	// Validation succeeded
-	fmt.Fprintf(os.Stderr, "SUCCESS: No errors found. %s is valid.\n\n", seedFileName)
+	util.PrintUtil( "SUCCESS: No errors found. %s is valid.\n\n", seedFileName)
 	return nil
 }

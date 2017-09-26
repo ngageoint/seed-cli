@@ -4,6 +4,7 @@ package constants
 const TrueString = "true"
 
 // Subcommands supported by CLI
+const BatchCommand = "batch"
 const BuildCommand = "build"
 const InitCommand = "init"
 const ListCommand = "list"
@@ -52,6 +53,12 @@ const ImgNameFlag = "imageName"
 
 //RmFlag defines if the docker image should be removed after docker run is executed
 const RmFlag = "rm"
+
+//QuietFlag defines if output from the docker image being run should be suppressed
+const QuietFlag = "quiet"
+
+//QuietFlag shorthand flag that defines if output from the docker image being run should be suppressed
+const ShortQuietFlag = "q"
 
 //SchemaFlag defines a schema file to validate seed against
 const SchemaFlag = "schema"
@@ -109,6 +116,18 @@ const JobVersionMajor = "J"
 
 //JobVersionPatch specifies to bump job patch version
 const JobVersionPatch = "jp"
+
+//BatchFlag defines whether to run in batch mode
+const BatchFlag = "batch"
+
+//ShortBatchFlag - shorthand flag for batch
+const ShortBatchFlag = "b"
+
+//RepeatFlag defines how many times to run a docker image
+const RepeatFlag = "repetitions"
+
+//ShortRepeatFlag - shorthand flag for repetitions
+const ShortRepeatFlag = "rep"
 
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"

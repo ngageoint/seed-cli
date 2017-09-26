@@ -5,7 +5,13 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/ngageoint/seed-cli/util"
 )
+
+func init() {
+	util.InitPrinter(false)
+}
 
 func TestSeedInit(t *testing.T) {
 	cases := []struct {

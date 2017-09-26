@@ -8,6 +8,10 @@ import (
 	"github.com/ngageoint/seed-cli/util"
 )
 
+func init() {
+	util.InitPrinter(false)
+}
+
 func TestValidate(t *testing.T) {
 	cases := []struct {
 		seedFileName     string

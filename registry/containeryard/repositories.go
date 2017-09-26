@@ -1,10 +1,5 @@
 package containeryard
 
-import (
-	"fmt"
-	"os"
-)
-
 type Response struct {
 	Results Results
 }
@@ -58,7 +53,7 @@ func (registry *ContainerYardRegistry) Repositories(org string) ([]string, error
 
 func (registry *ContainerYardRegistry) Tags(repository, org string) ([]string, error) {
 	url := registry.url("/search?q=%s&t=json", repository)
-	fmt.Fprintf(os.Stderr, "Searching %s for Seed images...\n", url)
+	registry.Print( "Searching %s for Seed images...\n", url)
 	tags := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
 	var response Response

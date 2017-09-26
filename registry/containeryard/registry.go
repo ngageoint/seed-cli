@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/ngageoint/seed-cli/util"
 )
 
 //ContainerYardRegistry type representing a Container Yard registry
 type ContainerYardRegistry struct {
 	URL    string
 	Client *http.Client
+	Print  util.PrintCallback
 }
 
 func (r *ContainerYardRegistry) Name() string {
@@ -22,6 +25,7 @@ func New(registryUrl string) (*ContainerYardRegistry, error) {
 	registry := &ContainerYardRegistry{
 		URL:    url,
 		Client: &http.Client{},
+		Print: util.PrintUtil,
 	}
 
 	return registry, nil

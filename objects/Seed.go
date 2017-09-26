@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/util"
 )
 
 //Seed represents a seed.manifest.json object.
@@ -190,7 +191,7 @@ func GetManifestLabel(seedFileName string) string {
 	// read the seed.manifest.json into a string
 	seedbytes, err := ioutil.ReadFile(seedFileName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Eror reading %s. %s\n", seedFileName,
+		util.PrintUtil( "ERROR: Error reading %s. %s\n", seedFileName,
 			err.Error())
 		os.Exit(1)
 	}
@@ -198,7 +199,7 @@ func GetManifestLabel(seedFileName string) string {
 	json.Compact(&seedbuff, seedbytes)
 	seedbytes, err = json.Marshal(seedbuff.String())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error marshalling seed manifest. %s\n",
+		util.PrintUtil( "ERROR: Error marshalling seed manifest. %s\n",
 			err.Error())
 	}
 
@@ -213,7 +214,7 @@ func GetManifestLabel(seedFileName string) string {
 //SeedFromImageLabel returns seed parsed from the docker image LABEL
 func SeedFromImageLabel(imageName string) Seed {
 	cmdStr := "inspect -f '{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'" + imageName
-	fmt.Fprintf(os.Stderr,
+	util.PrintUtil(
 		"INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n",
 		imageName)
 
@@ -222,7 +223,7 @@ func SeedFromImageLabel(imageName string) Seed {
 
 	errPipe, errr := inspectCommand.StderrPipe()
 	if errr != nil {
-		fmt.Fprintf(os.Stderr,
+		util.PrintUtil(
 			"ERROR: error attaching to docker inspect command stderr. %s\n",
 			errr.Error())
 	}
@@ -230,14 +231,14 @@ func SeedFromImageLabel(imageName string) Seed {
 	// Attach stdout pipe
 	outPipe, errr := inspectCommand.StdoutPipe()
 	if errr != nil {
-		fmt.Fprintf(os.Stderr,
+		util.PrintUtil(
 			"ERROR: error attaching to docker inspect command stdout. %s\n",
 			errr.Error())
 	}
 
 	// Run docker inspect
 	if err := inspectCommand.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: error executing docker %s. %s\n", cmdStr,
+		util.PrintUtil( "ERROR: error executing docker %s. %s\n", cmdStr,
 			err.Error())
 	}
 
@@ -251,9 +252,9 @@ func SeedFromImageLabel(imageName string) Seed {
 	// check for errors on stderr
 	slurperr, _ := ioutil.ReadAll(errPipe)
 	if string(slurperr) != "" {
-		fmt.Fprintf(os.Stderr, "ERROR: Error executing docker %s:\n%s\n",
+		util.PrintUtil( "ERROR: Error executing docker %s:\n%s\n",
 			cmdStr, string(slurperr))
-		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		util.PrintUtil( "Exiting seed...\n")
 		os.Exit(1)
 	}
 
@@ -270,7 +271,7 @@ func SeedFromImageLabel(imageName string) Seed {
 
 	err = json.Unmarshal([]byte(seedStr), &seed)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error unmarshalling seed: %s\n", err.Error())
+		util.PrintUtil( "ERROR: Error unmarshalling seed: %s\n", err.Error())
 	}
 
 	return *seed
@@ -282,18 +283,18 @@ func SeedFromManifestFile(seedFileName string) Seed {
 	// Open and parse seed file into struct
 	seedFile, err := os.Open(seedFileName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Error opening %s. Error received is: %s\n",
+		util.PrintUtil( "ERROR: Error opening %s. Error received is: %s\n",
 			seedFileName, err.Error())
-		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		util.PrintUtil( "Exiting seed...\n")
 		os.Exit(1)
 	}
 	jsonParser := json.NewDecoder(seedFile)
 	var seed Seed
 	if err = jsonParser.Decode(&seed); err != nil {
-		fmt.Fprintf(os.Stderr,
+		util.PrintUtil(
 			"ERROR: A valid %s must be present in the working directory. Error parsing %s.\nError received is: %s\n",
 			constants.SeedFileName, seedFileName, err.Error())
-		fmt.Fprintf(os.Stderr, "Exiting seed...\n")
+		util.PrintUtil( "Exiting seed...\n")
 		os.Exit(1)
 	}
 
