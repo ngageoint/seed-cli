@@ -59,12 +59,12 @@ import (
 	"os"
 	"strings"
 
+	"fmt"
 	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/objects"
 	"github.com/ngageoint/seed-cli/util"
 	"strconv"
-	"fmt"
 )
 
 var batchCmd *flag.FlagSet
@@ -122,12 +122,12 @@ func main() {
 		}
 
 		if len(results) > 0 {
-			util.PrintUtil( "Found %v Repositories:\n", len(results))
+			util.PrintUtil("Found %v Repositories:\n", len(results))
 			for _, r := range results {
-				util.PrintUtil( "%s\n", r)
+				util.PrintUtil("%s\n", r)
 			}
 		} else {
-			util.PrintUtil( "No repositories found.\n")
+			util.PrintUtil("No repositories found.\n")
 		}
 		panic(util.Exit{0})
 	}
@@ -631,7 +631,7 @@ func DefineFlags() {
 		PrintVersion()
 
 	default:
-		util.PrintUtil( "%q is not a valid command.\n", os.Args[1])
+		util.PrintUtil("%q is not a valid command.\n", os.Args[1])
 		PrintUsage()
 		panic(util.Exit{0})
 	}
@@ -646,37 +646,37 @@ func DefineFlags() {
 
 //PrintUsage prints the seed usage arguments
 func PrintUsage() {
-	util.PrintUtil( "\nUsage:\tseed COMMAND\n\n")
-	util.PrintUtil( "A test runner for seed spec compliant algorithms\n\n")
-	util.PrintUtil( "Commands:\n")
-	util.PrintUtil( "  build \tBuilds Seed compliant Docker image\n")
-	util.PrintUtil( "  init  \tInitialize new project with example seed.manifest.json file\n")
-	util.PrintUtil( "  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
-	util.PrintUtil( "  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
-	util.PrintUtil( "  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
-	util.PrintUtil( "  run   \tExecutes Seed compliant Docker docker image\n")
-	util.PrintUtil( "  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
-	util.PrintUtil( "  validate\tValidates a Seed spec\n")
-	util.PrintUtil( "  version\tPrints the version of Seed spec\n")
-	util.PrintUtil( "\nRun 'seed COMMAND --help' for more information on a command.\n")
+	util.PrintUtil("\nUsage:\tseed COMMAND\n\n")
+	util.PrintUtil("A test runner for seed spec compliant algorithms\n\n")
+	util.PrintUtil("Commands:\n")
+	util.PrintUtil("  build \tBuilds Seed compliant Docker image\n")
+	util.PrintUtil("  init  \tInitialize new project with example seed.manifest.json file\n")
+	util.PrintUtil("  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
+	util.PrintUtil("  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
+	util.PrintUtil("  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
+	util.PrintUtil("  run   \tExecutes Seed compliant Docker docker image\n")
+	util.PrintUtil("  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
+	util.PrintUtil("  validate\tValidates a Seed spec\n")
+	util.PrintUtil("  version\tPrints the version of Seed spec\n")
+	util.PrintUtil("\nRun 'seed COMMAND --help' for more information on a command.\n")
 	panic(util.Exit{0})
 }
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
-	util.PrintUtil( "\nUsage:\tseed version \n")
-	util.PrintUtil( "\nOutputs the version of the Seed CLI and specification.\n")
+	util.PrintUtil("\nUsage:\tseed version \n")
+	util.PrintUtil("\nOutputs the version of the Seed CLI and specification.\n")
 	panic(util.Exit{0})
 }
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
-	util.PrintUtil( "Seed v%s\n", version)
+	util.PrintUtil("Seed v%s\n", version)
 	schemas, err := constants.AssetDir("schema")
 	if err != nil {
-		util.PrintUtil( "Error getting supported schema versions: %s \n", err.Error())
+		util.PrintUtil("Error getting supported schema versions: %s \n", err.Error())
 		panic(util.Exit{1})
 	}
-	util.PrintUtil( "Supported schema versions: %s\n", schemas)
+	util.PrintUtil("Supported schema versions: %s\n", schemas)
 	panic(util.Exit{0})
 }

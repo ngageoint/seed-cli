@@ -34,18 +34,18 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 
 //PrintSearchUsage prints the seed search usage information, then exits the program
 func PrintSearchUsage() {
-	util.PrintUtil( "\nUsage:\tseed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
-	util.PrintUtil( "\nAllows for discovery of seed compliant images hosted within a Docker registry.\n")
-	util.PrintUtil( "\nOptions:\n")
-	util.PrintUtil( "  -%s -%s\tSpecifies a specific registry to search (default is index.docker.io).\n",
+	util.PrintUtil("\nUsage:\tseed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
+	util.PrintUtil("\nAllows for discovery of seed compliant images hosted within a Docker registry.\n")
+	util.PrintUtil("\nOptions:\n")
+	util.PrintUtil("  -%s -%s\tSpecifies a specific registry to search (default is index.docker.io).\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	util.PrintUtil( "  -%s -%s\tSpecifies a specific organization to filter (default is no filter).\n",
+	util.PrintUtil("  -%s -%s\tSpecifies a specific organization to filter (default is no filter).\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	util.PrintUtil( "  -%s -%s\tSpecifies a filter to apply (default is no filter).\n",
+	util.PrintUtil("  -%s -%s\tSpecifies a filter to apply (default is no filter).\n",
 		constants.ShortFilterFlag, constants.FilterFlag)
-	util.PrintUtil( "  -%s -%s\tUsername to login to remote registry (default is anonymous).\n",
+	util.PrintUtil("  -%s -%s\tUsername to login to remote registry (default is anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil( "  -%s -%s\tPassword to login to remote registry (default is anonymous).\n",
+	util.PrintUtil("  -%s -%s\tPassword to login to remote registry (default is anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }

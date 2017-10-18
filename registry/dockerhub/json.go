@@ -26,7 +26,7 @@ func (registry *DockerHubRegistry) getDockerHubPaginatedJson(url string, respons
 	err = decoder.Decode(response)
 	r := response.(*repositoriesResponse)
 	if err != nil {
-		registry.Print( "Returning error")
+		registry.Print("Returning error")
 		return "", err
 	}
 	if r.Next == "" {

@@ -74,7 +74,7 @@ type InFile struct {
 
 func (o *InFile) UnmarshalJSON(b []byte) error {
 	type xInFile InFile
-	xo := &xInFile{Multiple: false, Partial:false, Required: true}
+	xo := &xInFile{Multiple: false, Partial: false, Required: true}
 	if err := json.Unmarshal(b, xo); err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func GetManifestLabel(seedFileName string) string {
 	// read the seed.manifest.json into a string
 	seedbytes, err := ioutil.ReadFile(seedFileName)
 	if err != nil {
-		util.PrintUtil( "ERROR: Error reading %s. %s\n", seedFileName,
+		util.PrintUtil("ERROR: Error reading %s. %s\n", seedFileName,
 			err.Error())
 		os.Exit(1)
 	}
@@ -200,7 +200,7 @@ func GetManifestLabel(seedFileName string) string {
 	json.Compact(&seedbuff, seedbytes)
 	seedbytes, err = json.Marshal(seedbuff.String())
 	if err != nil {
-		util.PrintUtil( "ERROR: Error marshalling seed manifest. %s\n",
+		util.PrintUtil("ERROR: Error marshalling seed manifest. %s\n",
 			err.Error())
 	}
 
@@ -239,7 +239,7 @@ func SeedFromImageLabel(imageName string) Seed {
 
 	// Run docker inspect
 	if err := inspectCommand.Start(); err != nil {
-		util.PrintUtil( "ERROR: error executing docker %s. %s\n", cmdStr,
+		util.PrintUtil("ERROR: error executing docker %s. %s\n", cmdStr,
 			err.Error())
 	}
 
@@ -253,9 +253,9 @@ func SeedFromImageLabel(imageName string) Seed {
 	// check for errors on stderr
 	slurperr, _ := ioutil.ReadAll(errPipe)
 	if string(slurperr) != "" {
-		util.PrintUtil( "ERROR: Error executing docker %s:\n%s\n",
+		util.PrintUtil("ERROR: Error executing docker %s:\n%s\n",
 			cmdStr, string(slurperr))
-		util.PrintUtil( "Exiting seed...\n")
+		util.PrintUtil("Exiting seed...\n")
 		os.Exit(1)
 	}
 
@@ -272,7 +272,7 @@ func SeedFromImageLabel(imageName string) Seed {
 
 	err = json.Unmarshal([]byte(seedStr), &seed)
 	if err != nil {
-		util.PrintUtil( "ERROR: Error unmarshalling seed: %s\n", err.Error())
+		util.PrintUtil("ERROR: Error unmarshalling seed: %s\n", err.Error())
 	}
 
 	return *seed
@@ -284,9 +284,9 @@ func SeedFromManifestFile(seedFileName string) Seed {
 	// Open and parse seed file into struct
 	seedFile, err := os.Open(seedFileName)
 	if err != nil {
-		util.PrintUtil( "ERROR: Error opening %s. Error received is: %s\n",
+		util.PrintUtil("ERROR: Error opening %s. Error received is: %s\n",
 			seedFileName, err.Error())
-		util.PrintUtil( "Exiting seed...\n")
+		util.PrintUtil("Exiting seed...\n")
 		os.Exit(1)
 	}
 	jsonParser := json.NewDecoder(seedFile)
@@ -295,7 +295,7 @@ func SeedFromManifestFile(seedFileName string) Seed {
 		util.PrintUtil(
 			"ERROR: A valid %s must be present in the working directory. Error parsing %s.\nError received is: %s\n",
 			constants.SeedFileName, seedFileName, err.Error())
-		util.PrintUtil( "Exiting seed...\n")
+		util.PrintUtil("Exiting seed...\n")
 		os.Exit(1)
 	}
 

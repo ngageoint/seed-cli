@@ -24,7 +24,7 @@ func CheckSudo() {
 
 	// Run docker build
 	if err := cmd.Start(); err != nil {
-		PrintUtil( "ERROR: Error executing docker version. %s\n",
+		PrintUtil("ERROR: Error executing docker version. %s\n",
 			err.Error())
 	}
 
@@ -33,7 +33,7 @@ func CheckSudo() {
 	if er != "" {
 		if strings.Contains(er, "Cannot connect to the Docker daemon. Is the docker daemon running on this host?") ||
 			strings.Contains(er, "dial unix /var/run/docker.sock: connect: permission denied") {
-			PrintUtil( "Elevated permissions are required by seed to run Docker. Try running the seed command again as sudo.\n")
+			PrintUtil("Elevated permissions are required by seed to run Docker. Try running the seed command again as sudo.\n")
 			panic(Exit{1})
 		}
 	}
@@ -101,11 +101,11 @@ func ImageExists(imageName string) (bool, error) {
 	imgsArgs := []string{"images", "-q", imageName}
 	imgOut, err := exec.Command("docker", imgsArgs...).Output()
 	if err != nil {
-		PrintUtil( "ERROR: Error executing docker %v\n", imgsArgs)
-		PrintUtil( "%s\n", err.Error())
+		PrintUtil("ERROR: Error executing docker %v\n", imgsArgs)
+		PrintUtil("%s\n", err.Error())
 		return false, err
 	} else if string(imgOut) == "" {
-		PrintUtil( "INFO: No docker image found locally for image name %s.\n",
+		PrintUtil("INFO: No docker image found locally for image name %s.\n",
 			imageName)
 		return false, nil
 	}
@@ -132,7 +132,7 @@ func Login(registry, username, password string) error {
 	err := cmd.Run()
 
 	if errs.String() != "" {
-		PrintUtil( "ERROR: Error reading stderr %s\n",
+		PrintUtil("ERROR: Error reading stderr %s\n",
 			errs.String())
 		return errors.New(errs.String())
 	}
@@ -143,7 +143,7 @@ func Login(registry, username, password string) error {
 		return err
 	}
 
-	PrintUtil( "%s", out.String())
+	PrintUtil("%s", out.String())
 	return nil
 }
 
@@ -152,18 +152,18 @@ func Tag(origImg, img string) error {
 
 	// Run docker tag
 	if img != origImg {
-		PrintUtil( "INFO: Tagging image %s as %s\n", origImg, img)
+		PrintUtil("INFO: Tagging image %s as %s\n", origImg, img)
 		tagCmd := exec.Command("docker", "tag", origImg, img)
 		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 		tagCmd.Stdout = os.Stderr
 
 		if err := tagCmd.Run(); err != nil {
-			PrintUtil( "ERROR: Error executing docker tag. %s\n",
+			PrintUtil("ERROR: Error executing docker tag. %s\n",
 				err.Error())
 		}
 		if errs.String() != "" {
-			PrintUtil( "ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
-			PrintUtil( "Exiting seed...\n")
+			PrintUtil("ERROR: Error tagging image '%s':\n%s\n", origImg, errs.String())
+			PrintUtil("Exiting seed...\n")
 			return errors.New(errs.String())
 		}
 	}
@@ -175,7 +175,7 @@ func Push(img string) error {
 	var errs bytes.Buffer
 
 	// docker push
-	PrintUtil( "INFO: Performing docker push %s\n", img)
+	PrintUtil("INFO: Performing docker push %s\n", img)
 	errs.Reset()
 	pushCmd := exec.Command("docker", "push", img)
 	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
@@ -183,16 +183,16 @@ func Push(img string) error {
 
 	// Run docker push
 	if err := pushCmd.Run(); err != nil {
-		PrintUtil( "ERROR: Error executing docker push. %s\n",
+		PrintUtil("ERROR: Error executing docker push. %s\n",
 			err.Error())
 		return err
 	}
 
 	// Check for errors. Exit if error occurs
 	if errs.String() != "" {
-		PrintUtil( "ERROR: Error pushing image '%s':\n%s\n", img,
+		PrintUtil("ERROR: Error pushing image '%s':\n%s\n", img,
 			errs.String())
-		PrintUtil( "Exiting seed...\n")
+		PrintUtil("Exiting seed...\n")
 		return errors.New(errs.String())
 	}
 
@@ -202,22 +202,22 @@ func Push(img string) error {
 func RemoveImage(img string) error {
 	var errs bytes.Buffer
 
-	PrintUtil( "INFO: Removing local image %s\n", img)
+	PrintUtil("INFO: Removing local image %s\n", img)
 	rmiCmd := exec.Command("docker", "rmi", img)
 	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	rmiCmd.Stdout = os.Stdout
 
 	if err := rmiCmd.Run(); err != nil {
-		PrintUtil( "ERROR: Error executing docker rmi. %s\n",
+		PrintUtil("ERROR: Error executing docker rmi. %s\n",
 			err.Error())
 		return err
 	}
 
 	// check for errors on stderr
 	if errs.String() != "" {
-		PrintUtil( "ERROR: Error removing image '%s':\n%s\n", img,
+		PrintUtil("ERROR: Error removing image '%s':\n%s\n", img,
 			errs.String())
-		PrintUtil( "Exiting seed...\n")
+		PrintUtil("Exiting seed...\n")
 		return errors.New(errs.String())
 	}
 
@@ -228,7 +228,7 @@ func RestartRegistry() error {
 	PrintUtil("RESTARTING REGISTRY........................\n.\n.\n.\n.\n.\n")
 	var errs bytes.Buffer
 
-	PrintUtil( "INFO: Restarting test registry...\n")
+	PrintUtil("INFO: Restarting test registry...\n")
 	cmd := exec.Command("../restartRegistry.sh")
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	cmd.Stdout = os.Stdout
@@ -237,13 +237,13 @@ func RestartRegistry() error {
 
 	// check for errors on stderr first; it will likely have more explanation than cmd.Run
 	if errs.String() != "" {
-		PrintUtil( "ERROR: Error restarting registry. %s\n", errs.String())
-		PrintUtil( "Exiting seed...\n")
+		PrintUtil("ERROR: Error restarting registry. %s\n", errs.String())
+		PrintUtil("Exiting seed...\n")
 		return errors.New(errs.String())
 	}
 
 	if err != nil {
-		PrintUtil( "ERROR: Error restarting registry. %s\n",
+		PrintUtil("ERROR: Error restarting registry. %s\n",
 			err.Error())
 		return err
 	}

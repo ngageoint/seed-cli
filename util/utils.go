@@ -11,14 +11,14 @@ type PrintCallback func(format string, args ...interface{})
 /*
  * Print messages to stderr
  */
-func PrintErr(format string, args ...interface{}){
+func PrintErr(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 /*
  * Discard messages silently.
  */
-func Quiet(format string, args ...interface{}){
+func Quiet(format string, args ...interface{}) {
 	//discard message
 }
 
@@ -35,7 +35,7 @@ func InitPrinter(quiet bool) {
 // defer TimeTrack(time.Now()) at the beginning of the timed function
 func TimeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
-	PrintUtil( "%s took %s\n", name, elapsed)
+	PrintUtil("%s took %s\n", name, elapsed)
 }
 
 //Exit type to handle exiting

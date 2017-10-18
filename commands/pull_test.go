@@ -57,7 +57,7 @@ func TestDockerPull(t *testing.T) {
 	}
 
 	cases := []struct {
-		image string
+		image            string
 		registry         string
 		org              string
 		username         string
@@ -65,9 +65,9 @@ func TestDockerPull(t *testing.T) {
 		expectedResult   bool
 		expectedErrorMsg string
 	}{
-		{"my-job-1.0.0-seed:1.0.0","localhost:5000", "", "testuser", "wrongpassword",
+		{"my-job-1.0.0-seed:1.0.0", "localhost:5000", "", "testuser", "wrongpassword",
 			false, "401 Unauthorized"},
-		{"not-a-valid-image","localhost:5000", "", "testuser", "testpassword",
+		{"not-a-valid-image", "localhost:5000", "", "testuser", "testpassword",
 			true, ""},
 	}
 

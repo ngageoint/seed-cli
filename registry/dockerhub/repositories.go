@@ -61,7 +61,7 @@ func (registry *DockerHubRegistry) Tags(repository, user string) ([]string, erro
 //with any tags it can find to build a list of images.
 func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
 	url := registry.url("/v2/repositories/%s/", user)
-	registry.Print( "Searching %s for Seed images...\n", url)
+	registry.Print("Searching %s for Seed images...\n", url)
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
 	var response repositoriesResponse
