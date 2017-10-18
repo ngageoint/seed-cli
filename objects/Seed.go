@@ -68,12 +68,13 @@ type InFile struct {
 	Name       string   `json:"name"`
 	MediaTypes []string `json:"mediaTypes"`
 	Multiple   bool     `json:"multiple"`
+	Partial    bool     `json:"partial"`
 	Required   bool     `json:"required"`
 }
 
 func (o *InFile) UnmarshalJSON(b []byte) error {
 	type xInFile InFile
-	xo := &xInFile{Multiple: false, Required: true}
+	xo := &xInFile{Multiple: false, Partial:false, Required: true}
 	if err := json.Unmarshal(b, xo); err != nil {
 		return err
 	}
@@ -105,14 +106,14 @@ type Outputs struct {
 type OutFile struct {
 	Name      string `json:"name"`
 	MediaType string `json:"mediaType"`
-	Count     string `json:"count"`
+	Multiple  bool   `json:"multiple"`
 	Pattern   string `json:"pattern"`
 	Required  bool   `json:"required"`
 }
 
 func (o *OutFile) UnmarshalJSON(b []byte) error {
 	type xOutFile OutFile
-	xo := &xOutFile{Count: "1", Required: true}
+	xo := &xOutFile{Multiple: false, Required: true}
 	if err := json.Unmarshal(b, xo); err != nil {
 		return err
 	}
