@@ -524,13 +524,13 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 				util.PrintUtil("ERROR: Required file expected for output %v, %v found.\n",
 					f.Name, strconv.Itoa(len(matchList)))
 			}
-			if !f.multiple && len(matchList) < 1 {
+			if !f.Multiple && len(matchList) < 1 {
 				util.PrintUtil("ERROR: Multiple files found for single output %v, %v found.\n",
 					f.Name, strconv.Itoa(len(matchList)))
 			} else {
 
-				util.PrintUtil("SUCCESS: %v files specified, %v found. Files found:\n",
-					f.Count, strconv.Itoa(len(matchList)))
+				util.PrintUtil("SUCCESS: Files found for output %v:\n",
+					f.Name, strconv.Itoa(len(matchList)))
 				for _, s := range matchList {
 					util.PrintUtil(s)
 				}

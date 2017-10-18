@@ -5,7 +5,7 @@
   "properties": {
     "seedVersion": {
       "type": "string",
-      "pattern": "^1.0.0$"
+      "pattern": "^1\\.0\\.0$"
     },
     "job": {
       "type": "object",
@@ -191,4 +191,154 @@
                       "mediaType": {
                         "type": "string"
                       },
-
+                      "pattern": {
+                        "type": "string"
+                      },
+                      "multiple": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "default": true
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "pattern"
+                    ]
+                  }
+                },
+                "json": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z_-]+$"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "array",
+                          "boolean",
+                          "integer",
+                          "number",
+                          "object",
+                          "string"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "default": true
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type"
+                    ]
+                  }
+                }
+              }
+            },
+            "mounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                        "pattern": "^[a-zA-Z_-]+$"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "enum": [
+                      "ro",
+                      "rw"
+                    ],
+                    "default": "ro"
+                  }
+                },
+                "required": [
+                  "name",
+                  "path"
+                ]
+              }
+            },
+            "settings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z_-]+$"
+                  },
+                  "secret": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string",
+                "default": "job",
+                "enum": [
+                  "job",
+                  "data"
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "title"
+            ]
+          }
+        }
+      },
+      "required": [
+        "name",
+        "jobVersion",
+        "packageVersion",
+        "title",
+        "description",
+        "maintainer",
+        "timeout"
+      ]
+    }
+  },
+  "required": [
+    "seedVersion",
+    "job"
+  ]
+}

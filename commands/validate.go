@@ -70,9 +70,9 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		util.PrintUtil("INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
 		// TODO: We need to support validation of all supported schema versions in the future
-		schemaBytes, _ := constants.Asset("schema/0.1.0/seed.manifest.schema.json")
+		schemaBytes, _ := constants.Asset("schema/1.0.0/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("schema/0.1.0/seed.metadata.schema.json")
+			schemaBytes, _ = constants.Asset("schema/1.0.0/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
