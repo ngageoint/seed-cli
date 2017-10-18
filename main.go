@@ -671,12 +671,12 @@ func PrintVersionUsage() {
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
-	util.PrintUtil("Seed v%s\n", version)
+	util.PrintUtil("Seed CLI v%s\n", version)
 	schemas, err := constants.AssetDir("schema")
 	if err != nil {
 		util.PrintUtil("Error getting supported schema versions: %s \n", err.Error())
 		panic(util.Exit{1})
 	}
-	util.PrintUtil("Supported schema versions: %s\n", schemas)
+	util.PrintUtil("Supported Seed schema versions: %s\n", schemas)
 	panic(util.Exit{0})
 }
