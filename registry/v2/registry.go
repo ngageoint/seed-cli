@@ -8,8 +8,8 @@ import (
 )
 
 type v2registry struct {
-	r *registry.Registry
-	Print  util.PrintCallback
+	r     *registry.Registry
+	Print util.PrintCallback
 }
 
 func New(url, username, password string) (*v2registry, error) {
@@ -39,7 +39,7 @@ func (r *v2registry) Tags(repository, org string) ([]string, error) {
 
 func (r *v2registry) Images(org string) ([]string, error) {
 	url := r.r.URL + "/v2/_catalog"
-	r.Print( "Searching %s for Seed images...\n", url)
+	r.Print("Searching %s for Seed images...\n", url)
 	repositories, err := r.r.Repositories()
 
 	var images []string
@@ -49,7 +49,7 @@ func (r *v2registry) Images(org string) ([]string, error) {
 		}
 		tags, err := r.Tags(repo, org)
 		if err != nil {
-			print( err.Error())
+			print(err.Error())
 			continue
 		}
 		for _, tag := range tags {

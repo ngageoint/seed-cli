@@ -17,35 +17,34 @@ func SeedInit(directory string) error {
 	seedFileName, exists, err := util.GetSeedFileName(directory)
 	if err != nil && exists {
 		//an error occurred other than the file not existing, i.e. permission error
-		util.PrintUtil( "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
+		util.PrintUtil("ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
 			seedFileName, err.Error())
 		return errors.New("Error writing example Seed manifest.")
 	} else if exists {
 		msg := "Pre-existing " + seedFileName + " found. Existing file left unmodified."
-		util.PrintUtil( "%s\n", msg)
+		util.PrintUtil("%s\n", msg)
 		return nil
 	}
-
 
 	// TODO: We need to support init of all supported schema versions in the future
 	exampleSeedJson, _ := constants.Asset("schema/0.1.0/seed.manifest.example.json")
 
 	err = ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
 	if err != nil {
-		util.PrintUtil( "ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
+		util.PrintUtil("ERROR: Error occurred writing example Seed manifest to %s.\n%s\n",
 			seedFileName, err.Error())
 		return errors.New("Error writing example Seed manifest.")
 	}
 
-	util.PrintUtil( "Created Seed file: %s\n", seedFileName)
+	util.PrintUtil("Created Seed file: %s\n", seedFileName)
 
 	return nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintInitUsage() {
-	util.PrintUtil( "\nUsage:\tseed init [-d JOB_DIRECTORY]\n")
-	util.PrintUtil( "\nOptions:\n")
+	util.PrintUtil("\nUsage:\tseed init [-d JOB_DIRECTORY]\n")
+	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil(
 		"  -%s  -%s\tDirectory to place seed.manifest.json example. (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)

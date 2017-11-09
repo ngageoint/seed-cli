@@ -23,7 +23,7 @@ func New(registryUrl string) (*DockerHubRegistry, error) {
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
-		Print: util.PrintUtil,
+		Print:  util.PrintUtil,
 	}
 
 	return registry, nil

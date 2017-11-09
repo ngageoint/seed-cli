@@ -26,7 +26,7 @@ import (
 //DockerRun Runs image described by Seed spec
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(quiet)
-	
+
 	if imageName == "" {
 		return 0, errors.New("ERROR: No input image specified.")
 	}
@@ -70,8 +70,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	if len(seed.Job.Resources.Scalar) > 0 {
 		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
-			util.PrintUtil( "ERROR: Error occurred processing resources\n%s", err.Error())
-			util.PrintUtil( "Exiting seed...\n")
+			util.PrintUtil("ERROR: Error occurred processing resources\n%s", err.Error())
+			util.PrintUtil("Exiting seed...\n")
 			panic(util.Exit{1})
 		} else if inResources != nil {
 			resourceArgs = append(resourceArgs, inResources...)
@@ -93,8 +93,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	if seed.Job.Interface.Settings != nil {
 		inSettings, err := DefineSettings(&seed, settings)
 		if err != nil {
-			util.PrintUtil( "ERROR: Error occurred processing settings arguments.\n%s", err.Error())
-			util.PrintUtil( "Exiting seed...\n")
+			util.PrintUtil("ERROR: Error occurred processing settings arguments.\n%s", err.Error())
+			util.PrintUtil("Exiting seed...\n")
 			panic(util.Exit{1})
 		} else if inSettings != nil {
 			envArgs = append(envArgs, inSettings...)
@@ -105,8 +105,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	if seed.Job.Interface.Mounts != nil {
 		inMounts, err := DefineMounts(&seed, mounts)
 		if err != nil {
-			util.PrintUtil( "ERROR: Error occurred processing mount arguments.\n%s", err.Error())
-			util.PrintUtil( "Exiting seed...\n")
+			util.PrintUtil("ERROR: Error occurred processing mount arguments.\n%s", err.Error())
+			util.PrintUtil("Exiting seed...\n")
 			panic(util.Exit{1})
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
@@ -135,13 +135,13 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	for _, s := range dockerArgs {
 		cmd.WriteString(s + " ")
 	}
-	util.PrintUtil( "INFO: Running Docker command:\n%s\n", cmd.String())
+	util.PrintUtil("INFO: Running Docker command:\n%s\n", cmd.String())
 
 	// Run Docker command and capture output
 	dockerRun := exec.Command("docker", dockerArgs...)
 	var errs bytes.Buffer
 	if !quiet {
-		dockerRun.Stderr = io.MultiWriter( &errs)
+		dockerRun.Stderr = io.MultiWriter(&errs)
 		dockerRun.Stdout = os.Stderr
 	}
 
@@ -155,31 +155,31 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		if ok {
 			ws := exitError.Sys().(syscall.WaitStatus)
 			exitCode = ws.ExitStatus()
-			util.PrintUtil( "Exited with error code %v\n", exitCode)
+			util.PrintUtil("Exited with error code %v\n", exitCode)
 			match := false
 			for _, e := range seed.Job.Errors {
 				if e.Code == exitCode {
-					util.PrintUtil( "Title: \t %s\n", e.Title)
-					util.PrintUtil( "Description: \t %s\n", e.Description)
-					util.PrintUtil( "Category: \t %s \n \n", e.Category)
+					util.PrintUtil("Title: \t %s\n", e.Title)
+					util.PrintUtil("Description: \t %s\n", e.Description)
+					util.PrintUtil("Category: \t %s \n \n", e.Category)
 					match = true
-					util.PrintUtil( "Exiting seed...\n")
+					util.PrintUtil("Exiting seed...\n")
 					return exitCode, err
 				}
 			}
 			if !match {
-				util.PrintUtil( "No matching error code found in Seed manifest\n")
+				util.PrintUtil("No matching error code found in Seed manifest\n")
 			}
 		} else {
-			util.PrintUtil( "ERROR: error executing docker run. %s\n",
+			util.PrintUtil("ERROR: error executing docker run. %s\n",
 				err.Error())
 		}
 	}
 
 	if errs.String() != "" {
-		util.PrintUtil( "ERROR: Error running image '%s':\n%s\n",
+		util.PrintUtil("ERROR: Error running image '%s':\n%s\n",
 			imageName, errs.String())
-		util.PrintUtil( "Exiting seed...\n")
+		util.PrintUtil("Exiting seed...\n")
 		return exitCode, errors.New(errs.String())
 	}
 
@@ -244,8 +244,8 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	for _, f := range inputs {
 		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
-			util.PrintUtil( "ERROR: Input files should be specified in KEY=VALUE format.\n")
-			util.PrintUtil( "ERROR: Unknown key for input %v encountered.\n",
+			util.PrintUtil("ERROR: Input files should be specified in KEY=VALUE format.\n")
+			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
 				inputs)
 			continue
 		}
@@ -259,7 +259,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		//get total size of input files in MiB
 		info, err := os.Stat(val)
 		if os.IsNotExist(err) {
-			util.PrintUtil( "ERROR: Input file %s not found\n", val)
+			util.PrintUtil("ERROR: Input file %s not found\n", val)
 		}
 		sizeMiB += (1.0 * float64(info.Size())) / (1024.0 * 1024.0) //fileinfo's Size() returns bytes, convert to MiB
 
@@ -325,7 +325,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 	if _, err := os.Stat(outdir); os.IsNotExist(err) {
 		// Create the directory
 		// Didn't find the specified directory
-		util.PrintUtil( "INFO: %s not found; creating directory...\n",
+		util.PrintUtil("INFO: %s not found; creating directory...\n",
 			outdir)
 		os.Mkdir(outdir, os.ModePerm)
 	}
@@ -334,7 +334,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 	f, err := os.Open(outdir)
 	if err != nil {
 		// complain
-		util.PrintUtil( "ERROR: Error with %s. %s\n", outdir, err.Error())
+		util.PrintUtil("ERROR: Error with %s. %s\n", outdir, err.Error())
 	}
 	defer f.Close()
 	_, err = f.Readdirnames(1)
@@ -470,7 +470,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit float64) {
 	// Validate any Outputs.Files
 	if seed.Job.Interface.Outputs.Files != nil {
-		util.PrintUtil( "INFO: Validating output files found under %s...\n",
+		util.PrintUtil("INFO: Validating output files found under %s...\n",
 			outDir)
 
 		var dirSize int64
@@ -484,7 +484,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		filepath.Walk(outDir, readSize)
 		sizeMB := float64(dirSize) / (1024.0 * 1024.0)
 		if diskLimit > 0 && sizeMB > diskLimit {
-			util.PrintUtil( "ERROR: Output directory exceeds disk space limit (%f MiB vs. %f MiB)\n", sizeMB, diskLimit)
+			util.PrintUtil("ERROR: Output directory exceeds disk space limit (%f MiB vs. %f MiB)\n", sizeMB, diskLimit)
 		}
 
 		// For each defined Outputs file:
@@ -513,29 +513,26 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 						}
 						err := ValidateSeedFile(schema, metadata, constants.SchemaMetadata)
 						if err != nil {
-							util.PrintUtil( "ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
+							util.PrintUtil("ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}
 					}
 				}
 			}
 
-			// Validate number of matches to specified number
-			if f.Count != "" && f.Count != "*" && f.Required {
-				count, _ := strconv.Atoi(f.Count)
-				if count != len(matchList) {
-					util.PrintUtil( "ERROR: %v files specified, %v found.\n",
-						f.Count, strconv.Itoa(len(matchList)))
-					if len(matchList) > 0 {
-						for _, s := range matchList {
-							util.PrintUtil( s)
-						}
-					}
-				} else {
-					util.PrintUtil( "SUCCESS: %v files specified, %v found. Files found:\n",
-						f.Count, strconv.Itoa(len(matchList)))
-					for _, s := range matchList {
-						util.PrintUtil( s)
-					}
+			// Validate that any required fields are present
+			if f.Required {
+				util.PrintUtil("ERROR: Required file expected for output %v, %v found.\n",
+					f.Name, strconv.Itoa(len(matchList)))
+			}
+			if !f.Multiple && len(matchList) < 1 {
+				util.PrintUtil("ERROR: Multiple files found for single output %v, %v found.\n",
+					f.Name, strconv.Itoa(len(matchList)))
+			} else {
+
+				util.PrintUtil("SUCCESS: Files found for output %v:\n",
+					f.Name, strconv.Itoa(len(matchList)))
+				for _, s := range matchList {
+					util.PrintUtil(s)
 				}
 			}
 		}
@@ -545,12 +542,12 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 	// Look for ResultsFileManifestName.json in the root of the OUTPUT_DIR
 	// and then validate any keys identified in Outputs exist
 	if seed.Job.Interface.Outputs.JSON != nil {
-		util.PrintUtil( "INFO: Validating %s...\n",
+		util.PrintUtil("INFO: Validating %s...\n",
 			filepath.Join(outDir, constants.ResultsFileManifestName))
 		// look for results manifest
 		manfile := filepath.Join(outDir, constants.ResultsFileManifestName)
 		if _, err := os.Stat(manfile); os.IsNotExist(err) {
-			util.PrintUtil( "ERROR: %s specified but cannot be found. %s\n Exiting testrunner.\n",
+			util.PrintUtil("ERROR: %s specified but cannot be found. %s\n Exiting testrunner.\n",
 				constants.ResultsFileManifestName, err.Error())
 			return
 		}
@@ -558,7 +555,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		bites, err := ioutil.ReadFile(filepath.Join(outDir,
 			constants.ResultsFileManifestName))
 		if err != nil {
-			util.PrintUtil( "ERROR: Error reading %s.%s\n",
+			util.PrintUtil("ERROR: Error reading %s.%s\n",
 				constants.ResultsFileManifestName, err.Error())
 			return
 		}
@@ -566,7 +563,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		documentLoader := gojsonschema.NewStringLoader(string(bites))
 		_, err = documentLoader.LoadJSON()
 		if err != nil {
-			util.PrintUtil( "ERROR: Error loading results manifest file: %s. %s\n Exiting testrunner.\n",
+			util.PrintUtil("ERROR: Error loading results manifest file: %s. %s\n Exiting testrunner.\n",
 				constants.ResultsFileManifestName, err.Error())
 			return
 		}
@@ -601,45 +598,45 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 		schemaLoader := gojsonschema.NewStringLoader(schema)
 		schemaResult, err := gojsonschema.Validate(schemaLoader, documentLoader)
 		if err != nil {
-			util.PrintUtil( "ERROR: Error running validator: %s\n Exiting testrunner.\n",
+			util.PrintUtil("ERROR: Error running validator: %s\n Exiting testrunner.\n",
 				err.Error())
 			return
 		}
 
 		if len(schemaResult.Errors()) == 0 {
-			util.PrintUtil( "SUCCESS: Results manifest file is valid.\n")
+			util.PrintUtil("SUCCESS: Results manifest file is valid.\n")
 		}
 
 		for _, desc := range schemaResult.Errors() {
-			util.PrintUtil( "ERROR: %s is invalid: - %s\n", constants.ResultsFileManifestName, desc)
+			util.PrintUtil("ERROR: %s is invalid: - %s\n", constants.ResultsFileManifestName, desc)
 		}
 	}
 }
 
 //PrintRunUsage prints the seed run usage arguments, then exits the program
 func PrintRunUsage() {
-	util.PrintUtil( "\nUsage:\tseed run -in IMAGE_NAME [OPTIONS] \n")
+	util.PrintUtil("\nUsage:\tseed run -in IMAGE_NAME [OPTIONS] \n")
 
-	util.PrintUtil( "\nRuns Docker image defined by seed spec.\n")
+	util.PrintUtil("\nRuns Docker image defined by seed spec.\n")
 
-	util.PrintUtil( "\nOptions:\n")
-	util.PrintUtil( "  -%s -%s Docker image name to run\n",
+	util.PrintUtil("\nOptions:\n")
+	util.PrintUtil("  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil( "  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
+	util.PrintUtil("  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
 		constants.ShortInputsFlag, constants.InputsFlag)
-	util.PrintUtil( "  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
+	util.PrintUtil("  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
-	util.PrintUtil( "  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
+	util.PrintUtil("  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
 		constants.ShortMountFlag, constants.MountFlag)
-	util.PrintUtil( "  -%s  -%s \t Job Output Directory Location\n",
+	util.PrintUtil("  -%s  -%s \t Job Output Directory Location\n",
 		constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
-	util.PrintUtil( "  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
+	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
 		constants.RmFlag)
-	util.PrintUtil( "  -%s  -%s \t Suppress stdout when running docker image\n",
+	util.PrintUtil("  -%s  -%s \t Suppress stdout when running docker image\n",
 		constants.ShortQuietFlag, constants.QuietFlag)
-	util.PrintUtil( "  -%s  -%s \t Run docker image multiple times (i.e. -rep 5 runs the image 5 times)\n",
+	util.PrintUtil("  -%s  -%s \t Run docker image multiple times (i.e. -rep 5 runs the image 5 times)\n",
 		constants.ShortRepeatFlag, constants.RepeatFlag)
-	util.PrintUtil( "  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
+	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	panic(util.Exit{0})
 }
@@ -650,8 +647,8 @@ func inputMap(inputs []string) map[string]string {
 	for _, f := range inputs {
 		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
-			util.PrintUtil( "ERROR: Input should be specified in KEY=VALUE format.\n")
-			util.PrintUtil( "ERROR: Unknown key for input %v encountered.\n",
+			util.PrintUtil("ERROR: Input should be specified in KEY=VALUE format.\n")
+			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
 				x)
 			continue
 		}

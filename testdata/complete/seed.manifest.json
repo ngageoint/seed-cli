@@ -1,5 +1,5 @@
 {
-  "seedVersion": "0.1.0",
+  "seedVersion": "1.0.0",
   "job": {
     "name": "my-job",
     "jobVersion": "0.1.0",
@@ -26,10 +26,12 @@
         "files": [
           {
             "name": "INPUT_FILE",
-            "required": true,
             "mediaTypes": [
               "image/x-hdf5-image"
-            ]
+            ],
+            "multiple": false,
+            "partial": false,
+            "required": true
           }
         ]
       },
@@ -38,20 +40,24 @@
           {
             "name": "output_file_tiffs",
             "mediaType": "image/tiff",
-            "count": "2",
-            "pattern": "outfile*.tif"
+            "multiple": true,
+            "pattern": "outfile*.tif",
+            "required": true
           },
           {
             "name": "output_file_csv",
             "mediaType": "text/csv",
-            "pattern": "outfile*.csv"
+            "multiple": false,
+            "pattern": "outfile*.csv",
+            "required": false
           }
         ],
         "json": [
           {
             "name": "cell_count",
             "key": "cellCount",
-            "type": "integer"
+            "type": "integer",
+            "required": true
           }
         ]
       },

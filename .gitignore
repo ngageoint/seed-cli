@@ -8,3 +8,5 @@ output
 # Generated assets
 constants/assets.go
 
+# Scratch directories
+temp-*

@@ -1,5 +1,5 @@
 {
-  "seedVersion": "0.1.0",
+  "seedVersion": "1.0.0",
   "job": {
     "name": "addition-job",
     "jobVersion": "0.0.1",
@@ -37,7 +37,7 @@
             "name": "OUTPUT_FILE",
             "mediaType": "text/plain",
             "pattern": "*_output.txt",
-            "count": "4",
+            "multiple": true,
             "required": true
           }
         ],

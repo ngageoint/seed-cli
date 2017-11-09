@@ -1,5 +1,5 @@
 {
-    "seedVersion": "0.1.0",
+    "seedVersion": "1.0.0",
     "job": {
         "name": "extractor",
         "jobVersion": "0.1.0",
@@ -48,7 +48,7 @@
                     {
                         "name": "output_file_tiffs",
                         "mediaType": "image/png",
-                        "count": "2",
+                        "multiple": true,
                         "pattern": "s*.png"
                     }
                 ],

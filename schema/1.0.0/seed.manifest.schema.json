@@ -5,7 +5,7 @@
   "properties": {
     "seedVersion": {
       "type": "string",
-      "pattern": "^0.1.0$"
+      "pattern": "^1\\.0\\.0$"
     },
     "job": {
       "type": "object",
@@ -129,6 +129,10 @@
                       "multiple": {
                         "type": "boolean",
                         "default": false
+                      },
+                      "partial": {
+                        "type": "boolean",
+                        "default": false
                       }
                     },
                     "required": [
@@ -190,10 +194,9 @@
                       "pattern": {
                         "type": "string"
                       },
-                      "count": {
-                        "type": "string",
-                        "default": "1",
-                        "pattern": "^([0-9]+|\\*)$"
+                      "multiple": {
+                        "type": "boolean",
+                        "default": false
                       },
                       "required": {
                         "type": "boolean",
@@ -202,7 +205,6 @@
                     },
                     "required": [
                       "name",
-                      "mediaType",
                       "pattern"
                     ]
                   }
@@ -252,7 +254,7 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "pattern": "^[a-zA-Z_-]+$"
+                        "pattern": "^[a-zA-Z_-]+$"
                   },
                   "path": {
                     "type": "string"

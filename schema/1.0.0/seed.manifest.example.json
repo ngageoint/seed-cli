@@ -1,5 +1,5 @@
 {
-  "seedVersion": "0.1.0",
+  "seedVersion": "1.0.0",
   "job": {
     "name": "my-job",
     "jobVersion": "1.0.0",
@@ -26,6 +26,7 @@
         "files": [
           {
             "name": "INPUT_FILE",
+	    "partial": true,
             "required": true,
             "mediaTypes": [
               "image/x-hdf5-image"
@@ -38,7 +39,7 @@
           {
             "name": "output_file_tiffs",
             "mediaType": "image/tiff",
-            "count": "2",
+            "multiple": true,
             "pattern": "outfile*.tif"
           },
           {
