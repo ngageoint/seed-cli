@@ -2,6 +2,9 @@ package dockerhub
 
 import (
 	"strings"
+
+	"github.com/ngageoint/seed-cli/objects"
+	"github.com/ngageoint/seed-cli/util"
 )
 
 type repositoriesResponse struct {
@@ -39,7 +42,7 @@ func (registry *DockerHubRegistry) Repositories(user string) ([]string, error) {
 }
 
 //Tags Returns tags for a given user/organization and repository
-func (registry *DockerHubRegistry) Tags(repository, user string) ([]string, error) {
+func (registry *DockerHubRegistry) Tags(user, repository string) ([]string, error) {
 	url := registry.url("/v2/repositories/%s/%s/tags", user, repository)
 	tags := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -75,7 +78,8 @@ func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
 			// Add all tags if found
 			if rs, _ := registry.Tags(user, r.Name); len(rs) > 0 {
 				for _, tag := range rs {
-					repos = append(repos, r.Name+":"+tag)
+					img := r.Name + ":" + tag
+					repos = append(repos, img)
 				}
 				// No tags found - so just add the repo name
 			} else {
@@ -87,4 +91,35 @@ func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
 		return nil, err
 	}
 	return repos, nil
+}
+
+func (registry *DockerHubRegistry) ImagesWithManifests(org string) ([]objects.Image, error) {
+	imageNames, err := registry.Images(org)
+
+	if err != nil {
+		return nil, err
+	}
+
+	images := []objects.Image{}
+
+	url := "docker.io"
+	username := ""
+	password := ""
+
+	for _, imgstr := range imageNames {
+		manifest := ""
+		//TODO: find better, lightweight way to get manifest on low side
+		imageName, err := util.DockerPull(imgstr, url, org, username, password)
+		if err == nil {
+			manifest, err = util.GetSeedManifestFromImage(imageName)
+		}
+		if err != nil {
+			registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
+		}
+
+		imageStruct := objects.Image{Name: imgstr, Registry: url, Org: org, Manifest: manifest}
+		images = append(images, imageStruct)
+	}
+
+	return images, err
 }

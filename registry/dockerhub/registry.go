@@ -19,6 +19,9 @@ type DockerHubRegistry struct {
 
 //New creates a new docker hub registry from the given URL
 func New(registryUrl string) (*DockerHubRegistry, error) {
+	if util.PrintUtil == nil {
+		util.InitPrinter(false)
+	}
 	url := strings.TrimSuffix(registryUrl, "/")
 	registry := &DockerHubRegistry{
 		URL:    url,
