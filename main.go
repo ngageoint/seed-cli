@@ -625,7 +625,7 @@ func DefineFlags() {
 
 	case constants.ValidateCommand:
 		cmd = validateCmd
-		minArgs = 3
+		minArgs = 2
 
 	case constants.VersionCommand:
 		versionCmd.Parse(os.Args[2:])
