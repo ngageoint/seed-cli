@@ -29,8 +29,13 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	}
 
 	if exists, err := util.ImageExists(origImg); !exists {
-		util.PrintUtil("%s\n", err.Error())
-		return err
+		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
+			return err
+		}
+		msg := fmt.Sprintf("Unable to find image: %s", origImg)
+		util.PrintUtil("%s\n", msg)
+		return errors.New(msg)
 	}
 
 	if username != "" {
