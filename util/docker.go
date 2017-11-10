@@ -10,6 +10,9 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/ngageoint/seed-cli/constants"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -131,9 +134,15 @@ func Login(registry, username, password string) error {
 
 	err := cmd.Run()
 
-	if errs.String() != "" {
-		PrintUtil("ERROR: Error reading stderr %s\n",
-			errs.String())
+
+	errStr := strings.ToUpper(errs.String())
+	if strings.Contains(errStr, "WARNING") {
+		//report warnings but don't return error (i.e. --password via CLI is insecure warning)
+		PrintUtil("Docker login warning: %s\n", errs.String())
+	}
+
+	if strings.Contains(errStr, "ERROR") {
+		PrintUtil("ERROR: Error reading stderr %s\n", errs.String())
 		return errors.New(errs.String())
 	}
 
@@ -249,4 +258,103 @@ func RestartRegistry() error {
 	}
 
 	return nil
+}
+
+//Dockerpull pulls specified image from remote repository (default docker.io)
+//returns the name of the remote image retrieved, if any
+func DockerPull(image, registry, org, username, password string) (string, error) {
+	if username != "" {
+		//set config dir so we don't stomp on other users' logins with sudo
+		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(constants.DockerConfigKey, configDir)
+		defer RemoveAllFiles(configDir)
+		defer os.Unsetenv(constants.DockerConfigKey)
+
+		err := Login(registry, username, password)
+		if err != nil {
+			fmt.Println(err)
+			return "", err
+		}
+	}
+
+	if registry == "" {
+		registry = constants.DefaultRegistry
+	}
+
+	registry = strings.Replace(registry, "https://hub.docker.com", "docker.io", 1)
+
+	remoteImage := fmt.Sprintf("%s/%s", registry, image)
+
+	if org != "" {
+		remoteImage = fmt.Sprintf("%s/%s/%s", registry, org, image)
+	}
+
+	var errs, out bytes.Buffer
+	// pull image
+	pullArgs := []string{"pull", remoteImage}
+	pullCmd := exec.Command("docker", pullArgs...)
+	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	pullCmd.Stdout = &out
+
+	err := pullCmd.Run()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker pull.\n%s\n", err.Error())
+		return "", err
+	}
+
+	if errs.String() != "" {
+		PrintUtil("ERROR: Error reading stderr %s\n", errs.String())
+		return "", errors.New(errs.String())
+	}
+
+	return remoteImage, nil
+}
+
+func GetSeedManifestFromImage(imageName string) (string, error) {
+	cmdStr := "inspect -f '{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'" + imageName
+	PrintUtil("INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n", imageName)
+
+	inspectCommand := exec.Command("docker", "inspect", "-f",
+		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
+
+	errPipe, err := inspectCommand.StderrPipe()
+	if err != nil {
+		PrintUtil("ERROR: error attaching to docker inspect command stderr. %s\n", err.Error())
+	}
+
+	// Attach stdout pipe
+	outPipe, err := inspectCommand.StdoutPipe()
+	if err != nil {
+		PrintUtil("ERROR: error attaching to docker inspect command stdout. %s\n", err.Error())
+	}
+
+	// Run docker inspect
+	if err = inspectCommand.Start(); err != nil {
+		PrintUtil("ERROR: error executing docker %s. %s\n", cmdStr, err.Error())
+	}
+
+	// Print out any std out
+	seedBytes, err := ioutil.ReadAll(outPipe)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+			cmdStr, err.Error())
+	}
+
+	// check for errors on stderr
+	slurperr, _ := ioutil.ReadAll(errPipe)
+	if string(slurperr) != "" {
+		PrintUtil("ERROR: Error executing docker %s:\n%s\n",
+			cmdStr, string(slurperr))
+	}
+
+	// un-escape special characters
+	seedStr := string(seedBytes)
+	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1)
+	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1) //extra replace to fix extra back slashes added by docker build command
+	seedStr = strings.Replace(seedStr, "\\$", "$", -1)
+	seedStr = strings.Replace(seedStr, "\\/", "/", -1)
+	seedStr = strings.TrimSpace(seedStr)
+	seedStr = strings.TrimSuffix(strings.TrimPrefix(seedStr, "'\""), "\"'")
+
+	return seedStr, err
 }
