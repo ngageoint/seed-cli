@@ -6,7 +6,7 @@ src
 output
 
 # Generated assets
-constants/assets.go
+assets/assets.go
 
 # Scratch directories
 temp-*

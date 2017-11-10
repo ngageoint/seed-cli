@@ -17,9 +17,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 

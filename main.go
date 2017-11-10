@@ -61,9 +61,10 @@ import (
 
 	"fmt"
 	"github.com/ngageoint/seed-cli/commands"
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/assets"
+	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
 	"strconv"
 )
 
@@ -672,7 +673,7 @@ func PrintVersionUsage() {
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
 	util.PrintUtil("Seed CLI v%s\n", version)
-	schemas, err := constants.AssetDir("schema")
+	schemas, err := assets.AssetDir("schema")
 	if err != nil {
 		util.PrintUtil("Error getting supported schema versions: %s \n", err.Error())
 		panic(util.Exit{1})

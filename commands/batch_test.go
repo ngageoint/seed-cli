@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"fmt"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
 	"strings"
 )
 
