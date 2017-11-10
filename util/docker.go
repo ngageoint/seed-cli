@@ -134,10 +134,15 @@ func Login(registry, username, password string) error {
 
 	err := cmd.Run()
 
-	//ignore CLI password insecure warning
-	if errs.String() != "" && !strings.Contains(errs.String(), "WARNING") {
-		PrintUtil("ERROR: Error reading stderr %s\n",
-			errs.String())
+
+	errStr := strings.ToUpper(errs.String())
+	if strings.Contains(errStr, "WARNING") {
+		//report warnings but don't return error (i.e. --password via CLI is insecure warning)
+		PrintUtil("Docker login warning: %s\n", errs.String())
+	}
+
+	if strings.Contains(errStr, "ERROR") {
+		PrintUtil("ERROR: Error reading stderr %s\n", errs.String())
 		return errors.New(errs.String())
 	}
 
