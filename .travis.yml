@@ -7,6 +7,7 @@ services:
 
 install:
   - vendor/go-bindata-Linux -pkg assets -o assets/assets.go ./schema/*
+  - go get github.com/JohnPTobe/seed-common/...
 
 script:
   - ./build-cli.sh ${TRAVIS_TAG}
