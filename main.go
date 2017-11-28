@@ -81,7 +81,7 @@ var versionCmd *flag.FlagSet
 var version string
 
 func main() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 	// Handles any panics/actual exits. Ensures deferred functions are called
 	// before program exit.
 	defer util.HandleExit()

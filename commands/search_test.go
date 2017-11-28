@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 }
 
 func TestDockerSearch(t *testing.T) {

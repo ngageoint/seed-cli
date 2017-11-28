@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 }
 
 func TestValidate(t *testing.T) {

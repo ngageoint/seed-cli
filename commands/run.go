@@ -25,7 +25,10 @@ import (
 
 //DockerRun Runs image described by Seed spec
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
-	util.InitPrinter(quiet)
+	util.InitPrinter(util.PrintErr)
+	if quiet {
+		util.InitPrinter(util.Quiet)
+	}
 
 	if imageName == "" {
 		return 0, errors.New("ERROR: No input image specified.")

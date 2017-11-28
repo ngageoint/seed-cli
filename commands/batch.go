@@ -77,7 +77,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 		}
 	}
 
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 	util.PrintUtil("%v", out)
 
 	return err
