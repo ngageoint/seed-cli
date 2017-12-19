@@ -464,8 +464,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
-			resources = append(resources, "--shm-size")
-			resources = append(resources, fmt.Sprintf("%dm", intMem))
+			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
 		}		
 	}
 

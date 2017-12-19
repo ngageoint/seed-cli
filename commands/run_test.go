@@ -165,11 +165,11 @@ func TestDefineResources(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-job/seed.manifest.json",
-			4.0, "[-m 16m]", 5.0, true, ""},
+			4.0, "[-m 16m --shm-size=128m]", 5.0, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			1.0, "[-m 16m]", 1.01, true, ""},
+			1.0, "[-m 16m --shm-size=1m]", 1.01, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			16.0, "[-m 16m]", 16.01, true, ""},
+			16.0, "[-m 16m --shm-size=1m]", 16.01, true, ""},
 	}
 
 	for _, c := range cases {
