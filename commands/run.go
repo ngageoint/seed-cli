@@ -460,6 +460,12 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			disk = (s.InputMultiplier * inputSizeMiB) + s.Value
 		}
+		if s.Name == "sharedMem" {
+			//resourceRequirement = inputVolume * inputMultiplier + constantValue
+			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
+			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
+			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
+		}		
 	}
 
 	return resources, disk, nil
