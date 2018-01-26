@@ -5,9 +5,10 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/assets"
+	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -70,9 +71,9 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		util.PrintUtil("INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
 		// TODO: We need to support validation of all supported schema versions in the future
-		schemaBytes, _ := constants.Asset("schema/1.0.0/seed.manifest.schema.json")
+		schemaBytes, _ := assets.Asset("schema/1.0.0/seed.manifest.schema.json")
 		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = constants.Asset("schema/1.0.0/seed.metadata.schema.json")
+			schemaBytes, _ = assets.Asset("schema/1.0.0/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)

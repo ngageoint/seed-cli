@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
 )
 
 type BatchIO struct {
@@ -77,7 +77,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 		}
 	}
 
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 	util.PrintUtil("%v", out)
 
 	return err
