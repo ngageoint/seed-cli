@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/assets"
-	"github.com/JohnPTobe/seed-common/constants"
-	"github.com/JohnPTobe/seed-common/objects"
-	"github.com/JohnPTobe/seed-common/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/objects"
+	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
