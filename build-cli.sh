@@ -15,7 +15,7 @@ fi
 
 UNAME=$(uname -s)
 
-vendor/go-bindata-${UNAME} -pkg constants -o constants/assets.go ./schema/*
+vendor/go-bindata-${UNAME} -pkg assets -o assets/assets.go ./schema/*
 echo Building cross platform Seed CLI.
 echo Building for Linux...
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags "-X main.version=$VERSION -extldflags=\"-static\"" -o output/seed-linux-amd64

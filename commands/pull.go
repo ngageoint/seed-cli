@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //Dockerpull pulls specified image from remote repository (default docker.io)

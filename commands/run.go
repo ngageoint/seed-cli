@@ -17,15 +17,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/objects"
+	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 //DockerRun Runs image described by Seed spec
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
-	util.InitPrinter(quiet)
+	util.InitPrinter(util.PrintErr)
+	if quiet {
+		util.InitPrinter(util.Quiet)
+	}
 
 	if imageName == "" {
 		return 0, errors.New("ERROR: No input image specified.")

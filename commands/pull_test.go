@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 	"strings"
 )
 
 func init() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 }
 
 func TestDockerPull(t *testing.T) {

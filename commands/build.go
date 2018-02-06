@@ -9,9 +9,9 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/objects"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //DockerBuild Builds the docker image with the given image tag.

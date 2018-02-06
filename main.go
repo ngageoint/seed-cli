@@ -61,9 +61,10 @@ import (
 
 	"fmt"
 	"github.com/ngageoint/seed-cli/commands"
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/assets"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/objects"
+	"github.com/ngageoint/seed-common/util"
 	"strconv"
 )
 
@@ -80,7 +81,7 @@ var versionCmd *flag.FlagSet
 var version string
 
 func main() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 	// Handles any panics/actual exits. Ensures deferred functions are called
 	// before program exit.
 	defer util.HandleExit()
@@ -624,7 +625,7 @@ func DefineFlags() {
 
 	case constants.ValidateCommand:
 		cmd = validateCmd
-		minArgs = 3
+		minArgs = 2
 
 	case constants.VersionCommand:
 		versionCmd.Parse(os.Args[2:])
@@ -672,7 +673,7 @@ func PrintVersionUsage() {
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
 	util.PrintUtil("Seed CLI v%s\n", version)
-	schemas, err := constants.AssetDir("schema")
+	schemas, err := assets.AssetDir("schema")
 	if err != nil {
 		util.PrintUtil("Error getting supported schema versions: %s \n", err.Error())
 		panic(util.Exit{1})

@@ -5,8 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/ngageoint/seed-cli/constants"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-cli/assets"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //SeedInit places a sample seed.manifest.json within given directory (defaults to CWD)
@@ -27,7 +28,7 @@ func SeedInit(directory string) error {
 	}
 
 	// TODO: We need to support init of all supported schema versions in the future
-	exampleSeedJson, _ := constants.Asset("schema/0.1.0/seed.manifest.example.json")
+	exampleSeedJson, _ := assets.Asset("schema/1.0.0/seed.manifest.example.json")
 
 	err = ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
 	if err != nil {

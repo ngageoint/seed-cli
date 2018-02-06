@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/ngageoint/seed-cli/constants"
-	RegistryFactory "github.com/ngageoint/seed-cli/registry"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/constants"
+	RegistryFactory "github.com/ngageoint/seed-common/registry"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //DockerSearch executes the seed search command

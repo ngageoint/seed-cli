@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ngageoint/seed-cli/objects"
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/ngageoint/seed-common/objects"
+	"github.com/ngageoint/seed-common/util"
 )
 
 func init() {
-	util.InitPrinter(false)
+	util.InitPrinter(util.PrintErr)
 }
 
 func TestDockerBuild(t *testing.T) {
