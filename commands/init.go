@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/ngageoint/seed-cli/assets"
-	"github.com/JohnPTobe/seed-common/constants"
-	"github.com/JohnPTobe/seed-common/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //SeedInit places a sample seed.manifest.json within given directory (defaults to CWD)

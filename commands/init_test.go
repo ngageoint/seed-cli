@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/JohnPTobe/seed-common/util"
+	"github.com/ngageoint/seed-common/util"
 )
 
 func init() {
