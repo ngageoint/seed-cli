@@ -35,6 +35,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 	}
 
 	if exists, err := util.ImageExists(imageName); !exists {
+		msg := fmt.Sprintf("Unable to find image: %s. Did you specify a valid tag?", imageName)
+		util.PrintUtil("%s\n", msg)
 		return 0, err
 	}
 

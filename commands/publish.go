@@ -33,7 +33,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			util.PrintUtil("%s\n", err.Error())
 			return err
 		}
-		msg := fmt.Sprintf("Unable to find image: %s", origImg)
+		msg := fmt.Sprintf("Unable to find image: %s. Did you specify a valid tag?", origImg)
 		util.PrintUtil("%s\n", msg)
 		return errors.New(msg)
 	}
