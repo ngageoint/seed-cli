@@ -468,7 +468,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
-		}		
+		}
 	}
 
 	return resources, disk, nil
@@ -528,14 +528,22 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 				}
 			}
 
-			// Validate that any required fields are present
-			if f.Required {
-				util.PrintUtil("ERROR: Required file expected for output %v, %v found.\n",
-					f.Name, strconv.Itoa(len(matchList)))
+			expected := 1
+			errStr := "ERROR: Required file expected for output %v, %v found.\n"
+			if f.Multiple == true {
+				expected = 2
+				errStr = "ERROR: Multiple required files expected for output %v, %v found.\n"
 			}
-			if !f.Multiple && len(matchList) < 1 {
-				util.PrintUtil("ERROR: Multiple files found for single output %v, %v found.\n",
+
+			// Validate that any required fields are present
+			if f.Required && len(matchList) < expected {
+				util.PrintUtil(errStr, f.Name, strconv.Itoa(len(matchList)))
+			} else if !f.Multiple && len(matchList) > 1 {
+				util.PrintUtil("WARNING: Multiple files found for single output %v, %v found.\n",
 					f.Name, strconv.Itoa(len(matchList)))
+				for _, s := range matchList {
+					util.PrintUtil(s)
+				}
 			} else {
 
 				util.PrintUtil("SUCCESS: Files found for output %v:\n",
