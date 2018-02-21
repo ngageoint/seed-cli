@@ -33,7 +33,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			util.PrintUtil("%s\n", err.Error())
 			return err
 		}
-		msg := fmt.Sprintf("Unable to find image: %s", origImg)
+		msg := fmt.Sprintf("Unable to find image: %s. Did you specify a valid tag?", origImg)
 		util.PrintUtil("%s\n", msg)
 		return errors.New(msg)
 	}
@@ -254,7 +254,7 @@ func PrintPublishUsage() {
 	util.PrintUtil("  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.JobVersionMajor)
 
-	util.PrintUtil("\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -j path/to/example -jm -P\n")
+	util.PrintUtil("\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -jm -P\n")
 	util.PrintUtil("\nThis will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
 	panic(util.Exit{0})
 }
