@@ -11,5 +11,5 @@ until [ ${i} -ge 10 ] || $(curl --output /dev/null --silent --head --fail http:/
     ((i++))
 done
 
-if [[ i > 10 ]]; then exit 1; fi
+if (( i > 10 )); then exit 1; fi
 exit 0
