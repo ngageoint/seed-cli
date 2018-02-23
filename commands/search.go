@@ -21,9 +21,9 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 		org = constants.DefaultOrg
 	}
 
-	registry, err := RegistryFactory.CreateRegistry(url, username, password)
+	registry, err := RegistryFactory.CreateRegistry(url, org, username, password)
 	if registry != nil && err == nil {
-		images, err := registry.Images(org)
+		images, err := registry.Images()
 		return images, err
 	}
 
