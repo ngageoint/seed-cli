@@ -167,7 +167,16 @@ func main() {
 		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
-		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		cluster := batchCmd.Lookup(constants.ClusterFlag).Value.String()
+		clusterMaster := batchCmd.Lookup(constants.ClusterMasterFlag).Value.String()
+
+		var err error
+		if cluster != "" {
+			err = commands.BatchClusterRun(clusterMaster, batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		} else {
+			err = commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		}
+
 		if err != nil {
 			panic(util.Exit{1})
 		}
@@ -332,9 +341,21 @@ func DefineBatchFlags() {
 	batchCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
 		"Full path to the job output directory")
 
+	var cluster string
+	batchCmd.StringVar(&cluster, constants.ClusterFlag, "",
+		"Indicates the batch should be run on a cluster")
+	batchCmd.StringVar(&cluster, constants.ShortClusterFlag, "",
+		"Indicates the batch should be run on a cluster")
+
+	var clusterMaster string
+	batchCmd.StringVar(&clusterMaster, constants.ClusterMasterFlag, "",
+		"Indicates the name of the cluster manager node")
+	batchCmd.StringVar(&clusterMaster, constants.ShortClusterMasterFlag, "",
+		"Indicates the name of the cluster manager node")
+
 	var rmVar bool
 	batchCmd.BoolVar(&rmVar, constants.RmFlag, false,
-		"Specifying the -rm flag automatically removes the image after executing docker run")
+		"Specifying the -rm flag automatically removes the imsage after executing docker run")
 
 	var metadataSchema string
 	batchCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
@@ -651,6 +672,7 @@ func PrintUsage() {
 	util.PrintUtil("A test runner for seed spec compliant algorithms\n\n")
 	util.PrintUtil("Commands:\n")
 	util.PrintUtil("  build \tBuilds Seed compliant Docker image\n")
+	util.PrintUtil("  batch \tExecutes Seed compliant docker image over multiple iterations\n")
 	util.PrintUtil("  init  \tInitialize new project with example seed.manifest.json file\n")
 	util.PrintUtil("  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
 	util.PrintUtil("  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")

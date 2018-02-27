@@ -1,13 +1,18 @@
 package commands
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+
 
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
@@ -17,6 +22,86 @@ import (
 type BatchIO struct {
 	Inputs []string
 	Outdir string
+}
+
+func BatchClusterRun(clusterMaster, batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
+	util.PrintUtil("Running batch cluster run\n")
+	if imageName == "" {
+		return errors.New("ERROR: No input image specified.")
+	}
+
+	if exists, err := util.ImageExists(imageName); !exists {
+		return err
+	}
+
+	if batchDir == "" {
+		batchDir = "."
+	}
+
+	batchDir = util.GetFullPath(batchDir, "")
+
+	seed := objects.SeedFromImageLabel(imageName)
+
+	outdir := getOutputDir(outputDir, imageName)
+
+	var inputs []BatchIO
+	var err error
+
+	if batchFile != "" {
+		inputs, err = ProcessBatchFile(seed, batchFile, outdir)
+		if err != nil {
+			util.PrintUtil("ERROR: Error processing batch file: %s\n", err.Error())
+			return err
+		}
+	} else {
+		inputs, err = ProcessDirectory(seed, batchDir, outdir)
+		if err != nil {
+			util.PrintUtil("ERROR: Error processing batch directory: %s\n", err.Error())
+			return err
+		}
+	}
+
+	// Export image and SCP it to the cluster
+	
+	imgFile, err := util.SaveImage(imageName)
+	util.PrintUtil("INFO: Local image %s saved to %s.\n", imageName, imgFile)
+	if _, err = util.DockerMachineSCP(imgFile, clusterMaster); err != nil {
+		return err
+	}
+	util.PrintUtil("INFO: Image file moved to cluster node %s\n", clusterMaster)
+
+	if _, err = util.DockerMachineLoad(imgFile, clusterMaster); err != nil {
+		util.PrintUtil("ERROR LOADING\n")
+		return err
+	}
+	util.PrintUtil("INFO: Image loaded into cluster node %s\n", clusterMaster)
+
+	out := "Results: \n"
+	for _, in := range inputs {
+		exitCode, err := DockerClusterRun(clusterMaster, imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, false)
+
+		//trim inputs to print only the key values and filenames
+		truncatedInputs := []string{}
+		for _, i := range in.Inputs {
+			begin := strings.Index(i, "=") + 1
+			end := strings.LastIndex(i, "/")
+			truncatedInputs = append(truncatedInputs, i[0:begin]+"..."+i[end:])
+		}
+
+		//trim path to specified (or generated) batch output directory
+		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
+
+		if err != nil {
+			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
+		} else {
+			out += fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
+		}
+	}
+
+	util.InitPrinter(util.PrintErr)
+	util.PrintUtil("%v", out)
+
+	return err
 }
 
 func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
@@ -94,6 +179,10 @@ func PrintBatchUsage() {
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
 	util.PrintUtil("  -%s  -%s Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.\n",
 		constants.ShortBatchFlag, constants.BatchFlag)
+	util.PrintUtil("  -%s  -%s \t Indicates cluster mode; defines a type (yet to be used); A cluster master must also be defined \n",
+		constants.ShortClusterFlag, constants.ClusterFlag)
+	util.PrintUtil("  -%s  -%s \t Defines the cluster's manager node\n", 
+		constants.ShortClusterMasterFlag, constants.ClusterMasterFlag)
 	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
@@ -106,10 +195,15 @@ func PrintBatchUsage() {
 		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
+		
 	panic(util.Exit{0})
 }
 
 func getOutputDir(outputDir, imageName string) string {
+
+	// check for slashes in imageName
+	imageName = strings.Replace(imageName, "/", "-", -1)
+
 	if outputDir == "" {
 		outputDir = "batch-" + imageName + "-" + time.Now().Format(time.RFC3339)
 		outputDir = strings.Replace(outputDir, ":", "_", -1)
@@ -234,4 +328,64 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 	util.PrintUtil("Batch Output Dir = %s \n", outdir)
 
 	return batchIO, err
+}
+
+func DockerClusterSetup(masterNode, imageName, outdir string, quiet bool) (int, error) {
+	quiet = false
+	util.PrintUtil("Setting up the cluster\n")
+
+	// Configure shell to talk to the manager node
+	mArgs := []string{"env", masterNode}
+	dockerMachine := exec.Command("docker-machine", mArgs...)
+	var errs bytes.Buffer
+	if !quiet {
+		dockerMachine.Stderr = io.MultiWriter(&errs)
+		dockerMachine.Stdout = os.Stderr
+	}
+
+	// Run docker run
+	runTime := time.Now()
+	err := dockerMachine.Run()
+	util.TimeTrack(runTime, "INFO: Setting up docker-machine")
+	exitCode := 0
+	if err != nil {
+		util.PrintUtil("Error setting up docker-machine: %s\n", err.Error())
+	}
+
+	err = nil
+	evalArgs := []string{"eval", "\"$(docker-machine env --swarm " + masterNode+")\""}
+	evalCmd := exec.Command("bash", evalArgs...)
+	if !quiet {
+		evalCmd.Stderr = io.MultiWriter(&errs)
+		evalCmd.Stdout = os.Stderr
+	}
+	runTime = time.Now()
+	err = evalCmd.Run()
+	util.TimeTrack(runTime, "INFO: Eval docker-machine")
+	
+
+	sshArgs := []string{"ssh", masterNode}
+	sshCmd := exec.Command("docker-machine", sshArgs...)
+	if !quiet {
+		sshCmd.Stderr = io.MultiWriter(&errs)
+		sshCmd.Stdout = os.Stderr
+	}
+	runTime = time.Now()
+	err = sshCmd.Run()
+	util.TimeTrack(runTime, "INFO: SSH")
+
+	// Pull the image
+	pullArgs := []string{"pull", imageName}
+	pullCmd := exec.Command("docker", pullArgs...)
+	if !quiet {
+		pullCmd.Stderr = io.MultiWriter(&errs)
+		pullCmd.Stdout = os.Stderr
+	}
+
+	runTime = time.Now()
+	err = pullCmd.Run()
+	util.TimeTrack(runTime, "INFO: pull")
+	
+
+	return exitCode, err
 }
