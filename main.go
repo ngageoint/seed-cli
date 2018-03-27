@@ -68,6 +68,7 @@ import (
 	"strconv"
 )
 
+var clusterCmd *flag.FlagSet
 var batchCmd *flag.FlagSet
 var buildCmd *flag.FlagSet
 var initCmd *flag.FlagSet
@@ -167,15 +168,38 @@ func main() {
 		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
-		cluster := batchCmd.Lookup(constants.ClusterFlag).Value.String()
-		clusterMaster := batchCmd.Lookup(constants.ClusterMasterFlag).Value.String()
 
-		var err error
-		if cluster != "" {
-			err = commands.BatchClusterRun(clusterMaster, batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
-		} else {
-			err = commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+
+		if err != nil {
+			panic(util.Exit{1})
 		}
+		panic(util.Exit{0})
+	}
+
+	if clusterCmd.Parsed() {
+
+		// seed cluster 
+		// -ImgNameFlag IMAGE_NAME 
+		// -BatchFlag BATCH FILE || -JobDirectoryFlag BATCH DIRECTORY 
+		// -SettingFlag ENV_VAR 
+		// -MountFlag MOUNT 
+		// -JobOutputDirFlag OUTPUT_DIR 
+		// -SchemaFlag SCHEMA 
+		// -RegistryFlag REGISTRY 
+		// -ManagerFlag MANAGER
+		
+		batchDir := clusterCmd.Lookup(constants.JobDirectoryFlag).Value.String()
+		batchFile := clusterCmd.Lookup(constants.BatchFlag).Value.String()
+		imageName := clusterCmd.Lookup(constants.ImgNameFlag).Value.String()
+		settings := strings.Split(clusterCmd.Lookup(constants.SettingFlag).Value.String(), ",")
+		mounts := strings.Split(clusterCmd.Lookup(constants.MountFlag).Value.String(), ",")
+		outputDir := clusterCmd.Lookup(constants.JobOutputDirFlag).Value.String()
+		metadataSchema := clusterCmd.Lookup(constants.SchemaFlag).Value.String()
+		registry := clusterCmd.Lookup(constants.RegistryFlag).Value.String()
+		manager := clusterCmd.Lookup(constants.ManagerFlag).Value.String()
+
+		err := commands.DockerBatchService(manager, batchDir, batchFile, imageName, outputDir, metadataSchema, registry, settings, mounts)
 
 		if err != nil {
 			panic(util.Exit{1})
@@ -341,18 +365,6 @@ func DefineBatchFlags() {
 	batchCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
 		"Full path to the job output directory")
 
-	var cluster string
-	batchCmd.StringVar(&cluster, constants.ClusterFlag, "",
-		"Indicates the batch should be run on a cluster")
-	batchCmd.StringVar(&cluster, constants.ShortClusterFlag, "",
-		"Indicates the batch should be run on a cluster")
-
-	var clusterMaster string
-	batchCmd.StringVar(&clusterMaster, constants.ClusterMasterFlag, "",
-		"Indicates the name of the cluster manager node")
-	batchCmd.StringVar(&clusterMaster, constants.ShortClusterMasterFlag, "",
-		"Indicates the name of the cluster manager node")
-
 	var rmVar bool
 	batchCmd.BoolVar(&rmVar, constants.RmFlag, false,
 		"Specifying the -rm flag automatically removes the imsage after executing docker run")
@@ -366,6 +378,70 @@ func DefineBatchFlags() {
 	// Run usage function
 	batchCmd.Usage = func() {
 		commands.PrintBatchUsage()
+	}
+}
+
+//DefineRunFlags defines the flags for the seed run command
+func DefineClusterFlags() {
+	clusterCmd = flag.NewFlagSet(constants.ClusterCommand, flag.ContinueOnError)
+
+	var directory string
+	clusterCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory)")
+	clusterCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
+		"Directory of files to batch process (default is current directory)")
+
+	var batchFile string
+	clusterCmd.StringVar(&batchFile, constants.BatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
+		clusterCmd.StringVar(&batchFile, constants.ShortBatchFlag, "",
+		"File specifying input keys and file mapping for batch processing")
+
+	var imgNameFlag string
+	clusterCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to run")
+		clusterCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to run")
+
+	var settings objects.ArrayFlags
+	clusterCmd.Var(&settings, constants.SettingFlag,
+		"Defines the value to be applied to setting")
+		clusterCmd.Var(&settings, constants.ShortSettingFlag,
+		"Defines the value to be applied to setting")
+
+	var mounts objects.ArrayFlags
+	clusterCmd.Var(&mounts, constants.MountFlag,
+		"Defines the full path to be mapped via mount")
+		clusterCmd.Var(&mounts, constants.ShortMountFlag,
+		"Defines the full path to be mapped via mount")
+
+	var outdir string
+	clusterCmd.StringVar(&outdir, constants.JobOutputDirFlag, "",
+		"Full path to the job output directory")
+	clusterCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
+		"Full path to the job output directory")
+
+	var clusterMaster string
+	clusterCmd.StringVar(&clusterMaster, constants.ManagerFlag, "",
+		"Indicates the name of the cluster manager node")
+	clusterCmd.StringVar(&clusterMaster, constants.ShortManagerFlag, "",
+		"Indicates the name of the cluster manager node")
+
+	var metadataSchema string
+	clusterCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+	clusterCmd.StringVar(&metadataSchema, constants.ShortSchemaFlag, "",
+		"Metadata schema file to override built in schema in validating side-car metadata files")
+
+	var registry string
+	clusterCmd.StringVar(&registry, constants.RegistryFlag, "localhost:5000", 
+		"Specifies the registry to push the local image to")
+	clusterCmd.StringVar(&registry, constants.ShortRegistryFlag, "localhost:5000", 
+			"Specifies the registry to push the local image to")
+
+	// Run usage function
+	clusterCmd.Usage = func() {
+		commands.PrintClusterUsage()
 	}
 }
 
@@ -582,6 +658,7 @@ func DefineFlags() {
 	// Seed subcommand flags
 	DefineBatchFlags()
 	DefineBuildFlags()
+	DefineClusterFlags()
 	DefineInitFlags()
 	DefineRunFlags()
 	DefineListFlags()
@@ -618,6 +695,10 @@ func DefineFlags() {
 				os.Args = append(os.Args, ".")
 			}
 		}
+		minArgs = 3
+
+	case constants.ClusterCommand:
+		cmd = clusterCmd
 		minArgs = 3
 
 	case constants.InitCommand:
@@ -673,10 +754,11 @@ func PrintUsage() {
 	util.PrintUtil("Commands:\n")
 	util.PrintUtil("  build \tBuilds Seed compliant Docker image\n")
 	util.PrintUtil("  batch \tExecutes Seed compliant docker image over multiple iterations\n")
+	util.PrintUtil("  cluster\tExecutes Seed compliant docker images on a swarm\n")
 	util.PrintUtil("  init  \tInitialize new project with example seed.manifest.json file\n")
 	util.PrintUtil("  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
 	util.PrintUtil("  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
-	util.PrintUtil("  pull\tAllows for pulling Seed compliant images from remote Docker registry\n")
+	util.PrintUtil("  pull\t\tAllows for pulling Seed compliant images from remote Docker registry\n")
 	util.PrintUtil("  run   \tExecutes Seed compliant Docker docker image\n")
 	util.PrintUtil("  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
 	util.PrintUtil("  validate\tValidates a Seed spec\n")

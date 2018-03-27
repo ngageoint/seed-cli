@@ -1,5 +1,7 @@
 INPUT_FILE
-/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs.txt
-/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs.1.txt
-/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs.2.txt
-/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs.3.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.1.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.2.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.3.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.4.txt
+/Users/emilysmith/go/src/github.com/ngageoint/seed-cli/examples/addition-job/inputs/inputs.5.txt
