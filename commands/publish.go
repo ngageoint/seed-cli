@@ -54,11 +54,13 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	//1. Check names and verify it doesn't conflict
 	tag := ""
 	img := origImg
+	orgImg := origImg
 
 	// docker tag if registry and/or org specified
 	if registry != "" || org != "" {
 		if org != "" {
 			tag = org + "/"
+			orgImg = tag + origImg
 		}
 		if registry != "" {
 			tag = registry + "/" + tag
@@ -73,7 +75,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		util.PrintUtil("ERROR: Error searching for matching tag names.\n%s\n",
 			err.Error())
 	}
-	conflict := util.ContainsString(images, origImg)
+	conflict := util.ContainsString(images, origImg) || util.ContainsString(images, orgImg)
 	if conflict {
 		util.PrintUtil("INFO: Image %s exists on registry %s\n", img, registry)
 	}
