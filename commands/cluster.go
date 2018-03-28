@@ -100,6 +100,15 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 		}
 	}
 
+	// Create named volume that will be shared between service nodes
+	// volume := strings.Replace(strings.Replace(imageName, ".", "-", -1), ":", "-", -1)+"-vol"
+	// if err := util.CreateVolume(volume, manager); err != nil {
+	// 	return err
+	// }
+
+	// Create container to copy data to the volume
+	// exec.Command("docker-machine", "ssh")
+
 	// Export image and SCP it to the cluster
 	registryImageName, err := RegistrySetup(manager, imageName, registry)
 	if err != nil {
@@ -176,16 +185,23 @@ func checkService(service Service, diskLimit float64, metadataSchema, manager st
 		args := []string{"ssh", manager, "docker", "service", "ps", service.name, "--format", "\"{{.CurrentState}}\""}
 		cmd, err := exec.Command("docker-machine", args...).Output()
 		if err != nil {
-			util.PrintUtil("Error checking service status for %s\n", service.name)
+			util.PrintUtil("ERROR: Error checking service status for %s\n", service.name)
+			break
 		} else if string(cmd) != "" {
 			if strings.Contains(string(cmd), "Complete") {
-				util.PrintUtil("Service %s completed!\n", service.name)
+				util.PrintUtil("INFO: Service %s completed!\n", service.name)
 				complete = true
+				break
+			} else if strings.Contains(string(cmd), "Rejected") {
+				util.PrintUtil("ERROR: Service %s has been rejected! %s\n", service.name, string(cmd))
+				break
+			} else if strings.Contains(string(cmd), "Shutdown") {
+				util.PrintUtil("ERROR: Service %s has been shutdown! %s\n", service.name, string(cmd))
+				break
+			} else if strings.Contains(string(cmd), "Failed") {
+				util.PrintUtil("ERROR: Service %s has failed! %s\n", service.name, string(cmd))
+				break
 			}
-		}
-
-		if complete {
-			break
 		}
 	}
 
@@ -201,6 +217,8 @@ func checkService(service Service, diskLimit float64, metadataSchema, manager st
 		outdir := filepath.Join(path.Dir(path.Dir(outDir)), filepath.Base(machineDir))
 		err = CopyServiceOutput(machineDir, outdir)
 		CheckServiceOutput(&service.seed, outdir, metadataSchema, diskLimit)
+	} else {
+		util.PrintUtil("ERROR: Service did not complete. Output will not be verified.\n")
 	}
 }
 
