@@ -167,7 +167,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		util.PrintUtil("\nNew image name: %s\n", img)
 
 		// write version back to the seed manifest
-		seedJSON, _ := json.Marshal(&seed)
+		seedJSON, _ := json.MarshalIndent(&seed, "", "  ")
 		err = ioutil.WriteFile(seedFileName, seedJSON, os.ModePerm)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred writing updated seed version to %s.\n%s\n",

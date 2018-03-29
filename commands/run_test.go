@@ -178,16 +178,16 @@ func TestDefineResources(t *testing.T) {
 		resources, outSize, err := DefineResources(&seed, c.inputSize)
 
 		if c.expectedResult != (err == nil) {
-			t.Errorf("DefineResources(%q, %q) == %v, expected %v", seedFileName, c.inputSize, err, nil)
+			t.Errorf("DefineResources(%v, %v) == %v, expected %v", seedFileName, c.inputSize, err, nil)
 		}
 
 		tempStr := fmt.Sprintf("%v", resources)
 		if c.expectedResource != tempStr {
-			t.Errorf("DefineResources(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputSize, tempStr, c.expectedResource)
+			t.Errorf("DefineResources(%v, %v) == \n%v, expected \n%v", seedFileName, c.inputSize, tempStr, c.expectedResource)
 		}
 
 		if c.expectedOutSize != outSize {
-			t.Errorf("DefineResources(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputSize, outSize, c.expectedOutSize)
+			t.Errorf("DefineResources(%v, %v) == \n%v, expected \n%v", seedFileName, c.inputSize, outSize, c.expectedOutSize)
 
 		}
 	}
