@@ -26,6 +26,8 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	}
 
 	if exists, err := util.ImageExists(imageName); !exists {
+		msg := fmt.Sprintf("Unable to find image: %s. Did you specify a valid tag?", imageName)
+		util.PrintUtil("%s\n", msg)
 		return err
 	}
 

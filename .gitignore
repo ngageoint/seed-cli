@@ -10,3 +10,6 @@ assets/assets.go
 
 # Scratch directories
 temp-*
+
+# test manifests updated during tests
+testdata/complete/seed.manifest.json
