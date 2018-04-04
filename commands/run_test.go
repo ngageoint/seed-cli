@@ -69,7 +69,7 @@ func TestDefineInputs(t *testing.T) {
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v $MULTIPLE$:/$MULTIPLETEMP$ -e MULTIPLE=$MULTIPLETEMP$ -v $ZIP$:$ZIP$ -e ZIP=$ZIP$]", "0.1",
+			"[-v $MULTIPLE$:/$MULTIPLETEMP$ -e MULTIPLE=/$MULTIPLETEMP$ -v $ZIP$:$ZIP$ -e ZIP=$ZIP$]", "0.1",
 			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
 	}
 
@@ -97,7 +97,8 @@ func TestDefineInputs(t *testing.T) {
 				expectedTempDir = strings.Replace(expectedTempDir, tempVarStr, tempDir, -1)
 			} else {
 				path := util.GetFullPath(x[1], "")
-				expectedVol = strings.Replace(expectedVol, x[0], path, -1)
+				replaceNameStr := fmt.Sprintf("$%s$", x[0])
+				expectedVol = strings.Replace(expectedVol, replaceNameStr, path, -1)
 			}
 		}
 		tempStr := fmt.Sprintf("%v", volumes)
