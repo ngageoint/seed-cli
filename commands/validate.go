@@ -24,7 +24,7 @@ func Validate(schemaFile, dir string) error {
 	}
 
 	if schemaFile != "" {
-		schemaFile = "file://" + util.GetFullPath(schemaFile, dir)
+		schemaFile = "file:///" + util.GetFullPath(schemaFile, dir)
 	}
 
 	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
@@ -53,6 +53,8 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	var result *gojsonschema.Result
 	var err error
 
+	seedFileName = strings.Replace(seedFileName, "\\", "/", -1)
+
 	typeStr := "manifest"
 	if schemaType == constants.SchemaMetadata {
 		typeStr = "metadata"
@@ -63,7 +65,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		util.PrintUtil("INFO: Validating seed %s file %s against schema file %s...\n",
 			typeStr, seedFileName, schemaFile)
 		schemaLoader := gojsonschema.NewReferenceLoader(schemaFile)
-		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
+		docLoader := gojsonschema.NewReferenceLoader("file:///" + seedFileName)
 		result, err = gojsonschema.Validate(schemaLoader, docLoader)
 
 		// Load baked-in schema file
@@ -76,7 +78,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 			schemaBytes, _ = assets.Asset("schema/1.0.0/seed.metadata.schema.json")
 		}
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
-		docLoader := gojsonschema.NewReferenceLoader("file://" + seedFileName)
+		docLoader := gojsonschema.NewReferenceLoader("file:///" + seedFileName)
 		result, err = gojsonschema.Validate(schemaLoader, docLoader)
 	}
 

@@ -92,6 +92,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		mountsArgs = append(mountsArgs, outDir+":"+outDir)
 		mountsArgs = append(mountsArgs, "-e")
 		mountsArgs = append(mountsArgs, "OUTPUT_DIR="+outDir)
+	} else {
+		util.PrintUtil("ERROR: Empty output directory string!\n")
 	}
 
 	// Settings
@@ -316,12 +318,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
 func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string {
-	if !strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
-		return ""
-	}
-
-	// #37: if -o is not specified, and OUTPUT_DIR is in the command args,
-	//	auto create a time-stamped subdirectory with the name of the form:
+	// #37: if -o is not specified, auto create a time-stamped subdirectory with the name of the form:
 	//		imagename-iso8601timestamp
 	if outputDir == "" {
 		outputDir = "output-" + imageName + "-" + time.Now().Format(time.RFC3339)
