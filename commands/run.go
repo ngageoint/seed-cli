@@ -86,12 +86,12 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 
 	// mount the JOB_OUTPUT_DIR (outDir flag)
 	var outDir string
-	if strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
-		outDir = SetOutputDir(imageName, &seed, outputDir)
-		if outDir != "" {
-			mountsArgs = append(mountsArgs, "-v")
-			mountsArgs = append(mountsArgs, outDir+":"+outDir)
-		}
+	outDir = SetOutputDir(imageName, &seed, outputDir)
+	if outDir != "" {
+		mountsArgs = append(mountsArgs, "-v")
+		mountsArgs = append(mountsArgs, outDir+":"+outDir)
+		mountsArgs = append(mountsArgs, "-e")
+		mountsArgs = append(mountsArgs, "OUTPUT_DIR="+outDir)
 	}
 
 	// Settings
@@ -223,6 +223,8 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			tempDirectories[f.Name] = tempDir
 			mountArgs = append(mountArgs, "-v")
 			mountArgs = append(mountArgs, util.GetFullPath(tempDir, "")+":/"+tempDir)
+			mountArgs = append(mountArgs, "-e")
+			mountArgs = append(mountArgs, f.Name+"=/"+tempDir)
 		}
 		if f.Required == false {
 			unrequired = append(unrequired, f.Name)
@@ -289,6 +291,8 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 				} else {
 					mountArgs = append(mountArgs, "-v")
 					mountArgs = append(mountArgs, val+":"+val)
+					mountArgs = append(mountArgs, "-e")
+					mountArgs = append(mountArgs, key+"="+val)
 				}
 			}
 		}
@@ -437,8 +441,18 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 
 	var settings []string
 	for _, key := range keys {
+		// Replace key if found in args strings
+		// Handle replacing KEY or ${KEY} or $KEY
+		value := inMap[key]
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+
 		settings = append(settings, "-e")
-		settings = append(settings, util.GetNormalizedVariable(key)+"="+inMap[key])
+		settings = append(settings, util.GetNormalizedVariable(key)+"="+value)
 	}
 
 	return settings, nil
