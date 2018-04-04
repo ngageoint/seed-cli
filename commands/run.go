@@ -464,6 +464,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 	var disk float64
 
 	for _, s := range seed.Job.Resources.Scalar {
+		value := fmt.Sprintf("%f", s.Value)
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
@@ -471,17 +472,23 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
+			value = fmt.Sprintf("%d", intMem)
 		}
 		if s.Name == "disk" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			disk = (s.InputMultiplier * inputSizeMiB) + s.Value
+			value = fmt.Sprintf("%f", disk)
 		}
 		if s.Name == "sharedMem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
+			value = fmt.Sprintf("%d", intMem)
 		}
+
+		envVar := util.GetNormalizedVariable(s.Name)
+		resources = append(resources, fmt.Sprintf("-e %s=%s", envVar, value))
 	}
 
 	return resources, disk, nil
