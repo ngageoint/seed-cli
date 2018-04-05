@@ -27,14 +27,28 @@ import (
 
 type ServiceIO struct {
 	LocalInputs []string
-	LocalOutdir string
+	LocalDir string
 	MachineInputs []string
-	MachineOutdir string
+	MachineDir string
+}
+
+type ServiceOutput struct {
+	Localoutdir string
+	Volumeoutdir string
+}
+
+type Volume struct {
+	Name string
+	LocalDir string
+	HostMachineDir string
+	DataDir string
+	HostMachine string
 }
 
 type Mount struct {
 	Localpath string
 	Machinepath string
+	VolumeName string
 	Mountargs []string
 }
 
@@ -44,6 +58,8 @@ type Service struct {
 	id string
 	outdir string
 }
+
+// CHANGE THE target= TO POINT TO /data AND ONLY KEEP /VOLUME AND AFTER
 
 //DockerBatchService runs an image as a service on a given cluster
 func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir, 
@@ -71,45 +87,70 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 	// Inputs will be copied here
 	// mountdir == path on manager
 	// outdir === path on local machine
-	outbatchdir := getServiceOutputDir(outputDir, imageName)
+	// localOutDir := <outputDir>/volume
+	// serviceOutput := getServiceOutputDir(outputDir, imageName)
+	localVolumeDir := getServiceOutputDir(outputDir, imageName)
+	util.PrintUtil("localVolumeDir after getServiceOutput: %s", localVolumeDir)
 	home := util.MachineHome(manager)
 	if home == "" {
 		erString := fmt.Sprintf("ERROR: Error retrieving %s home directory\n", manager) 
 		util.PrintUtil(erString)
 		return errors.New(erString)
 	}
-	mountbatchdir := filepath.Join(home, outbatchdir)
-	err := util.Mount(manager, mountbatchdir, outbatchdir)
+	mountedVolumeSrcDir := filepath.Join(home, localVolumeDir) // /home/<USER>/$localVolumeDir
+	err := util.Mount(manager, mountedVolumeSrcDir, localVolumeDir)
 
+	// Creates inputs directory(s) under the localVolumeDir and copies the input files
+	// inputs contains both the localVolumeDir path and the mountedVolumeDir path
 	var inputs []ServiceIO
-
-	// Creates inputs directory under the outdir
-	// Links input files to new input directory
-	// inputs refers to mounted directory path
 	if batchFile != "" {
-		inputs, err = ProcessServiceBatchFile(seed, batchFile, outbatchdir, mountbatchdir)
+		inputs, err = ProcessServiceBatchFile(seed, batchFile, localVolumeDir, mountedVolumeSrcDir)
 		if err != nil {
 			util.PrintUtil("ERROR: Error processing batch file: %s\n", err.Error())
 			return err
 		}
 	} else {
-		inputs, err = ProcessServiceDirectory(seed, batchDir, outbatchdir, mountbatchdir)
+		inputs, err = ProcessServiceDirectory(seed, batchDir, localVolumeDir, mountedVolumeSrcDir)
 		if err != nil {
 			util.PrintUtil("ERROR: Error processing batch directory: %s\n", err.Error())
 			return err
 		}
 	}
 
+	util.PrintUtil("Inputs:\n%v\n", inputs)
+	////// Need to get the data from the local machine to the manager node //////
+
 	// Create named volume that will be shared between service nodes
-	// volume := strings.Replace(strings.Replace(imageName, ".", "-", -1), ":", "-", -1)+"-vol"
-	// if err := util.CreateVolume(volume, manager); err != nil {
-	// 	return err
-	// }
+	volumeName := strings.Replace(strings.Replace(imageName, ".", "", -1), ":", "-", -1)+"-vol"
+	mountedVolumeDataDir, err := util.CreateVolume(volumeName, manager)
+	if err != nil {
+		return err
+	}
+	volume := Volume{volumeName, localVolumeDir, mountedVolumeSrcDir, mountedVolumeDataDir, manager}
 
-	// Create container to copy data to the volume
-	// exec.Command("docker-machine", "ssh")
+	// Create helper container to copy data to the volume
+	_, err = exec.Command("docker-machine", "ssh", manager, 
+		"docker", "create", "-v", volume.Name+":/volume", "--name", "helper", "busybox", "true").Output()
+	if err != nil {
+		util.PrintUtil("ERROR: Error creating helper container...%s\n", err.Error())
+		return err
+	}
 
-	// Export image and SCP it to the cluster
+	// Copy data from host machine's mounted directory to container
+	_, err = exec.Command("docker-machine", "ssh", volume.HostMachine, "docker", "cp", volume.HostMachineDir, "helper:/volume").Output()
+	if err != nil {
+		util.PrintUtil("ERROR: Error copying input data to volume....%s\n", err.Error())
+		return err
+	}
+	// Clean up helper container
+	_, err = exec.Command("docker-machine", "ssh", volume.HostMachine, "docker", "rm", "helper").Output()
+	if err != nil {
+		util.PrintUtil("ERROR: Error removing helper container....%s\n", err.Error())
+		return err
+	}
+
+	////// Move the docker image to the cluster //////
+	// Exports image and SCPs it to the cluster
 	registryImageName, err := RegistrySetup(manager, imageName, registry)
 	if err != nil {
 		util.PrintUtil("ERROR: Error pushing image to cluster registry.\n")
@@ -117,6 +158,7 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 		return err
 	}
 
+	////// Service creation/running //////
 	// Create and start a service for each input
 	var wg sync.WaitGroup
 	var services []Service
@@ -125,9 +167,11 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 	out := "Results: \n"
 	for r, in := range inputs {
 		serviceRunName := serviceName+"-"+strconv.Itoa(r)
+		// exitCode, service, outputSize, err := DockerService(manager, serviceRunName, registryImageName,
+		// 	imageName, localVolumeDir, mountedVolumeSrcDir, volumeName, metadataSchema, in.LocalInputs, 
+		// 	in.MachineInputs, settings, mounts, false, r)
 		exitCode, service, outputSize, err := DockerService(manager, serviceRunName, registryImageName,
-			imageName, outbatchdir, mountbatchdir, metadataSchema, in.LocalInputs, 
-			in.MachineInputs, settings, mounts, false, r)
+			imageName, metadataSchema, volume, in.LocalInputs, in.MachineInputs, settings, mounts, false, r)
 		services = append(services, service)
 		outDirs = append(outDirs, service.outdir)
 
@@ -151,7 +195,7 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 		}
 
 		//trim path to specified (or generated) batch output directory
-		truncatedOut := "..." + strings.Replace(in.LocalOutdir, outbatchdir, filepath.Base(outbatchdir), 1)
+		truncatedOut := "..." + strings.Replace(in.LocalDir, localVolumeDir, filepath.Base(localVolumeDir), 1)
 
 		if err != nil {
 			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
@@ -163,15 +207,15 @@ func DockerBatchService(manager, batchDir, batchFile, imageName, outputDir,
 	util.PrintUtil("%v", out)
 
 	// Unmount the volume directory
-	err = util.Unmount(manager, mountbatchdir, outbatchdir)
-	if err != nil {
-		return err
-	}
-	// remove the mounted directory
-	err = util.Remove(mountbatchdir)
-	if err != nil {
-		return err
-	}
+	// err = util.Unmount(manager, mountedVolumeSrcDir, localVolumeDir)
+	// if err != nil {
+	// 	return err
+	// }
+	// remove the local mounted directory
+	// err = util.Remove(localVolumeDir)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return err
 }
@@ -205,27 +249,51 @@ func checkService(service Service, diskLimit float64, metadataSchema, manager st
 		}
 	}
 
+	// Copy service output from mounted volume to output directory on local machine
 	if complete {
-		args := []string{"ssh", manager, "docker", "service", "rm", service.name}
-		outs, err := exec.Command("docker-machine", args...).Output()
-		if err != nil {
-			util.PrintUtil("ERROR: Error removing completed service: %s\n%s\n", string(outs), err.Error())
-		}
-
 		outDir := service.outdir
 		machineDir := outDir
 		outdir := filepath.Join(path.Dir(path.Dir(outDir)), filepath.Base(machineDir))
-		err = CopyServiceOutput(machineDir, outdir)
+		util.PrintUtil("Time to copy output!\n%s -> %s", machineDir, outdir)
+		err := CopyServiceOutput(machineDir, outdir)
+		if err != nil {
+			util.PrintUtil("ERROR: Error copying service %s output: %s\n", service.name, err.Error())
+		}
 		CheckServiceOutput(&service.seed, outdir, metadataSchema, diskLimit)
+
+	// Inform user service did not complete and try to show the logs
 	} else {
 		util.PrintUtil("ERROR: Service did not complete. Output will not be verified.\n")
+		args := []string{"ssh", manager, "docker", "service", "logs", service.name}
+		logCmd := exec.Command("docker-machine", args...)
+		var cmd bytes.Buffer
+		logCmd.Stderr = io.MultiWriter(&cmd)
+		logCmd.Stdout = io.MultiWriter(&cmd)
+
+		err := logCmd.Run()
+		if err != nil {
+			util.PrintUtil("ERROR: Error retrieving service %s logs: %s\n", service.name, err.Error())
+		} else if cmd.String() != "" {
+			util.PrintUtil("INFO: %s logs:\n%s", service.name, cmd.String())
+		}
 	}
+
+	// Remove service
+	// args := []string{"ssh", manager, "docker", "service", "rm", service.name}
+	// outs, err := exec.Command("docker-machine", args...).Output()
+	// if err != nil {
+	// 	util.PrintUtil("ERROR: Error removing completed service: %s\n%s\n", string(outs), err.Error())
+	// }
+
 }
 
 //DockerService creates and runs the image as a service on the given swarm
-func DockerService(manager, serviceName, registryImageName, imageName, localdir, mountdir, metadataSchema string,
+// func DockerService(manager, serviceName, registryImageName, imageName, localdir, mountdir, volumeName, metadataSchema string,
+// 	localinputs, machineInputs, settings, mounts []string, quiet bool, run int) (int, Service, float64, error) {
+//DockerService creates and runs the image as a service on the given swarm
+func DockerService(manager, serviceName, registryImageName, imageName, metadataSchema string, volume Volume,
 	localinputs, machineInputs, settings, mounts []string, quiet bool, run int) (int, Service, float64, error) {
-
+		
 	var service Service
 	util.InitPrinter(util.PrintErr)
 	if quiet {
@@ -253,7 +321,7 @@ func DockerService(manager, serviceName, registryImageName, imageName, localdir,
 	dockerArgs = append(dockerArgs, "--restart-condition")
 	dockerArgs = append(dockerArgs, "none")
 
-	// We only want one of each service
+	// We only want one of each service so it doesn't continuously
 	dockerArgs = append(dockerArgs, "--replicas")
 	dockerArgs = append(dockerArgs, "1")
 	// dockerArgs = append(dockerArgs, "--mode")
@@ -267,11 +335,13 @@ func DockerService(manager, serviceName, registryImageName, imageName, localdir,
 	var outputSize float64
 
 	// mount the batch volume directory
-	Mounts = append(Mounts, Mount{localdir, mountdir, []string{"--mount", "type=bind,src="+mountdir+",destination="+mountdir}})
+	// Mounts = append(Mounts, Mount{localdir, mountdir, []string{"--mount", "type=bind,src="+mountdir+",destination="+mountdir}})
+	Mounts = append(Mounts, Mount{volume.LocalDir, volume.HostMachineDir, volume.Name, 
+		[]string{"--mount", "source="+volume.Name+",target=/data"}}) //+volume.HostMachineDir}})
 
 	// expand INPUT_FILEs to specified Inputs files
 	if seed.Job.Interface.Inputs.Files != nil {
-		inMounts, size, temp, err := DefineServiceInputs(&seed, localinputs, machineInputs)
+		inmounts, size, temp, err := DefineServiceInputs(&seed, localinputs, machineInputs)
 		for _, v := range temp {
 			defer util.RemoveAllFiles(v)
 		}
@@ -280,7 +350,7 @@ func DockerService(manager, serviceName, registryImageName, imageName, localdir,
 			util.PrintUtil("Exiting seed...\n")
 			panic(util.Exit{1})
 
-		} else if inMounts != nil {
+		} else if inmounts != nil {
 			// mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
 		}
@@ -302,10 +372,10 @@ func DockerService(manager, serviceName, registryImageName, imageName, localdir,
 	var outDir string
 	if strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
 		// Create the output directory
-		localout, machineOutDir := SetServiceOutputDir(imageName, serviceName, &seed, localdir, mountdir)
+		localout, machineOutDir := SetServiceOutputDir(imageName, serviceName, &seed, volume.LocalDir, volume.HostMachineDir)
 		if outDir != "" {
-			Mounts = append(Mounts, Mount{localout, machineOutDir, []string{"--mount", 
-				"type=bind,src="+machineOutDir+",destination="+machineOutDir}})
+			Mounts = append(Mounts, Mount{localout, machineOutDir, volume.Name, []string{"--mount", 
+				"source="+volume.Name+",destination="+localout}})
 		}
 		outDir = localout
 	}
@@ -324,7 +394,7 @@ func DockerService(manager, serviceName, registryImageName, imageName, localdir,
 
 	// Additional Mounts defined in seed.json
 	if seed.Job.Interface.Mounts != nil {
-		inMounts, err := DefineServiceMounts(&seed, localdir, mountdir, mounts)
+		inMounts, err := DefineServiceMounts(&seed, volume, mounts)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing mount arguments.\n%s", err.Error())
 			util.PrintUtil("Exiting seed...\n")
@@ -506,11 +576,12 @@ func SetServiceOutputDir(imageName, serviceName string, seed *objects.Seed, loca
 		outputDir = filepath.Join(machineOutputDir, serviceName)
 		os.Mkdir(outdir, os.ModePerm)
 	}
-
+	util.PrintUtil("Setting OUTPUT_DIR in seed to %s\n", 
+		outputDir)
 	seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
-		"$OUTPUT_DIR", outputDir, -1)
+		"$OUTPUT_DIR", "/data/volume/"+serviceName, -1)
 	seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
-		"${OUTPUT_DIR}", outputDir, -1)
+		"${OUTPUT_DIR}", "/data/volume/"+serviceName, -1)
 
 	return outdir, outputDir
 }
@@ -658,7 +729,7 @@ func ProcessServiceDirectory(seed objects.Seed, batchDir, outdir, mountdir strin
 		filePath := filepath.Join(dir, file.Name())
 		srcFile := filepath.Join(batchDir, file.Name())
 
-		machinePath := filepath.Join(mountdir, inputdir, file.Name())
+		machinePath := filepath.Join("volume", inputdir, file.Name())
 		if cp, err := util.CopyFile(srcFile, filePath); !cp || err != nil {
 			util.PrintUtil("ERROR: Error copying files to volume input directory\n")
 			if err != nil {
@@ -674,7 +745,7 @@ func ProcessServiceDirectory(seed objects.Seed, batchDir, outdir, mountdir strin
 		fileInputs = append(fileInputs, key+"="+fileDir)
 		machineInputs := []string{}
 		machineInputs = append(machineInputs, key+"="+machinePath)
-		row := ServiceIO{fileInputs, fileDir, machineInputs, filepath.Join(mountdir, inputdir)}
+		row := ServiceIO{fileInputs, fileDir, machineInputs, filepath.Join("volume", inputdir)}
 		batchIO = append(batchIO, row)
 	}
 	util.PrintUtil("Batch Input Dir = %v \t Batch Output Dir = %v \n", batchDir, outdir)
@@ -685,9 +756,10 @@ func ProcessServiceDirectory(seed objects.Seed, batchDir, outdir, mountdir strin
 //DefineServiceInputs extracts the paths to any input data given by the 'cluster' command
 // flags 'inputs' and sets the path in the json object. Returns:
 // 	[]string: docker command args for input files in the format:
-//	"--mount type=bind,src=/path/to/file1,destination=/path/to/file1"
+//	"--mount src=/path/to/file1,destination=/path/to/file1"
 func DefineServiceInputs(seed *objects.Seed, localinputs, machineinputs []string) ([]string, float64, map[string]string, error) {
 	// Validate inputs given vs. inputs defined in manifest
+	util.PrintUtil("Define service inputs:\n%v\n%v\n", localinputs, machineinputs)
 
 	var mountArgs []string
 	var sizeMiB float64
@@ -758,8 +830,9 @@ func DefineServiceInputs(seed *objects.Seed, localinputs, machineinputs []string
 		y := strings.SplitN(machineinputs[i], "=", 2)[1]
 		// Replace key if found in args strings
 		// Handle replacing KEY or ${KEY} or $KEY
+		util.PrintUtil("Value is %s\n", val)
 		// value := val
-		value := y
+		value := filepath.Join("/data", y)
 		if directory, ok := tempDirectories[key]; ok {
 			value = directory //replace with the temp directory if multiple files
 		}
@@ -770,17 +843,17 @@ func DefineServiceInputs(seed *objects.Seed, localinputs, machineinputs []string
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
 			-1)
 
-		for _, k := range seed.Job.Interface.Inputs.Files {
-			if k.Name == key {
-				if k.Multiple {
+		// for _, k := range seed.Job.Interface.Inputs.Files {
+		// 	if k.Name == key {
+		// 		if k.Multiple {
 					//directory has already been added to mount args, just link file into that directory
-					os.Symlink(y, filepath.Join(tempDirectories[key], info.Name()))
-				} else {
-					mountArgs = append(mountArgs, "--mount")
-					mountArgs = append(mountArgs, "type=bind,src="+y+",destination="+y)
-				}
-			}
-		}
+					// os.Symlink(y, filepath.Join(tempDirectories[key], info.Name()))
+			// 	} else {
+			// 		mountArgs = append(mountArgs, "--mount")
+			// 		mountArgs = append(mountArgs, "type=bind,src="++",destination="+y)
+			// 	}
+			// }
+		// }
 	}
 
 	//remove unspecified unrequired inputs from cmd string
@@ -799,7 +872,9 @@ func DefineServiceInputs(seed *objects.Seed, localinputs, machineinputs []string
 }
 
 //DefineServiceMounts defines any seed specified mounts.
-func DefineServiceMounts(seed *objects.Seed, outdir, mountdir string, inputs []string) ([]Mount, error) {
+func DefineServiceMounts(seed *objects.Seed, volume Volume, inputs []string) ([]Mount, error) {
+	util.PrintUtil("Defining service mounts: %v\n", inputs)
+
 	inMap := inputMap(inputs)
 
 	// Valid by default
@@ -828,19 +903,19 @@ func DefineServiceMounts(seed *objects.Seed, outdir, mountdir string, inputs []s
 	if seed.Job.Interface.Mounts != nil {
 		for _, mount := range seed.Job.Interface.Mounts {
 
-			//SymLink from within output directory??
 			localpath := util.GetFullPath(inMap[mount.Name], "")
-			machinepath := filepath.Join(mountdir, filepath.Base(localpath))
-			localout := filepath.Join(outdir, filepath.Base(localpath))
+			machinepath := filepath.Join(volume.HostMachineDir, filepath.Base(localpath))
+			localout := filepath.Join(volume.LocalDir, filepath.Base(localpath))
 			util.CopyFiles(localpath, localout)
-			mountPath := "type=bind,src="+machinepath +",destination="+mount.Path
+			// mountPath := "type=bind,src="+machinepath +",destination="+mount.Path
+			mountPath := "source="+volume.Name+",target="+localpath
 
 			if mount.Mode == "" {
 			// 	mountPath += "," + mount.Mode
 			// } else {
 				mountPath += ",ro"
 			}
-			m := Mount{localpath, machinepath, []string{"--mount", mountPath}}
+			m := Mount{localpath, machinepath, volume.Name, []string{"--mount", mountPath}}
 			mounts = append(mounts, m)
 		}
 		return mounts, nil
@@ -1071,9 +1146,11 @@ func CheckServiceOutput(seed *objects.Seed, outDir, metadataSchema string, diskL
 func CopyServiceOutput(mountoutdir, outdir string) error {
 	util.PrintUtil("INFO: Copying service output from %s to %s\n", mountoutdir, outdir)
 	copied, err := util.CopyFiles(mountoutdir, outdir)
-	if (err != nil) || !copied {
-		util.PrintUtil("Error copying service output.\n")
+	if err != nil {
+		util.PrintUtil("Error copying service output: %s\n", err.Error())
 		return err
+	} else if !copied {
+		util.PrintUtil("Copied returned false... what?\n")
 	}
 
 	util.PrintUtil("INFO: Service output files copied...\n\n")
@@ -1104,16 +1181,16 @@ func getServiceOutputDir(outputDir, imageName string) string {
 
 	// Create a volume directory withing to mount to the machine. 
 	// This directory's contents will be removed when the folder is unmounted
-	outdir = filepath.Join(outdir, "volume")
-	if _, err := os.Stat(outdir); os.IsNotExist(err) {
+	localoutdir := filepath.Join(outdir, "volume")
+	if _, err := os.Stat(localoutdir); os.IsNotExist(err) {
 		// Create the directory
 		// Didn't find the specified directory
 		util.PrintUtil("INFO: %s not found; creating directory...\n",
-			outdir)
-		os.Mkdir(outdir, os.ModePerm)
+			localoutdir)
+		os.Mkdir(localoutdir, os.ModePerm)
 	}
 
-	return outdir
+	return localoutdir
 }
 
 
