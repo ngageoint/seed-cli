@@ -24,7 +24,7 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(util.PrintErr)
 	if quiet {
 		util.InitPrinter(util.Quiet)
@@ -69,6 +69,18 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
+		}
+	}
+
+	// add -e args for input json
+	if seed.Job.Interface.Inputs.Json != nil {
+		inJson, err := DefineInputJson(&seed, inputs)
+		if err != nil {
+			util.PrintUtil("ERROR: Error occurred processing json arguments.\n%s", err.Error())
+			util.PrintUtil("Exiting seed...\n")
+			panic(util.Exit{1})
+		} else if inJson != nil {
+			envArgs = append(envArgs, inJson...)
 		}
 	}
 
@@ -315,6 +327,91 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	return mountArgs, sizeMiB, tempDirectories, nil
 }
 
+//DefineInputJson passes input json values from the 'run' command
+// to the image as environment variables.  simple int/string/bool/etc.
+// types are passed as single value strings. complex objects can be read
+// in from a given file which is read in and passed as an environment variable
+// with the full json appropriately escaped
+//Returns: []string: docker command args for input files in the format:
+//	"-e JSON_NAME1=value -e JSON_NAME2="{json object}" etc"
+func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
+	// TODO: implement reading json input file
+	inMap := inputMap(inputs)
+
+	var envArgs []string
+
+	// Valid by default
+	valid := true
+	var keys []string
+	var unrequired []string
+	for _, f := range seed.Job.Interface.Inputs.Json {
+		if f.Required == false {
+			unrequired = append(unrequired, f.Name)
+			continue
+		}
+		keys = append(keys, f.Name)
+		if _, prs := inMap[f.Name]; !prs {
+			valid = false
+		}
+	}
+
+	if !valid {
+		var buffer bytes.Buffer
+		buffer.WriteString("ERROR: Incorrect input json key/values provided. -j arguments should be in the form:\n")
+		buffer.WriteString("  seed run -j KEY1=path/to/file1 -j KEY2=path/to/file2 ...\n")
+		buffer.WriteString("The following input json keys are expected:\n")
+		for _, n := range keys {
+			buffer.WriteString("  " + n + "\n")
+		}
+		buffer.WriteString("\n")
+		return nil, errors.New(buffer.String())
+	}
+
+	for _, f := range inputs {
+		x := strings.SplitN(f, "=", 2)
+		if len(x) != 2 {
+			util.PrintUtil("ERROR: Input json should be specified in KEY=VALUE format.\n")
+			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
+				inputs)
+			continue
+		}
+
+		key := x[0]
+		val := x[1]
+
+		// Replace key if found in args strings
+		// Handle replacing KEY or ${KEY} or $KEY
+		value := val
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+
+		for _, k := range seed.Job.Interface.Inputs.Json {
+			if k.Name == key {
+				envArgs = append(envArgs, "-e")
+				envArgs = append(envArgs, key+"="+val)
+			}
+		}
+	}
+
+	//remove unspecified unrequired inputs from cmd string
+	for _, k := range unrequired {
+		key := k
+		value := ""
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+	}
+
+	return envArgs, nil
+}
+
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
 func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string {
@@ -409,7 +506,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 
 //DefineSettings defines any seed specified docker settings.
 // Return []string of docker command arguments in form of:
-//	"-?? setting1=val1 -?? setting2=val2 etc"
+//	"-e setting1=val1 -e setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 	inMap := inputMap(inputs)
 
