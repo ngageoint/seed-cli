@@ -74,7 +74,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 
 	// add -e args for input json
 	if seed.Job.Interface.Inputs.Json != nil {
-		inJson, err := DefineInputJson(&seed, inputs)
+		inJson, err := DefineInputJson(&seed, json)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing json arguments.\n%s", err.Error())
 			util.PrintUtil("Exiting seed...\n")
