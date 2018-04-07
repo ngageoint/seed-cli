@@ -23,10 +23,10 @@ func TestProcessDirectory(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../testdata", "../testdata/test-extract", "../examples/extractor/seed.manifest.json",
-			"[{[ZIP=../testdata/batch-test.csv] ../testdata/test-extract/batch-test.csv} " +
-				"{[ZIP=../testdata/empty-batch.csv] ../testdata/test-extract/empty-batch.csv} " +
-				"{[ZIP=../testdata/missing-keys.csv] ../testdata/test-extract/missing-keys.csv} " +
-				"{[ZIP=../testdata/seed-scale.zip] ../testdata/test-extract/seed-scale.zip}]",
+			"[{[ZIP=../testdata/batch-test.csv] [] ../testdata/test-extract/batch-test.csv} " +
+				"{[ZIP=../testdata/empty-batch.csv] [] ../testdata/test-extract/empty-batch.csv} " +
+				"{[ZIP=../testdata/missing-keys.csv] [] ../testdata/test-extract/missing-keys.csv} " +
+				"{[ZIP=../testdata/seed-scale.zip] [] ../testdata/test-extract/seed-scale.zip}]",
 			""},
 		{"../testdata", "../testdata/test-multiple", "../testdata/multiple-required-inputs/seed.manifest.json",
 			"[]", "ERROR: Multiple required inputs are not supported when batch processing directories."},
@@ -60,9 +60,9 @@ func TestProcessBatchFile(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../testdata/batch-test.csv", "../testdata/test-extract-file", "../examples/extractor/seed.manifest.json",
-			"[{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test1.zip] ../testdata/test-extract-file/1-test1.zip} " +
-				"{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test2.zip] ../testdata/test-extract-file/2-test2.zip} " +
-				"{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test3.zip] ../testdata/test-extract-file/3-test3.zip}]",
+			"[{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test1.zip] [] ../testdata/test-extract-file/1-test1.zip} " +
+				"{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test2.zip] [] ../testdata/test-extract-file/2-test2.zip} " +
+				"{[ZIP=/home/jtobe/go/src/github.com/ngageoint/seed-cli/testdata/test3.zip] [] ../testdata/test-extract-file/3-test3.zip}]",
 			""},
 		{"../testdata/empty-batch.csv", "../testdata/test-empty", "../testdata/multiple-required-inputs/seed.manifest.json",
 			"[]", "ERROR: Empty batch file"},

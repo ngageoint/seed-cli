@@ -18,6 +18,7 @@ func TestDockerRun(t *testing.T) {
 		directory        string
 		imageName        string
 		inputs           []string
+		json             []string
 		settings         []string
 		mounts           []string
 		expected         bool
@@ -25,11 +26,13 @@ func TestDockerRun(t *testing.T) {
 	}{
 		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0",
 			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
+			[]string{},
 			[]string{"SETTING_ONE=one", "SETTING_TWO=two"},
 			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
 			true, ""},
 		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
+			[]string{},
 			[]string{"HELLO=Hello"}, []string{"MOUNTAIN=../examples/"},
 			true, ""},
 	}
@@ -40,7 +43,7 @@ func TestDockerRun(t *testing.T) {
 		metadataSchema := ""
 		DockerBuild(c.directory, "", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
-			c.inputs, c.settings, c.mounts, true, true)
+			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil
 		if success != c.expected {
 			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
