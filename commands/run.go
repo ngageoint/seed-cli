@@ -262,25 +262,15 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		return nil, 0.0, tempDirectories, errors.New(buffer.String())
 	}
 
-	for _, f := range inputs {
-		x := strings.SplitN(f, "=", 2)
-		if len(x) != 2 {
-			util.PrintUtil("ERROR: Input files should be specified in KEY=VALUE format.\n")
-			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
-				inputs)
-			continue
-		}
-
-		key := x[0]
-		val := x[1]
-
+	for key, val := range inMap {
 		// Expand input VALUE
 		val = util.GetFullPath(val, "")
 
 		//get total size of input files in MiB
 		info, err := os.Stat(val)
 		if os.IsNotExist(err) {
-			util.PrintUtil("ERROR: Input file %s not found\n", val)
+			msg := fmt.Sprintf("ERROR: Input file %s not found\n", val)
+			return nil, 0.0, tempDirectories, errors.New(msg)
 		}
 		sizeMiB += (1.0 * float64(info.Size())) / (1024.0 * 1024.0) //fileinfo's Size() returns bytes, convert to MiB
 
@@ -357,13 +347,14 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 
 	if !valid {
 		var buffer bytes.Buffer
-		buffer.WriteString("ERROR: Incorrect input json key/values provided. -j arguments should be in the form:\n")
-		buffer.WriteString("  seed run -j KEY1=path/to/file1 -j KEY2=path/to/file2 ...\n")
+		buffer.WriteString("ERROR: Missing json input key.")
 		buffer.WriteString("The following input json keys are expected:\n")
 		for _, n := range keys {
 			buffer.WriteString("  " + n + "\n")
 		}
 		buffer.WriteString("\n")
+		buffer.WriteString("JSON inputs should be provided in the following form: \n" )
+		buffer.WriteString("seed run -j KEY1=path/to/file1 -j KEY2=path/to/file2 ...\n")
 		return nil, errors.New(buffer.String())
 	}
 
@@ -585,7 +576,8 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 		}
 
 		envVar := util.GetNormalizedVariable(s.Name)
-		resources = append(resources, fmt.Sprintf("-e %s=%s", envVar, value))
+		resources = append(resources, "-e")
+		resources = append(resources, fmt.Sprintf("%s=%s", envVar, value))
 	}
 
 	return resources, disk, nil
@@ -779,6 +771,10 @@ func inputMap(inputs []string) map[string]string {
 	// Ingest inputs into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
+		if f == "" {
+			//skip empty strings
+			continue
+		}
 		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			util.PrintUtil("ERROR: Input should be specified in KEY=VALUE format.\n")

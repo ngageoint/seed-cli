@@ -365,6 +365,12 @@ func DefineRunFlags() {
 	runCmd.Var(&inputs, constants.ShortInputsFlag,
 		"Defines the full path to input data arguments")
 
+	var json objects.ArrayFlags
+	runCmd.Var(&json, constants.JsonFlag,
+		"Defines input json arguments")
+	runCmd.Var(&json, constants.ShortJsonFlag,
+		"Defines input json arguments")
+
 	var settings objects.ArrayFlags
 	runCmd.Var(&settings, constants.SettingFlag,
 		"Defines the value to be applied to setting")
