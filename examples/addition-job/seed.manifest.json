@@ -13,7 +13,7 @@
     "timeout": 10,
     "resources": {
       "scalar": [
-        { "name": "cpu", "value": 0.1 },
+        { "name": "cpus", "value": 0.1 },
         { "name": "mem", "value": 16.0 },
         { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 },
         { "name": "sharedMem", "value": 128 }

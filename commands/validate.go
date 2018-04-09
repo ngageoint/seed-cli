@@ -111,7 +111,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 		return nil
 	}
 
-	recommendedResources := []string{"mem", "cpu", "disk"}
+	recommendedResources := []string{"mem", "cpus", "disk"}
 	if seed.Job.Resources.Scalar != nil {
 		for _, s := range seed.Job.Resources.Scalar {
 			recommendedResources = util.RemoveString(recommendedResources, s.Name)

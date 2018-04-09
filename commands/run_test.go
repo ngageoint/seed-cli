@@ -170,11 +170,11 @@ func TestDefineResources(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-job/seed.manifest.json",
-			4.0, "[-e CPU=0.100000 -m 16m -e MEM=16 -e DISK=5.000000 --shm-size=128m -e SHAREDMEM=128]", 5.0, true, ""},
+			4.0, "[-e CPUS=0.100000 -m 16m -e MEM=16 -e DISK=5.000000 --shm-size=128m -e SHAREDMEM=128]", 5.0, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			1.0, "[-e CPU=10.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=1.010000]", 1.01, true, ""},
+			1.0, "[-e CPUS=1.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=1.010000]", 1.01, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			16.0, "[-e CPU=10.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=16.010000]", 16.01, true, ""},
+			16.0, "[-e CPUS=1.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=16.010000]", 16.01, true, ""},
 	}
 
 	for _, c := range cases {
