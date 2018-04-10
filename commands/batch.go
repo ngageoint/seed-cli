@@ -16,6 +16,7 @@ import (
 
 type BatchIO struct {
 	Inputs []string
+	Json []string
 	Outdir string
 }
 
@@ -59,7 +60,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 	out := "Results: \n"
 	for _, in := range inputs {
-		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, settings, mounts, rmFlag, true)
+		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
 		//trim inputs to print only the key values and filenames
 		truncatedInputs := []string{}
@@ -169,8 +170,9 @@ func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, er
 		fileDir := filepath.Join(outdir, file.Name())
 		filePath := filepath.Join(batchDir, file.Name())
 		fileInputs := []string{}
+		jsonInputs := []string{}
 		fileInputs = append(fileInputs, key+"="+filePath)
-		row := BatchIO{fileInputs, fileDir}
+		row := BatchIO{fileInputs, jsonInputs,fileDir}
 		batchIO = append(batchIO, row)
 	}
 
@@ -219,6 +221,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 		}
 		values := strings.Split(line, ",")
 		fileInputs := []string{}
+		jsonInputs := []string{}
 		inputNames := fmt.Sprintf("%d", i)
 		for j, file := range values {
 			if j > len(keys) {
@@ -228,7 +231,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 			inputNames += "-" + filepath.Base(file)
 		}
 		fileDir := filepath.Join(outdir, inputNames)
-		row := BatchIO{fileInputs, fileDir}
+		row := BatchIO{fileInputs, jsonInputs, fileDir}
 		batchIO = append(batchIO, row)
 	}
 

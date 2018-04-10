@@ -24,7 +24,7 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mounts []string, rmDir, quiet bool) (int, error) {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(util.PrintErr)
 	if quiet {
 		util.InitPrinter(util.Quiet)
@@ -72,6 +72,18 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 		}
 	}
 
+	// add -e args for input json
+	if seed.Job.Interface.Inputs.Json != nil {
+		inJson, err := DefineInputJson(&seed, json)
+		if err != nil {
+			util.PrintUtil("ERROR: Error occurred processing json arguments.\n%s", err.Error())
+			util.PrintUtil("Exiting seed...\n")
+			panic(util.Exit{1})
+		} else if inJson != nil {
+			envArgs = append(envArgs, inJson...)
+		}
+	}
+
 	if len(seed.Job.Resources.Scalar) > 0 {
 		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
@@ -86,12 +98,14 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, settings, mo
 
 	// mount the JOB_OUTPUT_DIR (outDir flag)
 	var outDir string
-	if strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
-		outDir = SetOutputDir(imageName, &seed, outputDir)
-		if outDir != "" {
-			mountsArgs = append(mountsArgs, "-v")
-			mountsArgs = append(mountsArgs, outDir+":"+outDir)
-		}
+	outDir = SetOutputDir(imageName, &seed, outputDir)
+	if outDir != "" {
+		mountsArgs = append(mountsArgs, "-v")
+		mountsArgs = append(mountsArgs, outDir+":"+outDir)
+		mountsArgs = append(mountsArgs, "-e")
+		mountsArgs = append(mountsArgs, "OUTPUT_DIR="+outDir)
+	} else {
+		util.PrintUtil("ERROR: Empty output directory string!\n")
 	}
 
 	// Settings
@@ -223,6 +237,8 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			tempDirectories[f.Name] = tempDir
 			mountArgs = append(mountArgs, "-v")
 			mountArgs = append(mountArgs, util.GetFullPath(tempDir, "")+":/"+tempDir)
+			mountArgs = append(mountArgs, "-e")
+			mountArgs = append(mountArgs, f.Name+"=/"+tempDir)
 		}
 		if f.Required == false {
 			unrequired = append(unrequired, f.Name)
@@ -246,25 +262,15 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		return nil, 0.0, tempDirectories, errors.New(buffer.String())
 	}
 
-	for _, f := range inputs {
-		x := strings.SplitN(f, "=", 2)
-		if len(x) != 2 {
-			util.PrintUtil("ERROR: Input files should be specified in KEY=VALUE format.\n")
-			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
-				inputs)
-			continue
-		}
-
-		key := x[0]
-		val := x[1]
-
+	for key, val := range inMap {
 		// Expand input VALUE
 		val = util.GetFullPath(val, "")
 
 		//get total size of input files in MiB
 		info, err := os.Stat(val)
 		if os.IsNotExist(err) {
-			util.PrintUtil("ERROR: Input file %s not found\n", val)
+			msg := fmt.Sprintf("ERROR: Input file %s not found\n", val)
+			return nil, 0.0, tempDirectories, errors.New(msg)
 		}
 		sizeMiB += (1.0 * float64(info.Size())) / (1024.0 * 1024.0) //fileinfo's Size() returns bytes, convert to MiB
 
@@ -289,6 +295,8 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 				} else {
 					mountArgs = append(mountArgs, "-v")
 					mountArgs = append(mountArgs, val+":"+val)
+					mountArgs = append(mountArgs, "-e")
+					mountArgs = append(mountArgs, key+"="+val)
 				}
 			}
 		}
@@ -309,15 +317,96 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	return mountArgs, sizeMiB, tempDirectories, nil
 }
 
+//DefineInputJson passes input json values from the 'run' command
+// to the image as environment variables.  simple int/string/bool/etc.
+// types are passed as single value strings. complex objects can be read
+// in from a given file which is read in and passed as an environment variable
+// with the full json appropriately escaped
+//Returns: []string: docker command args for input files in the format:
+//	"-e JSON_NAME1=value -e JSON_NAME2="{json object}" etc"
+func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
+	// TODO: implement reading json input file
+	inMap := inputMap(inputs)
+
+	var envArgs []string
+
+	// Valid by default
+	valid := true
+	var keys []string
+	var unrequired []string
+	for _, f := range seed.Job.Interface.Inputs.Json {
+		if f.Required == false {
+			unrequired = append(unrequired, f.Name)
+			continue
+		}
+		keys = append(keys, f.Name)
+		if _, prs := inMap[f.Name]; !prs {
+			valid = false
+		}
+	}
+
+	if !valid {
+		var buffer bytes.Buffer
+		buffer.WriteString("ERROR: Missing json input key.")
+		buffer.WriteString("The following input json keys are expected:\n")
+		for _, n := range keys {
+			buffer.WriteString("  " + n + "\n")
+		}
+		buffer.WriteString("\n")
+		buffer.WriteString("JSON inputs should be provided in the following form: \n" )
+		buffer.WriteString("seed run -j KEY1=path/to/file1 -j KEY2=path/to/file2 ...\n")
+		return nil, errors.New(buffer.String())
+	}
+
+	for _, f := range inputs {
+		x := strings.SplitN(f, "=", 2)
+		if len(x) != 2 {
+			util.PrintUtil("ERROR: Input json should be specified in KEY=VALUE format.\n")
+			util.PrintUtil("ERROR: Unknown key for input %v encountered.\n",
+				inputs)
+			continue
+		}
+
+		key := x[0]
+		val := x[1]
+
+		// Replace key if found in args strings
+		// Handle replacing KEY or ${KEY} or $KEY
+		value := val
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+
+		for _, k := range seed.Job.Interface.Inputs.Json {
+			if k.Name == key {
+				envArgs = append(envArgs, "-e")
+				envArgs = append(envArgs, key+"="+val)
+			}
+		}
+	}
+
+	//remove unspecified unrequired inputs from cmd string
+	for _, k := range unrequired {
+		key := k
+		value := ""
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+	}
+
+	return envArgs, nil
+}
+
 //SetOutputDir replaces the OUTPUT_DIR argument with the given output directory.
 // Returns output directory string
 func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string {
-	if !strings.Contains(seed.Job.Interface.Command, "OUTPUT_DIR") {
-		return ""
-	}
-
-	// #37: if -o is not specified, and OUTPUT_DIR is in the command args,
-	//	auto create a time-stamped subdirectory with the name of the form:
+	// #37: if -o is not specified, auto create a time-stamped subdirectory with the name of the form:
 	//		imagename-iso8601timestamp
 	if outputDir == "" {
 		outputDir = "output-" + imageName + "-" + time.Now().Format(time.RFC3339)
@@ -408,7 +497,7 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 
 //DefineSettings defines any seed specified docker settings.
 // Return []string of docker command arguments in form of:
-//	"-?? setting1=val1 -?? setting2=val2 etc"
+//	"-e setting1=val1 -e setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 	inMap := inputMap(inputs)
 
@@ -437,8 +526,18 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 
 	var settings []string
 	for _, key := range keys {
+		// Replace key if found in args strings
+		// Handle replacing KEY or ${KEY} or $KEY
+		value := inMap[key]
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+			"${"+key+"}", value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+			value, -1)
+		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
+			-1)
+
 		settings = append(settings, "-e")
-		settings = append(settings, util.GetNormalizedVariable(key)+"="+inMap[key])
+		settings = append(settings, util.GetNormalizedVariable(key)+"="+value)
 	}
 
 	return settings, nil
@@ -453,6 +552,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 	var disk float64
 
 	for _, s := range seed.Job.Resources.Scalar {
+		value := fmt.Sprintf("%f", s.Value)
 		if s.Name == "mem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
@@ -460,17 +560,24 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, "-m")
 			resources = append(resources, fmt.Sprintf("%dm", intMem))
+			value = fmt.Sprintf("%d", intMem)
 		}
 		if s.Name == "disk" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			disk = (s.InputMultiplier * inputSizeMiB) + s.Value
+			value = fmt.Sprintf("%f", disk)
 		}
 		if s.Name == "sharedMem" {
 			//resourceRequirement = inputVolume * inputMultiplier + constantValue
 			mem := (s.InputMultiplier * inputSizeMiB) + s.Value
 			intMem := int64(math.Ceil(mem)) //docker expects integer, get the ceiling of the specified value and convert
 			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
+			value = fmt.Sprintf("%d", intMem)
 		}
+
+		envVar := util.GetNormalizedVariable(s.Name)
+		resources = append(resources, "-e")
+		resources = append(resources, fmt.Sprintf("%s=%s", envVar, value))
 	}
 
 	return resources, disk, nil
@@ -664,6 +771,10 @@ func inputMap(inputs []string) map[string]string {
 	// Ingest inputs into a map key = inputkey, value=inputpath
 	inMap := make(map[string]string)
 	for _, f := range inputs {
+		if f == "" {
+			//skip empty strings
+			continue
+		}
 		x := strings.SplitN(f, "=", 2)
 		if len(x) != 2 {
 			util.PrintUtil("ERROR: Input should be specified in KEY=VALUE format.\n")

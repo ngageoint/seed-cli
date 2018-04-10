@@ -178,6 +178,7 @@ func main() {
 	if runCmd.Parsed() {
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
 		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
+		json := strings.Split(runCmd.Lookup(constants.JsonFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
@@ -197,7 +198,7 @@ func main() {
 			if outputDir != "" {
 				outputDirRep = outputDir + fmt.Sprintf("-%d", i)
 			}
-			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, settings, mounts, rmFlag, quiet)
+			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
 			if err != nil {
 				util.PrintUtil("%s\n", err.Error())
 				panic(util.Exit{1})
@@ -363,6 +364,12 @@ func DefineRunFlags() {
 		"Defines the full path to any input data arguments")
 	runCmd.Var(&inputs, constants.ShortInputsFlag,
 		"Defines the full path to input data arguments")
+
+	var json objects.ArrayFlags
+	runCmd.Var(&json, constants.JsonFlag,
+		"Defines input json arguments")
+	runCmd.Var(&json, constants.ShortJsonFlag,
+		"Defines input json arguments")
 
 	var settings objects.ArrayFlags
 	runCmd.Var(&settings, constants.SettingFlag,

@@ -18,6 +18,7 @@ func TestDockerRun(t *testing.T) {
 		directory        string
 		imageName        string
 		inputs           []string
+		json             []string
 		settings         []string
 		mounts           []string
 		expected         bool
@@ -25,11 +26,13 @@ func TestDockerRun(t *testing.T) {
 	}{
 		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0",
 			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
+			[]string{},
 			[]string{"SETTING_ONE=one", "SETTING_TWO=two"},
 			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
 			true, ""},
 		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
+			[]string{},
 			[]string{"HELLO=Hello"}, []string{"MOUNTAIN=../examples/"},
 			true, ""},
 	}
@@ -40,7 +43,7 @@ func TestDockerRun(t *testing.T) {
 		metadataSchema := ""
 		DockerBuild(c.directory, "", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
-			c.inputs, c.settings, c.mounts, true, true)
+			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil
 		if success != c.expected {
 			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
@@ -65,11 +68,11 @@ func TestDefineInputs(t *testing.T) {
 	}{
 		{"../examples/addition-job/seed.manifest.json",
 			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
-			"[-v INPUT_FILE:INPUT_FILE]", "0.0",
+			"[-v $INPUT_FILE$:$INPUT_FILE$ -e INPUT_FILE=$INPUT_FILE$]", "0.0",
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v MULTIPLE:/$MULTIPLETEMP$ -v ZIP:ZIP]", "0.1",
+			"[-v $MULTIPLE$:/$MULTIPLETEMP$ -e MULTIPLE=/$MULTIPLETEMP$ -v $ZIP$:$ZIP$ -e ZIP=$ZIP$]", "0.1",
 			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
 	}
 
@@ -92,11 +95,13 @@ func TestDefineInputs(t *testing.T) {
 				tempVarStr := fmt.Sprintf("$%sTEMP$", x[0])
 				expectedVol = strings.Replace(expectedVol, tempVarStr, tempDir, -1)
 				path := util.GetFullPath(tempDir, "")
-				expectedVol = strings.Replace(expectedVol, x[0], path, -1)
+				replaceNameStr := fmt.Sprintf("$%s$", x[0])
+				expectedVol = strings.Replace(expectedVol, replaceNameStr, path, -1)
 				expectedTempDir = strings.Replace(expectedTempDir, tempVarStr, tempDir, -1)
 			} else {
 				path := util.GetFullPath(x[1], "")
-				expectedVol = strings.Replace(expectedVol, x[0], path, -1)
+				replaceNameStr := fmt.Sprintf("$%s$", x[0])
+				expectedVol = strings.Replace(expectedVol, replaceNameStr, path, -1)
 			}
 		}
 		tempStr := fmt.Sprintf("%v", volumes)
@@ -165,11 +170,11 @@ func TestDefineResources(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-job/seed.manifest.json",
-			4.0, "[-m 16m --shm-size=128m]", 5.0, true, ""},
+			4.0, "[-e CPUS=0.100000 -m 16m -e MEM=16 -e DISK=5.000000 --shm-size=128m -e SHAREDMEM=128]", 5.0, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			1.0, "[-m 16m --shm-size=1m]", 1.01, true, ""},
+			1.0, "[-e CPUS=1.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=1.010000]", 1.01, true, ""},
 		{"../examples/extractor/seed.manifest.json",
-			16.0, "[-m 16m --shm-size=1m]", 16.01, true, ""},
+			16.0, "[-e CPUS=1.000000 -m 16m -e MEM=16 --shm-size=1m -e SHAREDMEM=1 -e DISK=16.010000]", 16.01, true, ""},
 	}
 
 	for _, c := range cases {
@@ -178,7 +183,7 @@ func TestDefineResources(t *testing.T) {
 		resources, outSize, err := DefineResources(&seed, c.inputSize)
 
 		if c.expectedResult != (err == nil) {
-			t.Errorf("DefineResources(%v, %v) == %v, expected %v", seedFileName, c.inputSize, err, nil)
+			t.Errorf("DefineResources(%v, %v) returned unexpected error: %v", seedFileName, c.inputSize, err)
 		}
 
 		tempStr := fmt.Sprintf("%v", resources)

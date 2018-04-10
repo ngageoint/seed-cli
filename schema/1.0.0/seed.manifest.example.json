@@ -73,7 +73,7 @@
     "resources": {
       "scalar": [
         {
-          "name": "cpu",
+          "name": "cpus",
           "value": 1
         },
         {
