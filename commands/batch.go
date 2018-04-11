@@ -57,8 +57,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 			return err
 		}
 	}
-
-	out := "Results: \n"
+	
 	for _, in := range inputs {
 		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
@@ -73,15 +72,17 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 		//trim path to specified (or generated) batch output directory
 		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
 
+		out := "Results: \n"
 		if err != nil {
 			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
 		} else {
 			out += fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
 		}
-	}
 
-	util.InitPrinter(util.PrintErr)
-	util.PrintUtil("%v", out)
+		//re-enable output from quiet flag
+		util.InitPrinter(util.PrintErr)
+		util.PrintUtil("%v", out)
+	}
 
 	return err
 }
@@ -216,7 +217,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 
 	batchIO := []BatchIO{}
 	for i, line := range lines {
-		if i == 0 {
+		if i == 0 || len(line) == 0 {
 			continue
 		}
 		values := strings.Split(line, ",")
