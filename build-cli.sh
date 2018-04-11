@@ -28,10 +28,11 @@ echo CLI build complete
 echo Building example images.................................................................
 SEED=""
 case "${UNAME}" in
-    Linux*)     SEED=output/seed-linux-amd64; SUDO=sudo;;
-    Darwin*)    SEED=output/seed-darwin-amd64;;
-    CYGWIN*)    SEED=output/seed-windows-amd64;;
-    *)          SEED="UNKNOWN:${UNAME}"
+    Linux*)           SEED=output/seed-linux-amd64; SUDO=sudo;;
+    Darwin*)          SEED=output/seed-darwin-amd64;;
+    CYGWIN*)          SEED=output/seed-windows-amd64;;
+    MINGW64_NT-10.0*) SEED=output/seed-windows-amd64;;
+    *)                SEED="UNKNOWN:${UNAME}"
 esac
 ${SUDO} ${SEED} build -d examples/addition-job/
 ${SUDO} ${SEED} build -d examples/extractor/
