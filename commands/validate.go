@@ -19,7 +19,6 @@ func Validate(schemaFile, dir string) error {
 
 	seedFileName, err = util.SeedFileName(dir)
 	if err != nil {
-		util.PrintUtil("ERROR: %s\n", err.Error())
 		return err
 	}
 
@@ -28,9 +27,6 @@ func Validate(schemaFile, dir string) error {
 	}
 
 	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
-	if err != nil {
-		util.PrintUtil("%s", err.Error())
-	}
 
 	return err
 }

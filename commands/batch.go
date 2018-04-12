@@ -12,6 +12,7 @@ import (
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"github.com/pb"
 )
 
 type BatchIO struct {
@@ -47,17 +48,21 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	if batchFile != "" {
 		inputs, err = ProcessBatchFile(seed, batchFile, outdir)
 		if err != nil {
-			util.PrintUtil("ERROR: Error processing batch file: %s\n", err.Error())
+			util.PrintUtil("ERROR: Error processing batch file: %s\n", batchFile)
 			return err
 		}
 	} else {
 		inputs, err = ProcessDirectory(seed, batchDir, outdir)
 		if err != nil {
-			util.PrintUtil("ERROR: Error processing batch directory: %s\n", err.Error())
+			util.PrintUtil("ERROR: Error processing batch directory: %s\n", batchDir)
 			return err
 		}
 	}
-	
+
+	out := "Results: \n"
+	util.PrintUtil("%v", out)
+	bar := pb.StartNew(len(inputs))
+	defer bar.Finish()
 	for _, in := range inputs {
 		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
@@ -72,18 +77,23 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 		//trim path to specified (or generated) batch output directory
 		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
 
-		out := "Results: \n"
+		msg := ""
 		if err != nil {
-			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
+			msg = fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
 		} else {
-			out += fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
+			msg = fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
 		}
+
+		bar.Increment()
+		time.Sleep(time.Second)
 
 		//re-enable output from quiet flag
 		util.InitPrinter(util.PrintErr)
-		util.PrintUtil("%v", out)
+		msg = msg
+		//util.PrintUtil("%v", msg)
 	}
 
+	bar.FinishPrint("Batch complete")
 	return err
 }
 
