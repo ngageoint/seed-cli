@@ -228,15 +228,15 @@ func PrintPublishUsage() {
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to publish\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies a specific registry to publish the image\n",
+	util.PrintUtil("  -%s  -%s\t Specifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies a specific organization to publish the image\n",
+	util.PrintUtil("  -%s  -%s\t Specifies a specific organization to publish the image\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	util.PrintUtil("  -%s -%s\tUsername to login if needed to publish images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t Username to login if needed to publish images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil("  -%s -%s\tPassword to login if needed to publish images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t Password to login if needed to publish images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
-	util.PrintUtil("  -%s\t\tOverwrite remote image if publish conflict found\n",
+	util.PrintUtil("  -%s\t\t Overwrite remote image if publish conflict found\n",
 		constants.ForcePublishFlag)
 
 	util.PrintUtil("\nConflict Options:\n")

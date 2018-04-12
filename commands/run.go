@@ -348,7 +348,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 			buffer.WriteString("  " + n + "\n")
 		}
 		buffer.WriteString("\n")
-		buffer.WriteString("JSON inputs should be provided in the following form: \n" )
+		buffer.WriteString("JSON inputs should be provided in the following form: \n")
 		buffer.WriteString("seed run -j KEY1=path/to/file1 -j KEY2=path/to/file2 ...\n")
 		return nil, errors.New(buffer.String())
 	}
@@ -741,23 +741,23 @@ func PrintRunUsage() {
 	util.PrintUtil("\nRuns Docker image defined by seed spec.\n")
 
 	util.PrintUtil("\nOptions:\n")
-	util.PrintUtil("  -%s -%s Docker image name to run\n",
+	util.PrintUtil("  -%s  -%s \tDocker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil("  -%s  -%s Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
+	util.PrintUtil("  -%s   -%s \t\tSpecifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
 		constants.ShortInputsFlag, constants.InputsFlag)
-	util.PrintUtil("  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
+	util.PrintUtil("  -%s   -%s \tSpecifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
-	util.PrintUtil("  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
+	util.PrintUtil("  -%s   -%s \t\tSpecifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
 		constants.ShortMountFlag, constants.MountFlag)
-	util.PrintUtil("  -%s  -%s \t Job Output Directory Location\n",
+	util.PrintUtil("  -%s   -%s \t\tJob Output Directory Location\n",
 		constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
-	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
+	util.PrintUtil("  -%s  \t\t\tAutomatically remove the container when it exits (docker run --rm)\n",
 		constants.RmFlag)
-	util.PrintUtil("  -%s  -%s \t Suppress stdout when running docker image\n",
+	util.PrintUtil("  -%s   -%s \t\tSuppress stdout when running docker image\n",
 		constants.ShortQuietFlag, constants.QuietFlag)
-	util.PrintUtil("  -%s  -%s \t Run docker image multiple times (i.e. -rep 5 runs the image 5 times)\n",
+	util.PrintUtil("  -%s -%s \tRun docker image multiple times (i.e. -rep 5 runs the image 5 times)\n",
 		constants.ShortRepeatFlag, constants.RepeatFlag)
-	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
+	util.PrintUtil("  -%s   -%s \t\tExternal Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	return
 }
