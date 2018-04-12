@@ -16,7 +16,7 @@ import (
 
 type BatchIO struct {
 	Inputs []string
-	Json []string
+	Json   []string
 	Outdir string
 }
 
@@ -95,7 +95,7 @@ func PrintBatchUsage() {
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil("  -%s  -%s Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.\n",
+	util.PrintUtil("  -%s  -%s \t Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.\n",
 		constants.ShortBatchFlag, constants.BatchFlag)
 	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
@@ -172,7 +172,7 @@ func ProcessDirectory(seed objects.Seed, batchDir, outdir string) ([]BatchIO, er
 		fileInputs := []string{}
 		jsonInputs := []string{}
 		fileInputs = append(fileInputs, key+"="+filePath)
-		row := BatchIO{fileInputs, jsonInputs,fileDir}
+		row := BatchIO{fileInputs, jsonInputs, fileDir}
 		batchIO = append(batchIO, row)
 	}
 

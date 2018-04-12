@@ -90,7 +90,7 @@ func PrintBuildUsage() {
 	util.PrintUtil("\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil(
-		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
+		"  -%s -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)

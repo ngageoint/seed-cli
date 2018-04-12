@@ -88,13 +88,13 @@ func PrintPullUsage() {
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to pull\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies a specific registry (default is index.docker.io).\n",
+	util.PrintUtil("  -%s  -%s\t Specifies a specific registry (default is index.docker.io).\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies a specific organization (default is no organization).\n",
+	util.PrintUtil("  -%s  -%s\t Specifies a specific organization (default is no organization).\n",
 		constants.ShortOrgFlag, constants.OrgFlag)
-	util.PrintUtil("  -%s -%s\tUsername to login to remote registry (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t Username to login to remote registry (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil("  -%s -%s\tPassword to login to remote registry (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t Password to login to remote registry (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	panic(util.Exit{0})
 }
