@@ -94,6 +94,7 @@ func main() {
 		dir := initCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		err := commands.SeedInit(dir)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -105,6 +106,7 @@ func main() {
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		err := commands.Validate(schemaFile, dir)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -119,6 +121,7 @@ func main() {
 		password := searchCmd.Lookup(constants.PassFlag).Value.String()
 		results, err := commands.DockerSearch(url, org, filter, username, password)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 
@@ -140,6 +143,7 @@ func main() {
 	if listCmd.Parsed() {
 		_, err := commands.DockerList()
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -152,6 +156,7 @@ func main() {
 		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
 		err := commands.DockerBuild(jobDirectory, user, pass)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -169,6 +174,7 @@ func main() {
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
 		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -228,6 +234,7 @@ func main() {
 		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory,
 			force, P, pm, pp, J, jm, jp)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})
@@ -243,6 +250,7 @@ func main() {
 
 		err := commands.DockerPull(imageName, registry, org, user, pass)
 		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
 		panic(util.Exit{0})

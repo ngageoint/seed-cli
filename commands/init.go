@@ -49,5 +49,5 @@ func PrintInitUsage() {
 	util.PrintUtil(
 		"  -%s  -%s\tDirectory to place seed.manifest.json example. (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	panic(util.Exit{0})
+	return
 }

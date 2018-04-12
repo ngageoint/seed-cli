@@ -258,5 +258,5 @@ func PrintPublishUsage() {
 
 	util.PrintUtil("\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -jm -P\n")
 	util.PrintUtil("\nThis will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
-	panic(util.Exit{0})
+	return
 }

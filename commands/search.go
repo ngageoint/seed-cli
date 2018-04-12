@@ -47,7 +47,7 @@ func PrintSearchUsage() {
 		constants.ShortUserFlag, constants.UserFlag)
 	util.PrintUtil("  -%s -%s\tPassword to login to remote registry (default is anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
-	panic(util.Exit{0})
+	return
 }
 
 func checkError(err error, url, username, password string) string {

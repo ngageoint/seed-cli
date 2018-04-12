@@ -110,7 +110,7 @@ func PrintBatchUsage() {
 		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	panic(util.Exit{0})
+	return
 }
 
 func getOutputDir(outputDir, imageName string) string {
