@@ -12,7 +12,7 @@ import (
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"github.com/pb"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 type BatchIO struct {
@@ -59,8 +59,6 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 		}
 	}
 
-	out := "Results: \n"
-	util.PrintUtil("%v", out)
 	bar := pb.StartNew(len(inputs))
 	defer bar.Finish()
 	for _, in := range inputs {
@@ -74,23 +72,14 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 			truncatedInputs = append(truncatedInputs, i[0:begin]+"..."+i[end:])
 		}
 
-		//trim path to specified (or generated) batch output directory
-		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
-
-		msg := ""
 		if err != nil {
-			msg = fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
-		} else {
-			msg = fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
+			msg := fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
+			util.InitPrinter(util.PrintErr)
+			util.PrintUtil("%v", msg)
 		}
 
 		bar.Increment()
 		time.Sleep(time.Second)
-
-		//re-enable output from quiet flag
-		util.InitPrinter(util.PrintErr)
-		msg = msg
-		//util.PrintUtil("%v", msg)
 	}
 
 	bar.FinishPrint("Batch complete")
