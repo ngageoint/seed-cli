@@ -1,13 +1,13 @@
 package commands
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
-	"fmt"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"strings"
 )
 
 func init() {
