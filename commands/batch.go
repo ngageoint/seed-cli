@@ -60,6 +60,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	}
 
 	bar := pb.StartNew(len(inputs))
+	bar.Output = os.Stderr
 	defer bar.Finish()
 	for _, in := range inputs {
 		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
