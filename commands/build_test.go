@@ -21,7 +21,7 @@ func TestDockerBuild(t *testing.T) {
 	}{
 		{"../examples/addition-job/", true, ""},
 		{"../examples/extractor/", true, ""},
-		{"", false, "no such file or directory"},
+		{"", false, "seed.manifest.json cannot be found"},
 	}
 
 	for _, c := range cases {

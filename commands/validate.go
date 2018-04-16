@@ -19,7 +19,6 @@ func Validate(schemaFile, dir string) error {
 
 	seedFileName, err = util.SeedFileName(dir)
 	if err != nil {
-		util.PrintUtil("ERROR: %s\n", err.Error())
 		return err
 	}
 
@@ -28,9 +27,6 @@ func Validate(schemaFile, dir string) error {
 	}
 
 	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
-	if err != nil {
-		util.PrintUtil("%s", err.Error())
-	}
 
 	return err
 }
@@ -45,7 +41,7 @@ func PrintValidateUsage() {
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	panic(util.Exit{0})
+	return
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema

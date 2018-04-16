@@ -12,6 +12,7 @@ import (
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 type BatchIO struct {
@@ -47,18 +48,20 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	if batchFile != "" {
 		inputs, err = ProcessBatchFile(seed, batchFile, outdir)
 		if err != nil {
-			util.PrintUtil("ERROR: Error processing batch file: %s\n", err.Error())
+			util.PrintUtil("ERROR: Error processing batch file: %s\n", batchFile)
 			return err
 		}
 	} else {
 		inputs, err = ProcessDirectory(seed, batchDir, outdir)
 		if err != nil {
-			util.PrintUtil("ERROR: Error processing batch directory: %s\n", err.Error())
+			util.PrintUtil("ERROR: Error processing batch directory: %s\n", batchDir)
 			return err
 		}
 	}
 
-	out := "Results: \n"
+	bar := pb.StartNew(len(inputs))
+	bar.Output = os.Stderr
+	defer bar.Finish()
 	for _, in := range inputs {
 		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
@@ -70,19 +73,17 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 			truncatedInputs = append(truncatedInputs, i[0:begin]+"..."+i[end:])
 		}
 
-		//trim path to specified (or generated) batch output directory
-		truncatedOut := "..." + strings.Replace(in.Outdir, outdir, filepath.Base(outdir), 1)
-
 		if err != nil {
-			out += fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
-		} else {
-			out += fmt.Sprintf("PASS: Input = %v \t ExitCode = %d \t Output = %s \n", truncatedInputs, exitCode, truncatedOut)
+			msg := fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
+			util.InitPrinter(util.PrintErr)
+			util.PrintUtil("%v", msg)
 		}
+
+		bar.Increment()
+		time.Sleep(time.Second)
 	}
 
-	util.InitPrinter(util.PrintErr)
-	util.PrintUtil("%v", out)
-
+	bar.FinishPrint("Batch complete")
 	return err
 }
 
@@ -109,7 +110,7 @@ func PrintBatchUsage() {
 		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	panic(util.Exit{0})
+	return
 }
 
 func getOutputDir(outputDir, imageName string) string {
@@ -216,7 +217,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 
 	batchIO := []BatchIO{}
 	for i, line := range lines {
-		if i == 0 {
+		if i == 0 || len(line) == 0 {
 			continue
 		}
 		values := strings.Split(line, ",")

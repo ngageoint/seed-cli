@@ -96,5 +96,5 @@ func PrintPullUsage() {
 		constants.ShortUserFlag, constants.UserFlag)
 	util.PrintUtil("  -%s  -%s\t Password to login to remote registry (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
-	panic(util.Exit{0})
+	return
 }

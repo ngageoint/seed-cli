@@ -8,6 +8,7 @@ services:
 install:
   - vendor/go-bindata-Linux -pkg assets -o assets/assets.go ./schema/*
   - go get github.com/ngageoint/seed-common/...
+  - go get golang.org/x/sys/unix/...
 
 script:
   - ./build-cli.sh ${TRAVIS_TAG}

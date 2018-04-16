@@ -68,5 +68,5 @@ func DockerList() (string, error) {
 func PrintListUsage() {
 	util.PrintUtil("\nUsage:\tseed list\n")
 	util.PrintUtil("\nLists all Seed compliant docker images residing on the local system.\n")
-	panic(util.Exit{0})
+	return
 }

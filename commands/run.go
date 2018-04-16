@@ -64,8 +64,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 		}
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing inputs arguments.\n%s", err.Error())
-			util.PrintUtil("Exiting seed...\n")
-			panic(util.Exit{1})
+			return -1, err
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
@@ -77,8 +76,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 		inJson, err := DefineInputJson(&seed, json)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing json arguments.\n%s", err.Error())
-			util.PrintUtil("Exiting seed...\n")
-			panic(util.Exit{1})
+			return -1, err
 		} else if inJson != nil {
 			envArgs = append(envArgs, inJson...)
 		}
@@ -88,8 +86,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing resources\n%s", err.Error())
-			util.PrintUtil("Exiting seed...\n")
-			panic(util.Exit{1})
+			return -1, err
 		} else if inResources != nil {
 			resourceArgs = append(resourceArgs, inResources...)
 			outputSize = diskSize
@@ -113,8 +110,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 		inSettings, err := DefineSettings(&seed, settings)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing settings arguments.\n%s", err.Error())
-			util.PrintUtil("Exiting seed...\n")
-			panic(util.Exit{1})
+			return -1, err
 		} else if inSettings != nil {
 			envArgs = append(envArgs, inSettings...)
 		}
@@ -125,8 +121,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 		inMounts, err := DefineMounts(&seed, mounts)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred processing mount arguments.\n%s", err.Error())
-			util.PrintUtil("Exiting seed...\n")
-			panic(util.Exit{1})
+			return -1, err
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 		}
@@ -764,7 +759,7 @@ func PrintRunUsage() {
 		constants.ShortRepeatFlag, constants.RepeatFlag)
 	util.PrintUtil("  -%s   -%s \t\tExternal Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	panic(util.Exit{0})
+	return
 }
 
 func inputMap(inputs []string) map[string]string {
