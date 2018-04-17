@@ -320,7 +320,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 //Returns: []string: docker command args for input files in the format:
 //	"-e JSON_NAME1=value -e JSON_NAME2="{json object}" etc"
 func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
-	// TODO: implement reading json input file
 	inMap := inputMap(inputs)
 
 	var envArgs []string
@@ -365,9 +364,13 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		key := x[0]
 		val := x[1]
 
+		value, err := util.ReadJsonFile(val)
+		if err != nil {
+			value = val
+		}
+
 		// Replace key if found in args strings
 		// Handle replacing KEY or ${KEY} or $KEY
-		value := val
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
