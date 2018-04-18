@@ -365,7 +365,6 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		val := x[1]
 
 		value, err := util.ReadJsonFile(val)
-		util.PrintUtil("JSON====================================%s\n", value)
 		if err != nil {
 			value = val
 		}
@@ -382,7 +381,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		for _, k := range seed.Job.Interface.Inputs.Json {
 			if k.Name == key {
 				envArgs = append(envArgs, "-e")
-				envArgs = append(envArgs, key+"="+val)
+				envArgs = append(envArgs, key+"="+value)
 			}
 		}
 	}
