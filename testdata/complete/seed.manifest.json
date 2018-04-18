@@ -33,6 +33,12 @@
             "partial": false,
             "required": true
           }
+        ],
+        "json": [
+          {
+            "name": "INPUT_JSON",
+            "type": "object"
+          }
         ]
       },
       "outputs": {
