@@ -365,6 +365,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		val := x[1]
 
 		value, err := util.ReadJsonFile(val)
+		util.PrintUtil("JSON====================================%s\n", value)
 		if err != nil {
 			value = val
 		}

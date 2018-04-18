@@ -41,6 +41,13 @@
                             "text"
                         ]
                     }
+                ],
+                "json": [
+                    {
+                        "name": "ABC",
+                        "type": "object",
+                        "required": true
+                    }
                 ]
             },
             "outputs": {
