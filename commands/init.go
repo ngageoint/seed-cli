@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -14,7 +15,7 @@ import (
 // Should check for file existence in given directory
 // If file exists, warn and exit
 // If file does not exist, write sample to given directory
-func SeedInit(directory string) error {
+func SeedInit(directory, version string) error {
 	seedFileName, exists, err := util.GetSeedFileName(directory)
 	if err != nil && exists {
 		//an error occurred other than the file not existing, i.e. permission error
@@ -27,8 +28,14 @@ func SeedInit(directory string) error {
 		return nil
 	}
 
-	// TODO: We need to support init of all supported schema versions in the future
-	exampleSeedJson, _ := assets.Asset("schema/1.0.0/seed.manifest.example.json")
+	if version == "" {
+		version = "1.0.0"
+	}
+	assetName := fmt.Sprintf("schema/%s/seed.manifest.example.json", version)
+	exampleSeedJson, err := assets.Asset(assetName)
+	if exampleSeedJson == nil || err != nil {
+		return fmt.Errorf("This version of seed-cli does not have a sample manifest for version %s", version)
+	}
 
 	err = ioutil.WriteFile(seedFileName, exampleSeedJson, os.ModePerm)
 	if err != nil {

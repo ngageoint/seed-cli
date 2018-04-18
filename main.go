@@ -92,7 +92,8 @@ func main() {
 	// seed init: Create example seed.manifest.json. Does not require docker
 	if initCmd.Parsed() {
 		dir := initCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		err := commands.SeedInit(dir)
+		version := initCmd.Lookup(constants.VersionFlag).Value.String()
+		err := commands.SeedInit(dir, version)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -294,6 +295,10 @@ func DefineInitFlags() {
 		"Directory to place example seed.manifest.json (default is current directory).")
 	initCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory to place example seed.manifest.json (default is current directory).")
+	initCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
+	initCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
 
 	// Print usage function
 	initCmd.Usage = func() {
