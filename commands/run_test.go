@@ -41,7 +41,8 @@ func TestDockerRun(t *testing.T) {
 		//make sure the image exists
 		outputDir := "output"
 		metadataSchema := ""
-		DockerBuild(c.directory, "", "")
+		version := "1.0.0"
+		DockerBuild(c.directory, version, "", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
 			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil

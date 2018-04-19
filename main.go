@@ -78,7 +78,7 @@ var runCmd *flag.FlagSet
 var searchCmd *flag.FlagSet
 var validateCmd *flag.FlagSet
 var versionCmd *flag.FlagSet
-var version string
+var cliVersion string
 
 func main() {
 	util.InitPrinter(util.PrintErr)
@@ -105,7 +105,7 @@ func main() {
 	if validateCmd.Parsed() {
 		schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		version := initCmd.Lookup(constants.VersionFlag).Value.String()
+		version := validateCmd.Lookup(constants.VersionFlag).Value.String()
 		err := commands.Validate(schemaFile, dir, version)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
@@ -154,9 +154,10 @@ func main() {
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		user := searchCmd.Lookup(constants.UserFlag).Value.String()
-		pass := searchCmd.Lookup(constants.PassFlag).Value.String()
-		err := commands.DockerBuild(jobDirectory, user, pass)
+		version := buildCmd.Lookup(constants.VersionFlag).Value.String()
+		user := buildCmd.Lookup(constants.UserFlag).Value.String()
+		pass := buildCmd.Lookup(constants.PassFlag).Value.String()
+		err := commands.DockerBuild(jobDirectory, version, user, pass)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -268,6 +269,12 @@ func DefineBuildFlags() {
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var version string
+	buildCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
+	buildCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
 
 	var user string
 	buildCmd.StringVar(&user, constants.UserFlag, "",
@@ -573,9 +580,9 @@ func DefineValidateFlags() {
 	validateCmd.StringVar(&schema, constants.ShortSchemaFlag, "",
 		"JSON schema file to validate seed against.")
 	var version string
-	initCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
+	validateCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
 		"Version of example seed manifest to use (default is 1.0.0).")
-	initCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
+	validateCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
 		"Version of example seed manifest to use (default is 1.0.0).")
 
 	validateCmd.Usage = func() {
@@ -603,6 +610,7 @@ func DefineFlags() {
 	// Print usage if no command given
 	if len(os.Args) == 1 {
 		PrintUsage()
+		panic((util.Exit{0}))
 	}
 
 	var cmd *flag.FlagSet
@@ -665,9 +673,13 @@ func DefineFlags() {
 	}
 
 	if cmd != nil {
-		cmd.Parse(os.Args[2:])
+		err := cmd.Parse(os.Args[2:])
+		if err == flag.ErrHelp {
+			panic(util.Exit{0})
+		}
 		if len(os.Args) < minArgs {
 			cmd.Usage()
+			panic(util.Exit{0})
 		}
 	}
 }
@@ -700,7 +712,7 @@ func PrintVersionUsage() {
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
-	util.PrintUtil("Seed CLI v%s\n", version)
+	util.PrintUtil("Seed CLI v%s\n", cliVersion)
 	schemas, err := assets.AssetDir("schema")
 	if err != nil {
 		util.PrintUtil("Error getting supported schema versions: %s \n", err.Error())

@@ -42,6 +42,9 @@ func PrintValidateUsage() {
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
+	util.PrintUtil(
+		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		constants.ShortVersionFlag, constants.VersionFlag)
 	return
 }
 

@@ -90,7 +90,9 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			util.PrintUtil("ERROR: %s\n", err.Error())
 			return err
 		}
-		ValidateSeedFile("", seedFileName, constants.SchemaManifest)
+
+		version := objects.SeedFromImageLabel(origImg).SeedVersion
+		ValidateSeedFile("", version,  seedFileName, constants.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
 
 		util.PrintUtil("INFO: An image with the name %s already exists. ", img)

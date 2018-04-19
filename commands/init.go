@@ -51,10 +51,13 @@ func SeedInit(directory, version string) error {
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintInitUsage() {
-	util.PrintUtil("\nUsage:\tseed init [-d JOB_DIRECTORY]\n")
+	util.PrintUtil("\nUsage:\tseed init [-d JOB_DIRECTORY] [-v VERSION]\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil(
-		"  -%s  -%s\tDirectory to place seed.manifest.json example. (default is current directory)\n",
+		"  -%s -%s\tDirectory to place seed.manifest.json example. (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	util.PrintUtil(
+		"  -%s -%s\tVersion of built in seed manifest to init (default is 1.0.0).\n",
+		constants.ShortVersionFlag, constants.VersionFlag)
 	return
 }

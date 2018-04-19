@@ -36,9 +36,10 @@ func TestDockerPull(t *testing.T) {
 	imgDirs := []string{"../testdata/complete/"}
 	origImg := "my-job-0.1.0-seed:0.1.0"
 	remoteImg := []string{"localhost:5000/my-job-0.1.0-seed:0.1.0", "localhost:5000/my-job-1.0.0-seed:1.0.0", "localhost:5000/not-a-valid-image"}
+	version := "1.0.0"
 
 	for _, dir := range imgDirs {
-		err := DockerBuild(dir, "", "")
+		err := DockerBuild(dir, version, "", "")
 		if err != nil {
 			t.Errorf("Error building image from %v for DockerPull test: %v", dir, err)
 		}
