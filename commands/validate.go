@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ngageoint/seed-cli/assets"
@@ -13,7 +14,7 @@ import (
 )
 
 //Validate seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(schemaFile, dir string) error {
+func Validate(schemaFile, dir, version string) error {
 	var err error = nil
 	var seedFileName string
 
@@ -26,7 +27,7 @@ func Validate(schemaFile, dir string) error {
 		schemaFile = "file:///" + util.GetFullPath(schemaFile, dir)
 	}
 
-	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
+	err = ValidateSeedFile(schemaFile, version, seedFileName, constants.SchemaManifest)
 
 	return err
 }
@@ -45,7 +46,7 @@ func PrintValidateUsage() {
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema
-func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constants.SchemaType) error {
+func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType constants.SchemaType) error {
 	var result *gojsonschema.Result
 	var err error
 
@@ -68,11 +69,20 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		util.PrintUtil("INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		// TODO: We need to support validation of all supported schema versions in the future
-		schemaBytes, _ := assets.Asset("schema/1.0.0/seed.manifest.schema.json")
-		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = assets.Asset("schema/1.0.0/seed.metadata.schema.json")
+		if version == "" {
+			version = "1.0.0"
 		}
+		assetName := fmt.Sprintf("schema/%s/seed.manifest.example.json", version)
+		schemaBytes, err := assets.Asset(assetName)
+		if schemaType == constants.SchemaMetadata {
+			assetName = fmt.Sprintf("schema/%s/seed.metadata.example.json", version)
+			schemaBytes, err = assets.Asset(assetName)
+		}
+
+		if schemaBytes == nil || err != nil {
+			return fmt.Errorf("This version of seed-cli does not support validating against version %s seed manifests", version)
+		}
+
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file:///" + seedFileName)
 		result, err = gojsonschema.Validate(schemaLoader, docLoader)

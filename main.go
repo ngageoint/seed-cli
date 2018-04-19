@@ -105,7 +105,8 @@ func main() {
 	if validateCmd.Parsed() {
 		schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
-		err := commands.Validate(schemaFile, dir)
+		version := initCmd.Lookup(constants.VersionFlag).Value.String()
+		err := commands.Validate(schemaFile, dir, version)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -295,6 +296,7 @@ func DefineInitFlags() {
 		"Directory to place example seed.manifest.json (default is current directory).")
 	initCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory to place example seed.manifest.json (default is current directory).")
+	var version string
 	initCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
 		"Version of example seed manifest to use (default is 1.0.0).")
 	initCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
@@ -570,6 +572,11 @@ func DefineValidateFlags() {
 		"JSON schema file to validate seed against.")
 	validateCmd.StringVar(&schema, constants.ShortSchemaFlag, "",
 		"JSON schema file to validate seed against.")
+	var version string
+	initCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
+	initCmd.StringVar(&version, constants.ShortVersionFlag, "1.0.0",
+		"Version of example seed manifest to use (default is 1.0.0).")
 
 	validateCmd.Usage = func() {
 		commands.PrintValidateUsage()
