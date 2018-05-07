@@ -281,8 +281,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		for _, k := range seed.Job.Interface.Inputs.Files {
 			if k.Name == key {
@@ -307,8 +305,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 	}
 
 	return mountArgs, sizeMiB, tempDirectories, nil
@@ -377,8 +373,6 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		for _, k := range seed.Job.Interface.Inputs.Json {
 			if k.Name == key {
@@ -396,8 +390,6 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 	}
 
 	return envArgs, nil
@@ -533,8 +525,6 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		settings = append(settings, "-e")
 		settings = append(settings, util.GetNormalizedVariable(key)+"="+value)

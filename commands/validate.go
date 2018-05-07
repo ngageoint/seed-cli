@@ -76,10 +76,10 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		if version == "" {
 			version = "1.0.0"
 		}
-		assetName := fmt.Sprintf("schema/%s/seed.manifest.example.json", version)
+		assetName := fmt.Sprintf("schema/%s/seed.manifest.schema.json", version)
 		schemaBytes, err := assets.Asset(assetName)
 		if schemaType == common_const.SchemaMetadata {
-			assetName = fmt.Sprintf("schema/%s/seed.metadata.example.json", version)
+			assetName = fmt.Sprintf("schema/%s/seed.metadata.schema.json", version)
 			schemaBytes, err = assets.Asset(assetName)
 		}
 
