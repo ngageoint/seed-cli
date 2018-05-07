@@ -38,7 +38,7 @@ func TestValidate(t *testing.T) {
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {
-				t.Errorf("ValidateSeedFile(%q, %q, %q) == %v, expected %v", "", version, name, common_const.SchemaManifest, err.Error(), c.expectedErrorMsg)
+				t.Errorf("ValidateSeedFile(%v, %v, %v, %v) == %v, expected %v", "", version, name, common_const.SchemaManifest, err.Error(), c.expectedErrorMsg)
 			}
 		}
 	}
