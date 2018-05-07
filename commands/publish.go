@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -40,10 +41,10 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
-		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-		os.Setenv(constants.DockerConfigKey, configDir)
+		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(common_const.DockerConfigKey, configDir)
 		defer util.RemoveAllFiles(configDir)
-		defer os.Unsetenv(constants.DockerConfigKey)
+		defer os.Unsetenv(common_const.DockerConfigKey)
 
 		err := util.Login(registry, username, password)
 		if err != nil {
@@ -92,7 +93,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		}
 
 		version := objects.SeedFromImageLabel(origImg).SeedVersion
-		ValidateSeedFile("", version,  seedFileName, constants.SchemaManifest)
+		ValidateSeedFile("", version,  seedFileName, common_const.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
 
 		util.PrintUtil("INFO: An image with the name %s already exists. ", img)

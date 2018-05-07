@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
@@ -628,7 +629,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 						if schema != "" {
 							schema = util.GetFullPath(schema, "")
 						}
-						err := ValidateSeedFile(schema, seed.SeedVersion, metadata, constants.SchemaMetadata)
+						err := ValidateSeedFile(schema, seed.SeedVersion, metadata, common_const.SchemaMetadata)
 						if err != nil {
 							util.PrintUtil("ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}
