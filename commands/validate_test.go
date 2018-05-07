@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
 )
 
@@ -31,14 +31,14 @@ func TestValidate(t *testing.T) {
 	for _, c := range cases {
 		name := util.GetFullPath(c.seedFileName, "")
 		version := "1.0.0"
-		err := ValidateSeedFile("", version, name, constants.SchemaManifest)
+		err := ValidateSeedFile("", version, name, common_const.SchemaManifest)
 		success := err == nil
 		if success != c.expected {
-			t.Errorf("ValidateSeedFile(%v, %v, %v, %v) == %v, expected %v", "", version, name, constants.SchemaManifest, success, c.expected)
+			t.Errorf("ValidateSeedFile(%v, %v, %v, %v) == %v, expected %v", "", version, name, common_const.SchemaManifest, success, c.expected)
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {
-				t.Errorf("ValidateSeedFile(%q, %q, %q) == %v, expected %v", "", version, name, constants.SchemaManifest, err.Error(), c.expectedErrorMsg)
+				t.Errorf("ValidateSeedFile(%q, %q, %q) == %v, expected %v", "", version, name, common_const.SchemaManifest, err.Error(), c.expectedErrorMsg)
 			}
 		}
 	}
