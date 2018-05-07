@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	RegistryFactory "github.com/ngageoint/seed-common/registry"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -14,11 +15,11 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 	_ = filter //TODO: add filter
 
 	if url == "" {
-		url = constants.DefaultRegistry
+		url = common_const.DefaultRegistry
 	}
 
 	if org == "" {
-		org = constants.DefaultOrg
+		org = common_const.DefaultOrg
 	}
 
 	registry, err := RegistryFactory.CreateRegistry(url, org, username, password)

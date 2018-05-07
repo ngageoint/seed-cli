@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
 )
 
@@ -17,10 +18,10 @@ import (
 func DockerPull(image, registry, org, username, password string) error {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
-		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-		os.Setenv(constants.DockerConfigKey, configDir)
+		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(common_const.DockerConfigKey, configDir)
 		defer util.RemoveAllFiles(configDir)
-		defer os.Unsetenv(constants.DockerConfigKey)
+		defer os.Unsetenv(common_const.DockerConfigKey)
 
 		err := util.Login(registry, username, password)
 		if err != nil {
@@ -30,7 +31,7 @@ func DockerPull(image, registry, org, username, password string) error {
 	}
 
 	if registry == "" {
-		registry = constants.DefaultRegistry
+		registry = common_const.DefaultRegistry
 	}
 
 	remoteImage := fmt.Sprintf("%s/%s", registry, image)

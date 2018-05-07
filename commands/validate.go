@@ -8,6 +8,7 @@ import (
 
 	"github.com/ngageoint/seed-cli/assets"
 	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
@@ -27,7 +28,7 @@ func Validate(schemaFile, dir, version string) error {
 		schemaFile = "file:///" + util.GetFullPath(schemaFile, dir)
 	}
 
-	err = ValidateSeedFile(schemaFile, version, seedFileName, constants.SchemaManifest)
+	err = ValidateSeedFile(schemaFile, version, seedFileName, common_const.SchemaManifest)
 
 	return err
 }
@@ -36,7 +37,7 @@ func Validate(schemaFile, dir, version string) error {
 func PrintValidateUsage() {
 	util.PrintUtil("\nUsage:\tseed validate [OPTIONS] \n")
 	util.PrintUtil("\nValidates the given %s by verifying it is compliant with the Seed spec.\n",
-		constants.SeedFileName)
+		common_const.SeedFileName)
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s\tSpecifies directory in which Seed is located (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
@@ -49,14 +50,14 @@ func PrintValidateUsage() {
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema
-func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType constants.SchemaType) error {
+func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType common_const.SchemaType) error {
 	var result *gojsonschema.Result
 	var err error
 
 	seedFileName = strings.Replace(seedFileName, "\\", "/", -1)
 
 	typeStr := "manifest"
-	if schemaType == constants.SchemaMetadata {
+	if schemaType == common_const.SchemaMetadata {
 		typeStr = "metadata"
 	}
 
@@ -77,7 +78,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType const
 		}
 		assetName := fmt.Sprintf("schema/%s/seed.manifest.example.json", version)
 		schemaBytes, err := assets.Asset(assetName)
-		if schemaType == constants.SchemaMetadata {
+		if schemaType == common_const.SchemaMetadata {
 			assetName = fmt.Sprintf("schema/%s/seed.metadata.example.json", version)
 			schemaBytes, err = assets.Asset(assetName)
 		}
@@ -113,7 +114,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType const
 	seed := objects.SeedFromManifestFile(seedFileName)
 
 	//skip resource and name collision checking for metadata files
-	if schemaType != constants.SchemaManifest {
+	if schemaType != common_const.SchemaManifest {
 		if buffer.String() != "" {
 			return errors.New(buffer.String())
 		}
