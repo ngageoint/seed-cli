@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -17,7 +18,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
@@ -364,7 +365,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		key := x[0]
 		val := x[1]
 
-		value, err := util.ReadJsonFile(val)
+		value, err := ReadJsonFile(val)
 		if err != nil {
 			value = val
 		}
@@ -783,4 +784,24 @@ func inputMap(inputs []string) map[string]string {
 		inMap[x[0]] = x[1]
 	}
 	return inMap
+}
+
+func ReadJsonFile(filename string) (string, error) {
+	filebytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	valid := json.Valid(filebytes)
+	if !valid {
+		return "", errors.New("Invalid JSON")
+	}
+
+	dst := new(bytes.Buffer)
+	err = json.Compact(dst, filebytes)
+	if err != nil {
+		return "", err
+	}
+	json := dst.String()
+	return json, err
 }

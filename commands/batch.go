@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"gopkg.in/cheggaaa/pb.v1"

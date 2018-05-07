@@ -62,7 +62,7 @@ import (
 	"fmt"
 	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/assets"
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"strconv"

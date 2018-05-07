@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
 	RegistryFactory "github.com/ngageoint/seed-common/registry"
 	"github.com/ngageoint/seed-common/util"
 )
