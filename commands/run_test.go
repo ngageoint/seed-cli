@@ -41,7 +41,8 @@ func TestDockerRun(t *testing.T) {
 		//make sure the image exists
 		outputDir := "output"
 		metadataSchema := ""
-		DockerBuild(c.directory, "", "")
+		version := "1.0.0"
+		DockerBuild(c.directory, version, "", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
 			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil
@@ -119,6 +120,42 @@ func TestDefineInputs(t *testing.T) {
 			t.Errorf("DefineInputs(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedTempDir)
 		}
 
+	}
+}
+
+func TestDefineInputJson(t *testing.T) {
+	cases := []struct {
+		seedFileName     string
+		inputs           []string
+		expectedSet      string
+		expected         bool
+		expectedErrorMsg string
+	}{
+		{"../testdata/complete/seed.manifest.json",
+			[]string{"wrong=input"},
+			"[]",  false, ""},
+		{"../examples/addition-job/seed.manifest.json",
+			[]string{"a=2", "b=2"},
+			"[-e a=2 -e b=2]",  true, ""},
+		{"../testdata/complete/seed.manifest.json",
+			[]string{"INPUT_JSON={a: 1, b: 2}"},
+			"[-e INPUT_JSON={a: 1, b: 2}]", true, ""},
+	}
+
+	for _, c := range cases {
+		seedFileName := util.GetFullPath(c.seedFileName, "")
+		seed := objects.SeedFromManifestFile(seedFileName)
+		settings, err := DefineInputJson(&seed, c.inputs)
+
+		if c.expected != (err == nil) {
+			t.Errorf("DefineInputJson(%q, %q) == %v, expected %v", seedFileName, c.inputs, err, nil)
+		}
+
+		expectedSet := c.expectedSet
+		tempStr := fmt.Sprintf("%v", settings)
+		if expectedSet != tempStr {
+			t.Errorf("DefineInputJson(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedSet)
+		}
 	}
 }
 

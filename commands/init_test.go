@@ -16,14 +16,16 @@ func init() {
 func TestSeedInit(t *testing.T) {
 	cases := []struct {
 		directory   string
+		version     string
 		expectedErr error
 	}{
-		{"../testdata/dummy-scratch/", nil},
-		{"../testdata/complete/", errors.New("Existing file left unmodified.")},
+		{"../testdata/dummy-scratch/", "0.0.0", errors.New("This version of seed-cli does not have a sample manifest for version 0.0.0")},
+		{"../testdata/dummy-scratch/", "1.0.0", nil},
+		{"../testdata/complete/", "1.0.0",errors.New("Existing file left unmodified.")},
 	}
 
 	for _, c := range cases {
-		err := SeedInit(c.directory)
+		err := SeedInit(c.directory, c.version)
 
 		if c.expectedErr == nil && err != nil {
 			t.Errorf("SeedInit(%q) == %v, expected %v", c.directory, err.Error(), c.expectedErr)

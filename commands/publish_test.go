@@ -18,8 +18,9 @@ func TestDockerPublish(t *testing.T) {
 	//build images to be used for testing in advance
 	imgDirs := []string{"../testdata/complete/"}
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0"}
+	version := "1.0.0"
 	for _, dir := range imgDirs {
-		err := DockerBuild(dir, "", "")
+		err := DockerBuild(dir, version,"", "")
 		if err != nil {
 			t.Errorf("Error building image %v for DockerPublish test", dir)
 		}

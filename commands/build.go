@@ -9,19 +9,20 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, username, password string) error {
+func DockerBuild(jobDirectory, version, username, password string) error {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
-		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-		os.Setenv(constants.DockerConfigKey, configDir)
+		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
+		os.Setenv(common_const.DockerConfigKey, configDir)
 		defer util.RemoveAllFiles(configDir)
-		defer os.Unsetenv(constants.DockerConfigKey)
+		defer os.Unsetenv(common_const.DockerConfigKey)
 
 		registry, err := util.DockerfileBaseRegistry(jobDirectory)
 		if err != nil {
@@ -40,7 +41,7 @@ func DockerBuild(jobDirectory, username, password string) error {
 	}
 
 	// Validate seed file
-	err = ValidateSeedFile("", seedFileName, constants.SchemaManifest)
+	err = ValidateSeedFile("", version, seedFileName, common_const.SchemaManifest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		util.PrintUtil("%s", err.Error())
@@ -92,6 +93,9 @@ func PrintBuildUsage() {
 	util.PrintUtil(
 		"  -%s -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	util.PrintUtil(
+		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		constants.ShortVersionFlag, constants.VersionFlag)
 	util.PrintUtil("  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
 	util.PrintUtil("  -%s -%s\tPassword to login if needed to pull images (default anonymous).\n",

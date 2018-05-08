@@ -30,6 +30,18 @@
               "text/plain"
             ]
           }
+        ],
+        "json": [
+          {
+            "name": "a",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "b",
+            "type": "integer",
+            "required": false
+          }
         ]
       },
       "outputs": {

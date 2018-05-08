@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -17,7 +18,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
@@ -279,8 +281,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		for _, k := range seed.Job.Interface.Inputs.Files {
 			if k.Name == key {
@@ -305,8 +305,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 	}
 
 	return mountArgs, sizeMiB, tempDirectories, nil
@@ -320,7 +318,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 //Returns: []string: docker command args for input files in the format:
 //	"-e JSON_NAME1=value -e JSON_NAME2="{json object}" etc"
 func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
-	// TODO: implement reading json input file
 	inMap := inputMap(inputs)
 
 	var envArgs []string
@@ -365,20 +362,22 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		key := x[0]
 		val := x[1]
 
+		value, err := ReadJsonFile(val)
+		if err != nil {
+			value = val
+		}
+
 		// Replace key if found in args strings
 		// Handle replacing KEY or ${KEY} or $KEY
-		value := val
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		for _, k := range seed.Job.Interface.Inputs.Json {
 			if k.Name == key {
 				envArgs = append(envArgs, "-e")
-				envArgs = append(envArgs, key+"="+val)
+				envArgs = append(envArgs, key+"="+value)
 			}
 		}
 	}
@@ -391,8 +390,6 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 	}
 
 	return envArgs, nil
@@ -528,8 +525,6 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 			"${"+key+"}", value, -1)
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, key, value,
-			-1)
 
 		settings = append(settings, "-e")
 		settings = append(settings, util.GetNormalizedVariable(key)+"="+value)
@@ -624,7 +619,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 						if schema != "" {
 							schema = util.GetFullPath(schema, "")
 						}
-						err := ValidateSeedFile(schema, metadata, constants.SchemaMetadata)
+						err := ValidateSeedFile(schema, seed.SeedVersion, metadata, common_const.SchemaMetadata)
 						if err != nil {
 							util.PrintUtil("ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}
@@ -780,4 +775,24 @@ func inputMap(inputs []string) map[string]string {
 		inMap[x[0]] = x[1]
 	}
 	return inMap
+}
+
+func ReadJsonFile(filename string) (string, error) {
+	filebytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	valid := json.Valid(filebytes)
+	if !valid {
+		return "", errors.New("Invalid JSON")
+	}
+
+	dst := new(bytes.Buffer)
+	err = json.Compact(dst, filebytes)
+	if err != nil {
+		return "", err
+	}
+	json := dst.String()
+	return json, err
 }

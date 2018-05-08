@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ngageoint/seed-common/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
 )
 
@@ -22,10 +22,10 @@ func TestDockerSearch(t *testing.T) {
 	password := "testpassword"
 
 	//set config dir so we don't stomp on other users' logins with sudo
-	configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
-	os.Setenv(constants.DockerConfigKey, configDir)
+	configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
+	os.Setenv(common_const.DockerConfigKey, configDir)
 	defer util.RemoveAllFiles(configDir)
-	defer os.Unsetenv(constants.DockerConfigKey)
+	defer os.Unsetenv(common_const.DockerConfigKey)
 
 	err := util.Login(registry, username, password)
 	if err != nil {
@@ -37,8 +37,9 @@ func TestDockerSearch(t *testing.T) {
 	remoteImg := []string{"localhost:5000/my-job-0.1.0-seed:0.1.0", "localhost:5000/my-job-1.0.0-seed:1.0.0", "localhost:5000/not-a-valid-image"}
 	validImgNames := []string{"my-job-0.1.0-seed:0.1.0", "my-job-1.0.0-seed:1.0.0"}
 	validImgNameStr := fmt.Sprintf("%s", validImgNames)
+	version := "1.0.0"
 	for _, dir := range imgDirs {
-		err := DockerBuild(dir, "", "")
+		err := DockerBuild(dir, version,  "", "")
 		if err != nil {
 			t.Errorf("Error building image from %v for DockerSearch test: %v", dir, err)
 		}

@@ -3,17 +3,19 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ngageoint/seed-cli/assets"
-	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-cli/constants"
+	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 //Validate seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(schemaFile, dir string) error {
+func Validate(schemaFile, dir, version string) error {
 	var err error = nil
 	var seedFileName string
 
@@ -26,7 +28,7 @@ func Validate(schemaFile, dir string) error {
 		schemaFile = "file:///" + util.GetFullPath(schemaFile, dir)
 	}
 
-	err = ValidateSeedFile(schemaFile, seedFileName, constants.SchemaManifest)
+	err = ValidateSeedFile(schemaFile, version, seedFileName, common_const.SchemaManifest)
 
 	return err
 }
@@ -35,24 +37,27 @@ func Validate(schemaFile, dir string) error {
 func PrintValidateUsage() {
 	util.PrintUtil("\nUsage:\tseed validate [OPTIONS] \n")
 	util.PrintUtil("\nValidates the given %s by verifying it is compliant with the Seed spec.\n",
-		constants.SeedFileName)
+		common_const.SeedFileName)
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s\tSpecifies directory in which Seed is located (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s   \tExternal Seed schema file; Overrides built in schema to validate Seed spec against\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
+	util.PrintUtil(
+		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		constants.ShortVersionFlag, constants.VersionFlag)
 	return
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema
-func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constants.SchemaType) error {
+func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType common_const.SchemaType) error {
 	var result *gojsonschema.Result
 	var err error
 
 	seedFileName = strings.Replace(seedFileName, "\\", "/", -1)
 
 	typeStr := "manifest"
-	if schemaType == constants.SchemaMetadata {
+	if schemaType == common_const.SchemaMetadata {
 		typeStr = "metadata"
 	}
 
@@ -68,11 +73,20 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	} else {
 		util.PrintUtil("INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
-		// TODO: We need to support validation of all supported schema versions in the future
-		schemaBytes, _ := assets.Asset("schema/1.0.0/seed.manifest.schema.json")
-		if schemaType == constants.SchemaMetadata {
-			schemaBytes, _ = assets.Asset("schema/1.0.0/seed.metadata.schema.json")
+		if version == "" {
+			version = "1.0.0"
 		}
+		assetName := fmt.Sprintf("schema/%s/seed.manifest.schema.json", version)
+		schemaBytes, err := assets.Asset(assetName)
+		if schemaType == common_const.SchemaMetadata {
+			assetName = fmt.Sprintf("schema/%s/seed.metadata.schema.json", version)
+			schemaBytes, err = assets.Asset(assetName)
+		}
+
+		if schemaBytes == nil || err != nil {
+			return fmt.Errorf("This version of seed-cli does not support validating against version %s seed manifests", version)
+		}
+
 		schemaLoader := gojsonschema.NewStringLoader(string(schemaBytes))
 		docLoader := gojsonschema.NewReferenceLoader("file:///" + seedFileName)
 		result, err = gojsonschema.Validate(schemaLoader, docLoader)
@@ -100,7 +114,7 @@ func ValidateSeedFile(schemaFile string, seedFileName string, schemaType constan
 	seed := objects.SeedFromManifestFile(seedFileName)
 
 	//skip resource and name collision checking for metadata files
-	if schemaType != constants.SchemaManifest {
+	if schemaType != common_const.SchemaManifest {
 		if buffer.String() != "" {
 			return errors.New(buffer.String())
 		}
