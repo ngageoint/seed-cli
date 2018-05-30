@@ -15,11 +15,23 @@ const SearchCommand = "search"
 const ValidateCommand = "validate"
 const VersionCommand = "version"
 
+//CacheFromFlag defines the docker cache-from option to utilize a previous built image
+const CacheFromFlag = "cache-from"
+
+//ShortCacheFromFlag defines the shorthand version of the cache-from option
+const ShortCacheFromFlag = "c"
+
 //JobDirectoryFlag defines the location of the seed spec and Dockerfile
 const JobDirectoryFlag = "directory"
 
 //ShortJobDirectoryFlag defines the shorthand location of the seed spec and Dockerfile
 const ShortJobDirectoryFlag = "d"
+
+//DockerfileFlag defines the dockerfile to use to build the image
+const DockerfileFlag = "dockerfile"
+
+//ShortDockerfileFlag defines the shorthand dockerfile to use to build the image
+const ShortDockerfileFlag = "df"
 
 //SettingFlag defines the SettingFlag
 const SettingFlag = "setting"

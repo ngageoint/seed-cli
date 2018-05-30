@@ -16,7 +16,7 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, version, username, password string) error {
+func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfile string) (string, error) {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -37,7 +37,7 @@ func DockerBuild(jobDirectory, version, username, password string) error {
 	seedFileName, err := util.SeedFileName(jobDirectory)
 	if err != nil && !os.IsNotExist(err) {
 		util.PrintUtil("ERROR: %s\n", err.Error())
-		return err
+		return "", err
 	}
 
 	// Validate seed file
@@ -46,7 +46,7 @@ func DockerBuild(jobDirectory, version, username, password string) error {
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
-		return err
+		return "", err
 	}
 
 	// retrieve seed from seed manifest
@@ -54,10 +54,24 @@ func DockerBuild(jobDirectory, version, username, password string) error {
 
 	// Retrieve docker image name
 	imageName := objects.BuildImageName(&seed)
-
 	// Build Docker image
 	util.PrintUtil("INFO: Building %s\n", imageName)
-	buildArgs := []string{"build", "-t", imageName, jobDirectory}
+	buildArgs := []string{"build"}
+
+	if cacheFrom != "" {
+		buildArgs = append(buildArgs, "--cache-from")
+		buildArgs = append(buildArgs, cacheFrom)
+	}
+
+	buildArgs = append(buildArgs, "-t")
+	buildArgs = append(buildArgs, imageName)
+
+	if dockerfile != "" {
+		buildArgs = append(buildArgs, dockerfile)
+	} else {
+		buildArgs = append(buildArgs, jobDirectory)
+	}
+
 	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label
 		label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
@@ -72,7 +86,7 @@ func DockerBuild(jobDirectory, version, username, password string) error {
 	if err := cmd.Run(); err != nil {
 		util.PrintUtil("ERROR: Error executing docker build. %s\n",
 			err.Error())
-		return err
+		return imageName, err
 	}
 
 	// check for errors on stderr
@@ -80,19 +94,23 @@ func DockerBuild(jobDirectory, version, username, password string) error {
 		util.PrintUtil("ERROR: Error building image '%s':\n%s\n",
 			imageName, errs.String())
 		util.PrintUtil("Exiting seed...\n")
-		return errors.New(errs.String())
+		return imageName, errors.New(errs.String())
 	}
 
-	return nil
+	return imageName, nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintBuildUsage() {
 	util.PrintUtil("\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
 	util.PrintUtil("\nOptions:\n")
+	util.PrintUtil("  -%s -%s\tUtilizes the --cache-from option when building the docker image\n",
+		constants.ShortCacheFromFlag, constants.CacheFromFlag)
 	util.PrintUtil(
 		"  -%s -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	util.PrintUtil("  -%s -%s\tSpecifies the Dockfile to use (default is Dockerfile within current directory)\n",
+		constants.ShortDockerfileFlag, constants.DockerfileFlag)
 	util.PrintUtil(
 		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)

@@ -60,12 +60,13 @@ import (
 	"strings"
 
 	"fmt"
-	"github.com/ngageoint/seed-cli/commands"
+	"strconv"
+
 	"github.com/ngageoint/seed-cli/assets"
+	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"strconv"
 )
 
 var batchCmd *flag.FlagSet
@@ -153,15 +154,19 @@ func main() {
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
+		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		version := buildCmd.Lookup(constants.VersionFlag).Value.String()
 		user := buildCmd.Lookup(constants.UserFlag).Value.String()
 		pass := buildCmd.Lookup(constants.PassFlag).Value.String()
-		err := commands.DockerBuild(jobDirectory, version, user, pass)
+		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
+		// publish := buildCmd.Lookup(constants.PublishFlag).Value.String()
+		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, cacheFrom, dockerfile)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
+		util.PrintUtil("%s\n", imgName)
 		panic(util.Exit{0})
 	}
 
@@ -264,11 +269,23 @@ func main() {
 func DefineBuildFlags() {
 	// build command flags
 	buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	var cacheFrom string
+	buildCmd.StringVar(&cacheFrom, constants.CacheFromFlag, "",
+		"Image to use as cache source.")
+	buildCmd.StringVar(&cacheFrom, constants.ShortCacheFromFlag, "",
+		"Image to use as a cache source.")
+
 	var directory string
 	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var dockerfile string
+	buildCmd.StringVar(&dockerfile, constants.DockerfileFlag, ".",
+		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
+	buildCmd.StringVar(&dockerfile, constants.ShortDockerfileFlag, ".",
+		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
 
 	var version string
 	buildCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
