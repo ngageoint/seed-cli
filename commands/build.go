@@ -16,7 +16,7 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfile string) (string, error) {
+func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) (string, error) {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -34,10 +34,20 @@ func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfil
 		}
 	}
 
-	seedFileName, err := util.SeedFileName(jobDirectory)
-	if err != nil && !os.IsNotExist(err) {
-		util.PrintUtil("ERROR: %s\n", err.Error())
-		return "", err
+	var seedFileName string
+	var err error
+	if manifest != "" {
+		seedFileName = util.GetFullPath(manifest, "")
+		if _, err = os.Stat(seedFileName); os.IsNotExist(err) {
+			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
+			return "", err
+		}
+	} else {
+		seedFileName, err = util.SeedFileName(jobDirectory)
+		if err != nil && !os.IsNotExist(err) {
+			util.PrintUtil("ERROR: %s\n", err.Error())
+			return "", err
+		}
 	}
 
 	// Validate seed file
@@ -58,6 +68,7 @@ func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfil
 	util.PrintUtil("INFO: Building %s\n", imageName)
 	buildArgs := []string{"build"}
 
+	// docker doesn't care about validating the cache-from image
 	if cacheFrom != "" {
 		buildArgs = append(buildArgs, "--cache-from")
 		buildArgs = append(buildArgs, cacheFrom)
@@ -67,7 +78,12 @@ func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfil
 	buildArgs = append(buildArgs, imageName)
 
 	if dockerfile != "" {
-		buildArgs = append(buildArgs, dockerfile)
+		dfile := util.GetFullPath(dockerfile, "")
+		if _, err = os.Stat(dfile); os.IsNotExist(err) {
+			util.PrintUtil("ERROR: Dockerfile not found. %s\n", err.Error())
+			return imageName, err
+		}
+		buildArgs = append(buildArgs, dfile)
 	} else {
 		buildArgs = append(buildArgs, jobDirectory)
 	}
@@ -104,19 +120,21 @@ func DockerBuild(jobDirectory, version, username, password, cacheFrom, dockerfil
 func PrintBuildUsage() {
 	util.PrintUtil("\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
 	util.PrintUtil("\nOptions:\n")
-	util.PrintUtil("  -%s -%s\tUtilizes the --cache-from option when building the docker image\n",
+	util.PrintUtil("  -%s  -%s\tUtilizes the --cache-from option when building the docker image\n",
 		constants.ShortCacheFromFlag, constants.CacheFromFlag)
 	util.PrintUtil(
-		"  -%s -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
+		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies the Dockfile to use (default is Dockerfile within current directory)\n",
+	util.PrintUtil("  -%s -%s\tSpecifies the Dockerfile to use (default is Dockerfile within current directory)\n",
 		constants.ShortDockerfileFlag, constants.DockerfileFlag)
+	util.PrintUtil("  -%s  -%s\tSpecifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
+		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil(
-		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		"  -%s  -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)
-	util.PrintUtil("  -%s -%s\tUsername to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\tUsername to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil("  -%s -%s\tPassword to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\tPassword to login if needed to pull images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	return
 }

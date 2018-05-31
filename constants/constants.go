@@ -33,6 +33,12 @@ const DockerfileFlag = "dockerfile"
 //ShortDockerfileFlag defines the shorthand dockerfile to use to build the image
 const ShortDockerfileFlag = "df"
 
+//ManifestFlag defines the seed manifest file
+const ManifestFlag = "manifest"
+
+//ShortManifestFlag defines the shorthand manifest file
+const ShortManifestFlag = "m"
+
 //SettingFlag defines the SettingFlag
 const SettingFlag = "setting"
 

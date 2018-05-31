@@ -154,14 +154,15 @@ func main() {
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
-		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		version := buildCmd.Lookup(constants.VersionFlag).Value.String()
 		user := buildCmd.Lookup(constants.UserFlag).Value.String()
 		pass := buildCmd.Lookup(constants.PassFlag).Value.String()
+		manifest := buildCmd.Lookup(constants.ManifestFlag).Value.String()
 		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
+		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
 		// publish := buildCmd.Lookup(constants.PublishFlag).Value.String()
-		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, cacheFrom, dockerfile)
+		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -280,6 +281,12 @@ func DefineBuildFlags() {
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var manifest string
+	buildCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	buildCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
 
 	var dockerfile string
 	buildCmd.StringVar(&dockerfile, constants.DockerfileFlag, ".",
