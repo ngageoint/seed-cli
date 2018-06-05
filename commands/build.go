@@ -36,7 +36,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	var seedFileName string
 	var err error
-	if manifest != "" {
+	if manifest != "." {
 		seedFileName = util.GetFullPath(manifest, "")
 		if _, err = os.Stat(seedFileName); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
@@ -64,6 +64,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	// Retrieve docker image name
 	imageName := objects.BuildImageName(&seed)
+
 	// Build Docker image
 	util.PrintUtil("INFO: Building %s\n", imageName)
 	buildArgs := []string{"build"}
@@ -127,14 +128,14 @@ func PrintBuildUsage() {
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s\tSpecifies the Dockerfile to use (default is Dockerfile within current directory)\n",
 		constants.ShortDockerfileFlag, constants.DockerfileFlag)
-	util.PrintUtil("  -%s  -%s\tSpecifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
+	util.PrintUtil("  -%s  -%s\t\tSpecifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
 		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil(
-		"  -%s  -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		"  -%s  -%s\t\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)
-	util.PrintUtil("  -%s  -%s\tUsername to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t\tUsername to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil("  -%s  -%s\tPassword to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s  -%s\t\tPassword to login if needed to pull images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
 	return
 }
