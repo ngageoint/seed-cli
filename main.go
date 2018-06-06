@@ -161,7 +161,7 @@ func main() {
 		manifest := buildCmd.Lookup(constants.ManifestFlag).Value.String()
 		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
 		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
-		imagName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
+		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
