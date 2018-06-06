@@ -161,13 +161,32 @@ func main() {
 		manifest := buildCmd.Lookup(constants.ManifestFlag).Value.String()
 		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
 		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
-		// publish := buildCmd.Lookup(constants.PublishFlag).Value.String()
-		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
+		err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
 		}
-		util.PrintUtil("%s\n", imgName)
+
+		if buildCmd.Lookup(constants.PublishCommand).Value.String() == constants.TrueString {
+			registry := buildCmd.Lookup(constants.RegistryFlag).Value.String()
+			org := buildCmd.Lookup(constants.OrgFlag).Value.String()
+			force := buildCmd.Lookup(constants.ForcePublishFlag).Value.String() == constants.TrueString
+
+			P := buildCmd.Lookup(constants.PkgVersionMajor).Value.String() == constants.TrueString
+			pm := buildCmd.Lookup(constants.PkgVersionMinor).Value.String() == constants.TrueString
+			pp := buildCmd.Lookup(constants.PkgVersionPatch).Value.String() == constants.TrueString
+
+			J := buildCmd.Lookup(constants.JobVersionMajor).Value.String() == constants.TrueString
+			jm := buildCmd.Lookup(constants.JobVersionMinor).Value.String() == constants.TrueString
+			jp := buildCmd.Lookup(constants.JobVersionPatch).Value.String() == constants.TrueString
+
+			err := commands.DockerPublish(imgName, registry, org, user, pass, jobDirectory,
+				force, P, pm, pp, J, jm, jp)
+			if err != nil {
+				util.PrintUtil("%s\n", err.Error())
+				panic(util.Exit{1})
+			}
+		}
 		panic(util.Exit{0})
 	}
 
@@ -311,6 +330,39 @@ func DefineBuildFlags() {
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
 	buildCmd.StringVar(&password, constants.ShortPassFlag, "",
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
+
+	var publish bool
+	buildCmd.BoolVar(&publish, constants.PublishCommand, false, "Publishes image after successful build.")
+
+	var registry string
+	buildCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
+	buildCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
+
+	var org string
+	buildCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
+	buildCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
+
+	var b bool
+	buildCmd.BoolVar(&b, constants.ForcePublishFlag, false,
+		"Force publish, do not deconflict")
+	var pPatch bool
+	buildCmd.BoolVar(&pPatch, constants.PkgVersionPatch, false,
+		"Patch version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var pMin bool
+	buildCmd.BoolVar(&pMin, constants.PkgVersionMinor, false,
+		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var pMaj bool
+	buildCmd.BoolVar(&pMaj, constants.PkgVersionMajor, false,
+		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var jPatch bool
+	buildCmd.BoolVar(&jPatch, constants.JobVersionPatch, false,
+		"Patch version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMin bool
+	buildCmd.BoolVar(&jMin, constants.JobVersionMinor, false,
+		"Minor version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMaj bool
+	buildCmd.BoolVar(&jMaj, constants.JobVersionMajor, false,
+		"Major version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
 
 	// Print usage function
 	buildCmd.Usage = func() {

@@ -16,7 +16,7 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) (string, error) {
+func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) error {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -40,13 +40,13 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		seedFileName = util.GetFullPath(manifest, "")
 		if _, err = os.Stat(seedFileName); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
-			return "", err
+			return err
 		}
 	} else {
 		seedFileName, err = util.SeedFileName(jobDirectory)
 		if err != nil && !os.IsNotExist(err) {
 			util.PrintUtil("ERROR: %s\n", err.Error())
-			return "", err
+			return err
 		}
 	}
 
@@ -56,7 +56,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
-		return "", err
+		return err
 	}
 
 	// retrieve seed from seed manifest
@@ -78,11 +78,12 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	buildArgs = append(buildArgs, "-t")
 	buildArgs = append(buildArgs, imageName)
 
-	if dockerfile != "" {
+	util.PrintUtil("dockerfile: %s\n", dockerfile)
+	if dockerfile != "." {
 		dfile := util.GetFullPath(dockerfile, "")
 		if _, err = os.Stat(dfile); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Dockerfile not found. %s\n", err.Error())
-			return imageName, err
+			return err
 		}
 		buildArgs = append(buildArgs, dfile)
 	} else {
@@ -103,7 +104,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	if err := cmd.Run(); err != nil {
 		util.PrintUtil("ERROR: Error executing docker build. %s\n",
 			err.Error())
-		return imageName, err
+		return err
 	}
 
 	// check for errors on stderr
@@ -111,31 +112,56 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		util.PrintUtil("ERROR: Error building image '%s':\n%s\n",
 			imageName, errs.String())
 		util.PrintUtil("Exiting seed...\n")
-		return imageName, errors.New(errs.String())
+		return errors.New(errs.String())
 	}
 
-	return imageName, nil
+	return nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintBuildUsage() {
 	util.PrintUtil("\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
 	util.PrintUtil("\nOptions:\n")
-	util.PrintUtil("  -%s  -%s\tUtilizes the --cache-from option when building the docker image\n",
+	util.PrintUtil("  -%s -%s  Utilizes the --cache-from option when building the docker image\n",
 		constants.ShortCacheFromFlag, constants.CacheFromFlag)
 	util.PrintUtil(
-		"  -%s  -%s\tDirectory containing Seed spec and Dockerfile (default is current directory)\n",
+		"  -%s -%s\t  Directory containing Seed spec and Dockerfile (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
-	util.PrintUtil("  -%s -%s\tSpecifies the Dockerfile to use (default is Dockerfile within current directory)\n",
+	util.PrintUtil("  -%s -%s  Specifies the Dockerfile to use (default is Dockerfile within current directory)\n",
 		constants.ShortDockerfileFlag, constants.DockerfileFlag)
-	util.PrintUtil("  -%s  -%s\t\tSpecifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
+	util.PrintUtil("  -%s -%s\t  Specifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
 		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil(
-		"  -%s  -%s\t\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
+		"  -%s -%s\t  Version of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)
-	util.PrintUtil("  -%s  -%s\t\tUsername to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s -%s\t  Username to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
-	util.PrintUtil("  -%s  -%s\t\tPassword to login if needed to pull images (default anonymous).\n",
+	util.PrintUtil("  -%s -%s\t  Password to login if needed to pull images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
+
+	util.PrintUtil("\nBuild and Publish options:\n")
+	util.PrintUtil("  -%s\t  Will publish image after a successful build.\n",
+		constants.PublishCommand)
+	util.PrintUtil("  -%s -%s\t  Specifies a specific registry to publish the image\n",
+		constants.ShortRegistryFlag, constants.RegistryFlag)
+	util.PrintUtil("  -%s -%s\t  Specifies a specific organization to publish the image\n",
+		constants.ShortOrgFlag, constants.OrgFlag)
+	util.PrintUtil("  -%s\t\t  Overwrite remote image if publish conflict found\n",
+		constants.ForcePublishFlag)
+
+	util.PrintUtil("\nPublish Conflict Options:\n")
+	util.PrintUtil("If the force flag (-f) is not set, the following options specify how a publish conflict is handled:\n")
+	util.PrintUtil("  -%s\t\t  Force Patch version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
+		constants.PkgVersionPatch)
+	util.PrintUtil("  -%s\t\t  Force Minor version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
+		constants.PkgVersionMinor)
+	util.PrintUtil("  -%s\t\t  Force Major version bump of 'packageVersion' in manifest on disk if publish conflict found\n",
+		constants.PkgVersionMajor)
+	util.PrintUtil("  -%s\t\t  Force Patch version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		constants.JobVersionPatch)
+	util.PrintUtil("  -%s\t\t  Force Minor version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		constants.JobVersionMinor)
+	util.PrintUtil("  -%s\t\t  Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
+		"JM")
 	return
 }

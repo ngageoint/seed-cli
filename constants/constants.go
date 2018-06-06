@@ -31,7 +31,7 @@ const ShortJobDirectoryFlag = "d"
 const DockerfileFlag = "dockerfile"
 
 //ShortDockerfileFlag defines the shorthand dockerfile to use to build the image
-const ShortDockerfileFlag = "df"
+const ShortDockerfileFlag = "D"
 
 //ManifestFlag defines the seed manifest file
 const ManifestFlag = "manifest"
