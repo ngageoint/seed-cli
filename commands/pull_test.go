@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"strings"
+
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
-	"strings"
 )
 
 func init() {
@@ -39,7 +40,7 @@ func TestDockerPull(t *testing.T) {
 	version := "1.0.0"
 
 	for _, dir := range imgDirs {
-		err := DockerBuild(dir, version, "", "")
+		_, err := DockerBuild(dir, version, "", "", ".", ".", "")
 		if err != nil {
 			t.Errorf("Error building image from %v for DockerPull test: %v", dir, err)
 		}
