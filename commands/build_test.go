@@ -20,13 +20,13 @@ func TestDockerBuild(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-job/", "1.0.0",true, ""},
-		{"../examples/extractor/", "1.0.0",true, ""},
-		{"", "",false, "seed.manifest.json cannot be found"},
+		{"../examples/addition-job/", "1.0.0", true, ""},
+		{"../examples/extractor/", "1.0.0", true, ""},
+		{"", "", false, "seed.manifest.json cannot be found"},
 	}
 
 	for _, c := range cases {
-		err := DockerBuild(c.directory, c.version,"", "")
+		_, err := DockerBuild(c.directory, c.version, "", "", ".", ".", "")
 		success := err == nil
 		if success != c.expected {
 			t.Errorf("DockerBuild(%v, %v, %v, %v) == %v, expected %v", c.directory, c.version, "", "", success, c.expected)
@@ -48,11 +48,11 @@ func TestSeedLabel(t *testing.T) {
 		expectedErrorMsg string
 	}{
 		{"../examples/addition-job/", "1.0.0", "addition-job-0.0.1-seed:1.0.0", true, ""},
-		{"../examples/extractor/", "1.0.0","extractor-0.1.0-seed:0.1.0", true, ""},
+		{"../examples/extractor/", "1.0.0", "extractor-0.1.0-seed:0.1.0", true, ""},
 	}
 
 	for _, c := range cases {
-		DockerBuild(c.directory, c.version,"", "")
+		DockerBuild(c.directory, c.version, "", "", ".", ".", "")
 		seedFileName, exist, _ := util.GetSeedFileName(c.directory)
 		if !exist {
 			t.Errorf("ERROR: %s cannot be found.\n",
