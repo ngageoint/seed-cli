@@ -16,7 +16,7 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) error {
+func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) (string, error) {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -40,13 +40,13 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		seedFileName = util.GetFullPath(manifest, "")
 		if _, err = os.Stat(seedFileName); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
-			return err
+			return "", err
 		}
 	} else {
 		seedFileName, err = util.SeedFileName(jobDirectory)
 		if err != nil && !os.IsNotExist(err) {
 			util.PrintUtil("ERROR: %s\n", err.Error())
-			return err
+			return "", err
 		}
 	}
 
@@ -56,7 +56,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
 		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
-		return err
+		return "", err
 	}
 
 	// retrieve seed from seed manifest
@@ -83,7 +83,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		dfile := util.GetFullPath(dockerfile, "")
 		if _, err = os.Stat(dfile); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Dockerfile not found. %s\n", err.Error())
-			return err
+			return imageName, err
 		}
 		buildArgs = append(buildArgs, dfile)
 	} else {
@@ -104,7 +104,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	if err := cmd.Run(); err != nil {
 		util.PrintUtil("ERROR: Error executing docker build. %s\n",
 			err.Error())
-		return err
+		return imageName, err
 	}
 
 	// check for errors on stderr
@@ -112,10 +112,10 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		util.PrintUtil("ERROR: Error building image '%s':\n%s\n",
 			imageName, errs.String())
 		util.PrintUtil("Exiting seed...\n")
-		return errors.New(errs.String())
+		return imageName, errors.New(errs.String())
 	}
 
-	return nil
+	return imageName, nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
