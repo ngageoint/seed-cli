@@ -1,0 +1,12 @@
+Builds Seed compliant Docker image 
+
+seed build [-d JOB_DIRECTORY] [-u USER_NAME -p PASSWORD]
+
+*-d, -directory* ::
+    Directory containing Seed spec and Dockerfile (default is current directory).
+    
+*-u, -user* ::
+    Username to login if needed to pull images (default anonymous).
+
+*-p, -password* ::
+    Password to login if needed to pull images (default anonymous).

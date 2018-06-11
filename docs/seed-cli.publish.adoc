@@ -1,0 +1,53 @@
+
+Publishes Seed compliant images to remote Docker registry
+
+seed publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]
+
+*-in, -imageName* ::
+    Docker image name to publish
+
+*-r, -registry* ::
+    Specifies a specific registry to publish the image
+
+*-o, -org* ::
+    Specifies a specific organization to publish the image
+
+*-u, -user* ::
+    Username to login if needed to publish images (default anonymous).
+
+*-p, -password* ::
+    Password to login if needed to publish images (default anonymous).
+
+*-f*	::
+    Overwrite remote image if publish conflict found
+
+*CONFLICT OPTIONS* ::
+If the force flag (-f) is not set, the following options specify how a publish conflict is handled:
+    seed publish ... -f [-d SEED_DIRECTORY] [-pp] [-pm] [-P] [-jp] [-J]
+
+*-d, -directory* ::
+    Specifies the directory containing the seed.manifest.json and dockerfile to rebuild the image.
+
+*-pp* ::
+    Force Patch version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-pm* ::
+    Force Minor version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-P* ::
+    Force Major version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-jp* ::
+    Force Patch version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*-jm* ::
+    Force Minor version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*-J* ::
+    Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*EXAMPLE*
+    This will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint
+    seed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -jm -P
+
+    

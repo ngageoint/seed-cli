@@ -1,0 +1,7 @@
+
+Initialize new project with example seed.manifest.json file
+
+seed init [-d JOB_DIRECTORY]
+
+*-d  -directory* ::
+    Directory to place seed.manifest.json example. (default is current directory)    

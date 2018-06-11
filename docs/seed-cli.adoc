@@ -1,0 +1,55 @@
+= seed(1)
+Jonathan Meyer <jonathan.meyer@appliedis.com>; Mike Holt <mholt1@ball.com>; Derick Faller <dfaller@ball.com>; John Tobe <jtobe@ball.com>
+vSEED_VERSION
+:doctype: manpage
+:manmanual: SEED
+:mansource: SEED
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+seed - A test runner for Seed spec compliant algorithms
+
+== Synopsis
+
+*seed* [COMMAND] [OPTIONS]
+
+== Description
+
+The Seed team provides a fully featured Command-Line Interface (CLI) for algorithm developers looking to offer Seed compliant packaging of their jobs. Using the CLI will enable you to quickly iterate without getting bogged down learning how to interface directly with the underlying container technologies (Docker). It also simplifies the process of attaching Seed metadata to your algorithm prior to publish.
+
+== Commands
+Seed CLI offers sub-commands that correlate to common operations performed by an algorithm developer. These can be seen from the command-line by launching the CLI without any arguments.
+
+=== build
+include::seed-cli.build.adoc[]
+
+=== batch
+include::seed-cli.batch.adoc[]
+
+=== init
+include::seed-cli.init.adoc[]
+
+=== list 
+include::seed-cli.list.adoc[]
+
+=== publish
+include::seed-cli.publish.adoc[]
+
+=== pull
+include::seed-cli.pull.adoc[]
+
+=== run
+include::seed-cli.run.adoc[]
+
+=== search
+include::seed-cli.search.adoc[]
+
+=== validate
+include::seed-cli.validate.adoc[]
+
+=== version 
+
+Prints the current version of Seed spec
+
+seed version

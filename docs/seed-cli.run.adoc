@@ -1,0 +1,31 @@
+
+Executes Seed compliant Docker docker image
+
+seed run -in IMAGE_NAME [-rm] [-q] [-i INPUT_FILE_KEY=INPUT_FILE_VALUE] [-e SETTING_KEY=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] [-rep 5] [-s SCHEMA_FILE]
+
+*-in, -imageName* ::
+    Docker image name to run
+
+*-i, -inputs* ::
+    Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE
+
+*-e, -setting* ::
+    Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE
+
+*-m, -mount* ::
+    Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH
+
+*-o, -outDir* ::
+    Job Output Directory Location
+
+*-rm* ::
+    Automatically remove the container when it exits (docker run --rm)
+
+*-q, -quiet* ::
+    Suppress stdout when running docker image
+
+*-rep, -repetitions* ::
+    Run docker image multiple times (i.e. -rep 5 runs the image 5 times)
+
+*-s, -schema* ::
+    External Seed metadata schema file; Overrides built in schema to validate side-car metadata files

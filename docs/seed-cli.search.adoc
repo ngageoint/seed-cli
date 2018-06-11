@@ -1,0 +1,19 @@
+
+Allows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)
+
+seed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]
+
+*-r, -registry* ::
+    Specifies a specific registry to search (default is index.docker.io).
+    
+*-o, -org* ::
+    Specifies a specific organization to filter (default is no filter).
+
+*-f, -filter* ::
+    Specifies a filter to apply (default is no filter).
+
+*-u, -user* ::
+    Username to login to remote registry (default is anonymous).
+
+*-p, -password* ::
+    Password to login to remote registry (default is anonymous).
