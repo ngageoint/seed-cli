@@ -1,0 +1,3 @@
+Allows for listing of all Seed compliant images residing on the local system
+
+seed list

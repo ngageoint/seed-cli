@@ -1,0 +1,9 @@
+Validates a Seed spec
+
+seed validate [-d MANIFEST_DIRECTORY] [-s SCHEMA_FILE]
+
+*-d, -directory* ::
+    Specifies the directory in which Seed is located (default is the current directory)
+    
+*-s, -schema* ::
+    External Seed schema file; Overrides built in schema to validate Seed spec against

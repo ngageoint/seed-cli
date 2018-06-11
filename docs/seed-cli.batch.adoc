@@ -1,0 +1,28 @@
+
+Executes Seed compliant Docker image over multiple iterations
+
+seed batch -in IMAGE_NAME [-b BATCH_FILE | -d BATCH_DIRECTORY] [-e SETTING=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY]
+
+*-in, -imageName* ::
+    Docker image name to run; Required
+
+*-b,  -batch* ::
+    Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.
+    
+*-d, -directory* ::
+    Alternative to batch file; Specifies a directory of files to batch process (default is current directory)
+
+*-e,  -setting* ::
+    Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE
+
+*-m, -mount* ::
+    Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH
+
+*-o, -outDir* ::
+    Job Output Directory Location
+
+*-rm* ::
+    Automatically remove the container when it exits (docker run --rm)
+
+*-s,  -schema* ::
+    External Seed metadata schema file; Overrides built in schema to validate side-car metadata files

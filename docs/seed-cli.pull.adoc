@@ -1,0 +1,19 @@
+
+Allows for pulling Seed compliant images from remote Docker registry
+
+seed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u USER_NAME] [-p PASSWORD]
+
+*-in, -imageName* ::
+    Docker image name to pull
+
+*-r, -registry* ::
+    Specifies a specific registry (default is index.docker.io).
+
+*-o, -org* ::
+    Specifies a specific organization (default is no organization).
+
+*-u, -user* ::
+    Username to login to remote registry (default anonymous).
+
+*-p, -password* ::
+    Password to login to remote registry (default anonymous).
