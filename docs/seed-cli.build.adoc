@@ -1,12 +1,66 @@
 Builds Seed compliant Docker image 
 
-seed build [-d JOB_DIRECTORY] [-u USER_NAME -p PASSWORD]
+seed build [-d JOB_DIRECTORY] [-c] [-D DOCKERFILE_DIRECTORY] [-m MANIFEST_DIRECTORY] [-u USER_NAME -p PASSWORD] +
+
+*-c -cache-from* ::
+    Utilizes the --cache-from option when building the docker image
 
 *-d, -directory* ::
     Directory containing Seed spec and Dockerfile (default is current directory).
-    
+
+*-D -dockerfile* ::
+    Specifies the Dockerfile to use (default is Dockerfile within current directory)
+
+*-m -manifest* ::
+    Specifies the seed manifest file to use (default is seed.manifest.json within the current directory)
+
+*-v -version* ::
+    Version of built in seed manifest to validate against (default is 1.0.0).
+
 *-u, -user* ::
     Username to login if needed to pull images (default anonymous).
 
 *-p, -password* ::
     Password to login if needed to pull images (default anonymous).
+
+*-publish* ::
+    Will publish image after a successful build. May require extra arguments defined in the following sections
+
+*BUILD AND PUBLISH OPTIONS:*
+Specifying the -publish flag will automatically publish the built image. All flags specified by the seed publish command are available for use.
+
+seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f]
+
+*-r,  -registry* ::
+    Specifies a specific registry to publish the image (default is docker.io).
+
+*-o, -org* ::
+    Required argument that specifies a specific organization to publish the image under.
+
+*-f* ::
+    Forces overwrite of the remote image if publish conflict is found.
+
+*PUBLISH CONFLICT OPTIONS:*
+
+seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f [-pp | -pm | -P | -jp | -jm | -JM ]]
+
+If the force flag (-f) is not set, the following options specify how a publish conflict is handled: +
+
+*-pp* ::
+    Force Patch version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-pm* ::
+    Force Minor version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-P* ::
+    Force Major version bump of 'packageVersion' in manifest on disk if publish conflict found
+
+*-jp* ::
+    Force Patch version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*-jm* ::
+    Force Minor version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*-JM* ::
+    Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found
+
