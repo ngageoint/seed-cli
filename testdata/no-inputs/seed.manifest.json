@@ -1,7 +1,7 @@
 {
   "seedVersion": "1.0.0",
   "job": {
-    "name": "my-job",
+    "name": "no-inputs",
     "jobVersion": "0.0.1",
     "packageVersion": "0.0.1",
     "title": "My first job",
