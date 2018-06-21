@@ -60,12 +60,13 @@ import (
 	"strings"
 
 	"fmt"
-	"github.com/ngageoint/seed-cli/commands"
+	"strconv"
+
 	"github.com/ngageoint/seed-cli/assets"
+	"github.com/ngageoint/seed-cli/commands"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"strconv"
 )
 
 var batchCmd *flag.FlagSet
@@ -157,10 +158,34 @@ func main() {
 		version := buildCmd.Lookup(constants.VersionFlag).Value.String()
 		user := buildCmd.Lookup(constants.UserFlag).Value.String()
 		pass := buildCmd.Lookup(constants.PassFlag).Value.String()
-		err := commands.DockerBuild(jobDirectory, version, user, pass)
+		manifest := buildCmd.Lookup(constants.ManifestFlag).Value.String()
+		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
+		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
+		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
+		}
+
+		if buildCmd.Lookup(constants.PublishCommand).Value.String() == constants.TrueString {
+			registry := buildCmd.Lookup(constants.RegistryFlag).Value.String()
+			org := buildCmd.Lookup(constants.OrgFlag).Value.String()
+			force := buildCmd.Lookup(constants.ForcePublishFlag).Value.String() == constants.TrueString
+
+			P := buildCmd.Lookup(constants.PkgVersionMajor).Value.String() == constants.TrueString
+			pm := buildCmd.Lookup(constants.PkgVersionMinor).Value.String() == constants.TrueString
+			pp := buildCmd.Lookup(constants.PkgVersionPatch).Value.String() == constants.TrueString
+
+			J := buildCmd.Lookup(constants.JobVersionMajor).Value.String() == constants.TrueString
+			jm := buildCmd.Lookup(constants.JobVersionMinor).Value.String() == constants.TrueString
+			jp := buildCmd.Lookup(constants.JobVersionPatch).Value.String() == constants.TrueString
+
+			err := commands.DockerPublish(imgName, registry, org, user, pass, jobDirectory,
+				force, P, pm, pp, J, jm, jp)
+			if err != nil {
+				util.PrintUtil("%s\n", err.Error())
+				panic(util.Exit{1})
+			}
 		}
 		panic(util.Exit{0})
 	}
@@ -264,11 +289,29 @@ func main() {
 func DefineBuildFlags() {
 	// build command flags
 	buildCmd = flag.NewFlagSet(constants.BuildCommand, flag.ContinueOnError)
+	var cacheFrom string
+	buildCmd.StringVar(&cacheFrom, constants.CacheFromFlag, "",
+		"Image to use as cache source.")
+	buildCmd.StringVar(&cacheFrom, constants.ShortCacheFromFlag, "",
+		"Image to use as a cache source.")
+
 	var directory string
 	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
+
+	var manifest string
+	buildCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	buildCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+
+	var dockerfile string
+	buildCmd.StringVar(&dockerfile, constants.DockerfileFlag, ".",
+		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
+	buildCmd.StringVar(&dockerfile, constants.ShortDockerfileFlag, ".",
+		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
 
 	var version string
 	buildCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
@@ -287,6 +330,39 @@ func DefineBuildFlags() {
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
 	buildCmd.StringVar(&password, constants.ShortPassFlag, "",
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
+
+	var publish bool
+	buildCmd.BoolVar(&publish, constants.PublishCommand, false, "Publishes image after successful build.")
+
+	var registry string
+	buildCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to publish image to.")
+	buildCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to publish image to.")
+
+	var org string
+	buildCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to publish image to.")
+	buildCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to publish image to.")
+
+	var b bool
+	buildCmd.BoolVar(&b, constants.ForcePublishFlag, false,
+		"Force publish, do not deconflict")
+	var pPatch bool
+	buildCmd.BoolVar(&pPatch, constants.PkgVersionPatch, false,
+		"Patch version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var pMin bool
+	buildCmd.BoolVar(&pMin, constants.PkgVersionMinor, false,
+		"Minor version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var pMaj bool
+	buildCmd.BoolVar(&pMaj, constants.PkgVersionMajor, false,
+		"Major version bump of 'packageVersion' in manifest on disk, will auto rebuild and push")
+	var jPatch bool
+	buildCmd.BoolVar(&jPatch, constants.JobVersionPatch, false,
+		"Patch version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMin bool
+	buildCmd.BoolVar(&jMin, constants.JobVersionMinor, false,
+		"Minor version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
+	var jMaj bool
+	buildCmd.BoolVar(&jMaj, constants.JobVersionMajor, false,
+		"Major version bump of 'jobVersion' in manifest on disk, will auto rebuild and push")
 
 	// Print usage function
 	buildCmd.Usage = func() {

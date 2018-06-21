@@ -42,7 +42,7 @@ func TestDockerRun(t *testing.T) {
 		outputDir := "output"
 		metadataSchema := ""
 		version := "1.0.0"
-		DockerBuild(c.directory, version, "", "")
+		DockerBuild(c.directory, version, "", "", ".", ".", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
 			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil
@@ -133,10 +133,10 @@ func TestDefineInputJson(t *testing.T) {
 	}{
 		{"../testdata/complete/seed.manifest.json",
 			[]string{"wrong=input"},
-			"[]",  false, ""},
+			"[]", false, ""},
 		{"../examples/addition-job/seed.manifest.json",
 			[]string{"a=2", "b=2"},
-			"[-e a=2 -e b=2]",  true, ""},
+			"[-e a=2 -e b=2]", true, ""},
 		{"../testdata/complete/seed.manifest.json",
 			[]string{"INPUT_JSON={a: 1, b: 2}"},
 			"[-e INPUT_JSON={a: 1, b: 2}]", true, ""},
