@@ -49,12 +49,14 @@
     "errors": [
       {
         "code": 1,
+        "name": "data-error",
         "title": "Error Name",
         "description": "Error Description",
         "category": "data"
       },
       {
         "code": 2,
+        "name": "job-error",
         "title": "Error Name",
         "description": "Error Description",
         "category": "job"
