@@ -21,7 +21,7 @@ func TestSeedInit(t *testing.T) {
 	}{
 		{"../testdata/dummy-scratch/", "0.0.0", errors.New("This version of seed-cli does not have a sample manifest for version 0.0.0")},
 		{"../testdata/dummy-scratch/", "1.0.0", nil},
-		{"../testdata/complete/", "1.0.0",errors.New("Existing file left unmodified.")},
+		{"../testdata/complete/", "1.0.0", errors.New("Existing file left unmodified.")},
 	}
 
 	for _, c := range cases {
