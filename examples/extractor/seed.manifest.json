@@ -86,12 +86,14 @@
         "errors": [
             {
                 "code": 1,
+                "name": "data-error",
                 "title": "Short Read",
                 "description": "Completed with warning errors. One or more files were skipped due to unsupported compression method or encryption with an unknown password. ",
                 "category": "data"
             },
             {
                 "code": 2,
+                "name": "job-error",
                 "title": "Error Name",
                 "description": "Error Description",
                 "category": "job"

@@ -96,6 +96,7 @@
     "errors": [
       {
         "code": 1,
+        "name": "data-error",
         "title": "No Input Provided",
         "description": "No input files have been given. No data to add.",
         "category": "data"

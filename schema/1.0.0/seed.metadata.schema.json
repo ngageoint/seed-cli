@@ -5,6 +5,9 @@
   "description": "Schema for a Geo JSON object",
   "type": "object",
   "required": [ "type" ],
+  "properties": {
+    "bbox": { "$ref": "http://json-schema.org/geojson/bbox.json#" }
+  },
   "oneOf": [
     { "$ref": "#/definitions/geometry" },
     { "$ref": "#/definitions/geometryCollection" },
