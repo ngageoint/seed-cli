@@ -61,16 +61,15 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		typeStr = "metadata"
 	}
 
-	// Load supplied schema file
 	if schemaFile != "" {
+		// Load supplied schema file
 		util.PrintUtil("INFO: Validating seed %s file %s against schema file %s...\n",
 			typeStr, seedFileName, schemaFile)
 		schemaLoader := gojsonschema.NewReferenceLoader(schemaFile)
 		docLoader := gojsonschema.NewReferenceLoader("file:///" + seedFileName)
 		result, err = gojsonschema.Validate(schemaLoader, docLoader)
-
-		// Load baked-in schema file
 	} else {
+		// Load baked-in schema file
 		util.PrintUtil("INFO: Validating seed %s file %s against schema...\n",
 			typeStr, seedFileName)
 		if version == "" {
@@ -97,6 +96,11 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		return errors.New("ERROR: Error validating seed file against schema. Error is:" + err.Error() + "\n")
 	}
 
+	// Invalid JSON was detected, not sure why an err isn't provided...
+	if result == nil {
+		return errors.New("ERROR: Malformed JSON detected. Usually this is caused by trailing commas or unmatched parentheses.\n")
+	}
+
 	// Validation failed. Print results
 	var buffer bytes.Buffer
 	if !result.Valid() {
@@ -108,8 +112,8 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		}
 	}
 
-	//Identify any name collisions for the follwing reserved variables:
-	//		OUTPUT_DIR, ALLOCATED_CPUS, ALLOCATED_MEM, ALLOCATED_SHARED_MEM, ALLOCATED_STORAGE
+	//Identify any name collisions for the following reserved variables:
+	//		OUTPUT_DIR, ALLOCATED_CPUS, ALLOCATED_MEM, ALLOCATED_SHAREDMEM, ALLOCATED_STORAGE
 	util.PrintUtil("INFO: Checking for variable name collisions...\n")
 	seed := objects.SeedFromManifestFile(seedFileName)
 

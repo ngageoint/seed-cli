@@ -4,27 +4,15 @@
   "title": "Geo JSON object",
   "description": "Schema for a Geo JSON object",
   "type": "object",
-  "required": [
-    "type"
-  ],
+  "required": [ "type" ],
   "properties": {
-    "bbox": {
-      "$ref": "http://json-schema.org/geojson/bbox.json#"
-    }
+    "bbox": { "$ref": "http://json-schema.org/geojson/bbox.json#" }
   },
   "oneOf": [
-    {
-      "$ref": "#/definitions/geometry"
-    },
-    {
-      "$ref": "#/definitions/geometryCollection"
-    },
-    {
-      "$ref": "#/definitions/feature"
-    },
-    {
-      "$ref": "#/definitions/featureCollection"
-    }
+    { "$ref": "#/definitions/geometry" },
+    { "$ref": "#/definitions/geometryCollection" },
+    { "$ref": "#/definitions/feature" },
+    { "$ref": "#/definitions/featureCollection" }
   ],
   "definitions": {
     "geometry": {
@@ -129,133 +117,96 @@
     "geometryCollection": {
       "title": "GeometryCollection",
       "description": "A collection of geometry objects",
-      "required": [
-        "geometries"
-      ],
+      "required": [ "geometries" ],
       "properties": {
-        "type": {
-          "enum": [
-            "GeometryCollection"
-          ]
-        },
+        "type": { "enum": [ "GeometryCollection" ] },
         "geometries": {
           "type": "array",
-          "items": {
-            "$ref": "#/definitions/geometry"
-          }
+          "items": { "$ref": "#/definitions/geometry" }
         }
       }
     },
     "feature": {
       "title": "Feature",
       "description": "A Geo JSON feature object",
-      "required": [
-        "geometry",
-        "properties"
-      ],
+      "required": [ "geometry", "properties" ],
       "properties": {
-        "type": {
-          "enum": [
-            "Feature"
-          ]
-        },
+        "type": { "enum": [ "Feature" ] },
         "geometry": {
           "oneOf": [
-            {
-              "type": "null"
-            },
-            {
-              "$ref": "#/definitions/geometry"
-            }
+            { "type": "null" },
+            { "$ref": "#/definitions/geometry" }
           ]
         },
-        "properties": {
-          "type": [
-            "object",
-            "null"
-          ]
-        },
-        "id": {
-          "type": [
-            "string",
-            "number"
-          ]
-        }
+          "properties": { "type": [ "object", "null" ] },
+          "id": { "type": [ "string", "number" ] }
       }
     },
     "featureCollection": {
       "title": "FeatureCollection",
       "description": "A Geo JSON feature collection",
-      "required": [
-        "features"
-      ],
+      "required": [ "features" ],
       "properties": {
-        "type": {
-          "enum": [
-            "FeatureCollection"
-          ]
-        },
+        "type": { "enum": [ "FeatureCollection" ] },
         "features": {
           "type": "array",
-          "items": {
-            "$ref": "#/definitions/feature"
+          "items": { "$ref": "#/definitions/feature" }
+        }
+      }
+    },
+      "position": {
+        "description": "A single position",
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
           }
+        ],
+        "additionalItems": false
+      },
+      "positionArray": {
+        "description": "An array of positions",
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/position"
+        }
+      },
+      "lineString": {
+        "description": "An array of two or more positions",
+        "allOf": [
+          {
+            "$ref": "#/definitions/positionArray"
+          },
+          {
+            "minItems": 2
+          }
+        ]
+      },
+      "linearRing": {
+        "description": "An array of four positions where the first equals the last",
+        "allOf": [
+          {
+            "$ref": "#/definitions/positionArray"
+          },
+          {
+            "minItems": 4
+          }
+        ]
+      },
+      "polygon": {
+        "description": "An array of linear rings",
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/linearRing"
         }
       }
-    },
-    "position": {
-      "description": "A single position",
-      "type": "array",
-      "minItems": 2,
-      "maxItems": 3,
-      "items": [
-        {
-          "type": "number"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "number"
-        }
-      ],
-      "additionalItems": false
-    },
-    "positionArray": {
-      "description": "An array of positions",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/position"
-      }
-    },
-    "lineString": {
-      "description": "An array of two or more positions",
-      "allOf": [
-        {
-          "$ref": "#/definitions/positionArray"
-        },
-        {
-          "minItems": 2
-        }
-      ]
-    },
-    "linearRing": {
-      "description": "An array of four positions where the first equals the last",
-      "allOf": [
-        {
-          "$ref": "#/definitions/positionArray"
-        },
-        {
-          "minItems": 4
-        }
-      ]
-    },
-    "polygon": {
-      "description": "An array of linear rings",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/linearRing"
-      }
-    }
   }
 }
