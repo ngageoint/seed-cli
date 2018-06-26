@@ -20,6 +20,8 @@ func TestValidate(t *testing.T) {
 	}{
 		{"../examples/addition-job/seed.manifest.json", true, ""},
 		{"../examples/extractor/seed.manifest.json", true, ""},
+		{"../testdata/invalid-json-comma/seed.manifest.json", false, "Malformed JSON"},
+		{"../testdata/invalid-json-parens/seed.manifest.json", false, "Malformed JSON"},
 		{"../testdata/invalid-missing-job/seed.manifest.json",
 			false, "job is required"},
 		{"../testdata/invalid-missing-job-interface-inputs-files-name/seed.manifest.json",
