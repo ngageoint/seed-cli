@@ -565,7 +565,7 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			value = fmt.Sprintf("%d", intMem)
 		}
 
-		envVar := util.GetNormalizedVariable("ALLOCATED_"+s.Name)
+		envVar := util.GetNormalizedVariable("ALLOCATED_" + s.Name)
 		resources = append(resources, "-e")
 		resources = append(resources, fmt.Sprintf("%s=%s", envVar, value))
 	}
