@@ -2,8 +2,8 @@
   "seedVersion": "1.0.0",
   "job": {
     "name": "my-job",
-    "jobVersion": "0.1.0",
-    "packageVersion": "0.1.0",
+    "jobVersion": "0.1.3",
+    "packageVersion": "3.0.0",
     "title": "My first job",
     "description": "Reads an HDF5 file and outputs two png images, a CSV and manifest containing cell_count",
     "tags": [

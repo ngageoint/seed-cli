@@ -227,7 +227,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	var tempDirectories map[string]string
 	tempDirectories = make(map[string]string)
 	for _, f := range seed.Job.Interface.Inputs.Files {
-		normalName = util.GetNormalizedVariable(f.Name)
+		normalName := util.GetNormalizedVariable(f.Name)
 		if f.Multiple {
 			tempDir := "temp-" + time.Now().Format(time.RFC3339)
 			tempDir = strings.Replace(tempDir, ":", "_", -1)
@@ -284,7 +284,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			value, -1)
 
 		for _, k := range seed.Job.Interface.Inputs.Files {
-			normalName = util.GetNormalizedVariable(k.Name)
+			normalName := util.GetNormalizedVariable(k.Name)
 			if normalName == key {
 				if k.Multiple {
 					//directory has already been added to mount args, just link file into that directory
@@ -329,7 +329,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 	var keys []string
 	var unrequired []string
 	for _, f := range seed.Job.Interface.Inputs.Json {
-		normalName = util.GetNormalizedVariable(f.Name)
+		normalName := util.GetNormalizedVariable(f.Name)
 		if f.Required == false {
 			unrequired = append(unrequired, normalName)
 			continue
@@ -367,7 +367,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 			value, -1)
 
 		for _, k := range seed.Job.Interface.Inputs.Json {
-			normalName = util.GetNormalizedVariable(k.Name)
+			normalName := util.GetNormalizedVariable(k.Name)
 			if normalName == key {
 				envArgs = append(envArgs, "-e")
 				envArgs = append(envArgs, key+"="+value)
@@ -436,7 +436,7 @@ func SetOutputDir(imageName string, seed *objects.Seed, outputDir string) string
 
 //DefineMounts defines any seed specified mounts.
 func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
-	inMap := inputMap(inputs)
+	inMap := inputMap(inputs, false)
 
 	// Valid by default
 	valid := true
@@ -484,14 +484,15 @@ func DefineMounts(seed *objects.Seed, inputs []string) ([]string, error) {
 // Return []string of docker command arguments in form of:
 //	"-e setting1=val1 -e setting2=val2 etc"
 func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
-	inMap := inputMap(inputs)
+	inMap := inputMap(inputs, true)
 
 	// Valid by default
 	valid := true
 	var keys []string
 	for _, s := range seed.Job.Interface.Settings {
-		keys = append(keys, s.Name)
-		if _, prs := inMap[s.Name]; !prs {
+		normalName := util.GetNormalizedVariable(s.Name)
+		keys = append(keys, normalName)
+		if _, prs := inMap[normalName]; !prs {
 			valid = false
 		}
 
@@ -520,7 +521,7 @@ func DefineSettings(seed *objects.Seed, inputs []string) ([]string, error) {
 			value, -1)
 
 		settings = append(settings, "-e")
-		settings = append(settings, util.GetNormalizedVariable(key)+"="+value)
+		settings = append(settings, key+"="+value)
 	}
 
 	return settings, nil
