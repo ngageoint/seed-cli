@@ -353,22 +353,23 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 		return nil, errors.New(buffer.String())
 	}
 
-	for key, val := range inMap {
-		value, err := ReadJsonFile(val)
-		if err != nil {
-			value = val
-		}
+	for _, k := range seed.Job.Interface.Inputs.Json {
+		normalName := util.GetNormalizedVariable(k.Name)
 
-		// Replace key if found in args strings
-		// Handle replacing KEY or ${KEY} or $KEY
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
-			"${"+key+"}", value, -1)
-		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
-			value, -1)
-
-		for _, k := range seed.Job.Interface.Inputs.Json {
-			normalName := util.GetNormalizedVariable(k.Name)
+		for key, val := range inMap {
 			if normalName == key {
+				value, err := ReadJsonFile(val)
+				if err != nil {
+					value = val
+				}
+
+				// Replace key if found in args strings
+				// Handle replacing KEY or ${KEY} or $KEY
+				seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
+					"${"+key+"}", value, -1)
+				seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
+					value, -1)
+				
 				envArgs = append(envArgs, "-e")
 				envArgs = append(envArgs, key+"="+value)
 			}
