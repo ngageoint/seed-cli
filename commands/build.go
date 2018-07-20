@@ -85,6 +85,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 			util.PrintUtil("ERROR: Dockerfile not found. %s\n", err.Error())
 			return imageName, err
 		}
+		buildArgs = append(buildArgs, "-f")
 		buildArgs = append(buildArgs, dfile)
 	} else {
 		buildArgs = append(buildArgs, jobDirectory)
