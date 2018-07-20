@@ -297,21 +297,21 @@ func DefineBuildFlags() {
 
 	var directory string
 	buildCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
-		"Directory of seed spec and Dockerfile (default is current directory).")
+		"Build directory for docker and default location of seed spec and Dockerfile (default is current directory).")
 	buildCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",
-		"Directory of seed spec and Dockerfile (default is current directory).")
+		"Build directory for docker and default location of seed spec and Dockerfile (default is current directory).")
 
 	var manifest string
 	buildCmd.StringVar(&manifest, constants.ManifestFlag, ".",
-		"Manifest file to use (default is seed.manifest.json in the current directory).")
+		"Manifest file to use (default is seed.manifest.json in the build directory).")
 	buildCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
-		"Manifest file to use (default is seed.manifest.json in the current directory).")
+		"Manifest file to use (default is seed.manifest.json in the build directory).")
 
 	var dockerfile string
 	buildCmd.StringVar(&dockerfile, constants.DockerfileFlag, ".",
-		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
+		"Dockerfile to use (default is <build directory>/Dockerfile);")
 	buildCmd.StringVar(&dockerfile, constants.ShortDockerfileFlag, ".",
-		"Dockerfile to use (default is current directory); Overrides dockerfile specified in directory flag.")
+		"Dockerfile to use (default is <build directory>/Dockerfile);")
 
 	var version string
 	buildCmd.StringVar(&version, constants.VersionFlag, "1.0.0",
