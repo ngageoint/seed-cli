@@ -159,11 +159,5 @@ const VersionFlag = "version"
 //ShortVersionFlag - shorthand flag for version
 const ShortVersionFlag = "v"
 
-//PassthroughFlag allows flags to be passed through to docker
-const PassthroughFlag = "passthrough"
-
-//ShortPassthroughFlag - shorthand flag for passthrough
-const ShortPassthroughFlag = "pt"
-
 //ResultsFileManifestName defines the filename for the results_manifest file
 const ResultsFileManifestName = "seed.outputs.json"

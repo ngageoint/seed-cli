@@ -26,7 +26,7 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts, passthroughs []string, quiet bool) (int, error) {
+func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(util.PrintErr)
 	if quiet {
 		util.InitPrinter(util.Quiet)
@@ -48,8 +48,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	// build docker run command
 	dockerArgs := []string{"run"}
 
-	for _, pt := range passthroughs {
-		dockerArgs = append(dockerArgs, "--"+pt)
+	if rmDir {
+		dockerArgs = append(dockerArgs, "--rm")
 	}
 
 	var mountsArgs []string
@@ -749,9 +749,6 @@ func PrintRunUsage() {
 		constants.ShortRepeatFlag, constants.RepeatFlag)
 	util.PrintUtil("  -%s   -%s \t\tExternal Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	util.PrintUtil("  -%s  -%s \t Specifies argument to pass through to docker run command.\n",
-		constants.ShortPassthroughFlag, constants.PassthroughFlag)
-	util.PrintUtil("i.e. -pt rm -pt privileged will result in --rm and --privileged arguments being passed to docker run")
 	return
 }
 

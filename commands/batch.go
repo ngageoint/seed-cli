@@ -21,7 +21,7 @@ type BatchIO struct {
 	Outdir string
 }
 
-func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts, passthroughs []string) error {
+func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
 	if imageName == "" {
 		return errors.New("ERROR: No input image specified.")
 	}
@@ -63,7 +63,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	bar.Output = os.Stderr
 	defer bar.Finish()
 	for _, in := range inputs {
-		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, passthroughs, true)
+		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
 		//trim inputs to print only the key values and filenames
 		truncatedInputs := []string{}
@@ -100,6 +100,8 @@ func PrintBatchUsage() {
 		constants.ShortBatchFlag, constants.BatchFlag)
 	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
+		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
 	util.PrintUtil("  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
@@ -108,9 +110,6 @@ func PrintBatchUsage() {
 		constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
 	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
-	util.PrintUtil("  -%s  -%s \t Specifies argument to pass through to docker run command.\n",
-		constants.ShortPassthroughFlag, constants.PassthroughFlag)
-	util.PrintUtil("i.e. -pt rm -pt privileged will result in --rm and --privileged arguments being passed to docker run")
 	return
 }
 
