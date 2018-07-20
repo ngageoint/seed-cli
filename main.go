@@ -198,9 +198,9 @@ func main() {
 		settings := strings.Split(batchCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(batchCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
-		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		passthroughs := strings.Split(batchCmd.Lookup(constants.PassthroughFlag).Value.String(), ",")
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
-		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, passthroughs)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -216,7 +216,7 @@ func main() {
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(runCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := runCmd.Lookup(constants.JobOutputDirFlag).Value.String()
-		rmFlag := runCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
+		passthroughs := strings.Split(runCmd.Lookup(constants.PassthroughFlag).Value.String(), ",")
 		quiet := runCmd.Lookup(constants.QuietFlag).Value.String() == constants.TrueString
 		metadataSchema := runCmd.Lookup(constants.SchemaFlag).Value.String()
 
@@ -232,7 +232,7 @@ func main() {
 			if outputDir != "" {
 				outputDirRep = outputDir + fmt.Sprintf("-%d", i)
 			}
-			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
+			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, passthroughs, quiet)
 			if err != nil {
 				util.PrintUtil("%s\n", err.Error())
 				panic(util.Exit{1})
@@ -431,9 +431,11 @@ func DefineBatchFlags() {
 	batchCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
 		"Full path to the job output directory")
 
-	var rmVar bool
-	batchCmd.BoolVar(&rmVar, constants.RmFlag, false,
-		"Specifying the -rm flag automatically removes the image after executing docker run")
+	var passthroughs objects.ArrayFlags
+	batchCmd.Var(&passthroughs, constants.PassthroughFlag,
+		"Defines arguments to be passed through to docker run")
+	batchCmd.Var(&passthroughs, constants.ShortPassthroughFlag,
+		"Defines arguments to be passed through to docker run")
 
 	var metadataSchema string
 	batchCmd.StringVar(&metadataSchema, constants.SchemaFlag, "",
@@ -487,9 +489,11 @@ func DefineRunFlags() {
 	runCmd.StringVar(&outdir, constants.ShortJobOutputDirFlag, "",
 		"Full path to the job output directory")
 
-	var rmVar bool
-	runCmd.BoolVar(&rmVar, constants.RmFlag, false,
-		"Specifying the -rm flag automatically removes the image after executing docker run")
+	var passthroughs objects.ArrayFlags
+	runCmd.Var(&passthroughs, constants.PassthroughFlag,
+		"Defines arguments to be passed through to docker run")
+	runCmd.Var(&passthroughs, constants.ShortPassthroughFlag,
+		"Defines arguments to be passed through to docker run")
 
 	var quiet bool
 	runCmd.BoolVar(&quiet, constants.QuietFlag, false,

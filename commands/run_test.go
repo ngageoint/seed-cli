@@ -44,7 +44,7 @@ func TestDockerRun(t *testing.T) {
 		version := "1.0.0"
 		DockerBuild(c.directory, version, "", "", ".", ".", "")
 		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
-			c.inputs, c.json, c.settings, c.mounts, true, true)
+			c.inputs, c.json, c.settings, c.mounts, []string{"rm"}, true)
 		success := err == nil
 		if success != c.expected {
 			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
