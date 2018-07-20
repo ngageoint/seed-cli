@@ -369,7 +369,7 @@ func DefineInputJson(seed *objects.Seed, inputs []string) ([]string, error) {
 					"${"+key+"}", value, -1)
 				seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 					value, -1)
-				
+
 				envArgs = append(envArgs, "-e")
 				envArgs = append(envArgs, key+"="+value)
 			}
