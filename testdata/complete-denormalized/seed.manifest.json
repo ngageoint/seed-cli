@@ -2,8 +2,8 @@
   "seedVersion": "1.0.0",
   "job": {
     "name": "my-job",
-    "jobVersion": "0.1.0",
-    "packageVersion": "0.1.0",
+    "jobVersion": "0.1.2",
+    "packageVersion": "2.0.0",
     "title": "My first job",
     "description": "Reads an HDF5 file and outputs two png images, a CSV and manifest containing cell_count",
     "tags": [
@@ -25,7 +25,7 @@
       "inputs": {
         "files": [
           {
-            "name": "INPUT_FILE",
+            "name": "inPut-File",
             "mediaTypes": [
               "image/x-hdf5-image"
             ],
@@ -36,7 +36,7 @@
         ],
         "json": [
           {
-            "name": "INPUT_JSON",
+            "name": "inPut-JsOn",
             "type": "string",
             "required": true
           }
@@ -88,15 +88,15 @@
       ],
       "settings": [
         {
-          "name": "VERSION",
+          "name": "version",
           "secret": false
         },
         {
-          "name": "DB_HOST",
+          "name": "db-host",
           "secret": false
         },
         {
-          "name": "DB_PASS",
+          "name": "db-pass",
           "secret": true
         }
       ]
