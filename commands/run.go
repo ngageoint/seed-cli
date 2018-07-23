@@ -193,10 +193,10 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	}
 
 	if errs.String() != "" {
-		util.PrintUtil("ERROR: Error running image '%s':\n%s\n",
+		util.PrintUtil("stderr out for '%s':\n%s\n",
 			imageName, errs.String())
 		util.PrintUtil("Exiting seed...\n")
-		return exitCode, errors.New(errs.String())
+		// return exitCode, errors.New(errs.String())
 	}
 
 	// Validate output against pattern
