@@ -36,7 +36,7 @@ func TestDockerRun(t *testing.T) {
 			[]string{"HELLO=Hello"}, []string{"MOUNTAIN=../examples/"},
 			true, ""},
 		{"../examples/stderr-output/", "stderr-test-0.0.1-seed:0.1.0",
-			[]string{},
+			[]string{"INPUT_FILE=../examples/stderr-output/inputs.txt"},
 			[]string{},
 			[]string{}, []string{},
 			true, ""},
