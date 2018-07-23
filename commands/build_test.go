@@ -24,9 +24,9 @@ func TestDockerBuild(t *testing.T) {
 	}{
 		/*0*/ {"../examples/addition-job/", "1.0.0", ".", ".", true, ""},
 		/*1*/ {"../examples/extractor/", "1.0.0", ".", ".", true, ""},
-		/*2*/ {"../examples/extractor/", "1.0.0", "../examples/addition-job/seed.manifest.json", ".", true, ""},
-		/*3*/ {"../examples/addition-job/", "1.0.0", ".", "../examples/extractor", true, ""},
-		/*4*/ {"../examples/extractor/", "1.0.0", "../examples/addition-job/seed.manifest.json", "../examples/addition-job", true, ""},
+		/*2*/ {"../examples/addition-job/", "1.0.0", "../examples/addition-job/seed.manifest.json", ".", true, ""},
+		/*3*/ {"../examples/extractor/", "1.0.0", ".", "../examples/extractor/Dockerfile", true, ""},
+		/*4*/ {"../examples/addition-job/", "1.0.0", "../examples/addition-job/seed.manifest.json", "../examples/addition-job/Dockerfile", true, ""},
 		/*5*/ {"", "", ".", ".", false, "seed.manifest.json cannot be found"},
 	}
 
@@ -34,7 +34,8 @@ func TestDockerBuild(t *testing.T) {
 		_, err := DockerBuild(c.directory, c.version, "", "", c.manifest, c.dockerfile, "")
 		success := err == nil
 		if success != c.expected {
-			t.Errorf("DockerBuild(%v, %v, %v, %v) == %v, expected %v", c.directory, c.version, "", "", success, c.expected)
+			t.Errorf("DockerBuild(%v, %v, %v, %v, %v, %v, %v) == %v, expected %v", c.directory, c.version, "", "",
+				c.manifest, c.dockerfile, "", success, c.expected)
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {

@@ -100,14 +100,14 @@ func PrintBatchUsage() {
 		constants.ShortBatchFlag, constants.BatchFlag)
 	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
+	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
+		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",
 		constants.ShortSettingFlag, constants.SettingFlag)
 	util.PrintUtil("  -%s  -%s \t Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH\n",
 		constants.ShortMountFlag, constants.MountFlag)
 	util.PrintUtil("  -%s  -%s \t Job Output Directory Location\n",
 		constants.ShortJobOutputDirFlag, constants.JobOutputDirFlag)
-	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
-		constants.RmFlag)
 	util.PrintUtil("  -%s  -%s \t External Seed metadata schema file; Overrides built in schema to validate side-car metadata files\n",
 		constants.ShortSchemaFlag, constants.SchemaFlag)
 	return

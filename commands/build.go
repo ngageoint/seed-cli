@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
@@ -85,10 +86,13 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 			util.PrintUtil("ERROR: Dockerfile not found. %s\n", err.Error())
 			return imageName, err
 		}
+		buildArgs = append(buildArgs, "-f")
 		buildArgs = append(buildArgs, dfile)
-	} else {
-		buildArgs = append(buildArgs, jobDirectory)
 	}
+
+	buildArgs = append(buildArgs, util.GetFullPath(jobDirectory, ""))
+
+	util.PrintUtil("Build command: docker %s\n", strings.Join(buildArgs, " "))
 
 	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label

@@ -768,7 +768,11 @@ func inputMap(inputs []string, normalize bool) map[string]string {
 			continue
 		}
 
-		inMap[util.GetNormalizedVariable(x[0])] = x[1]
+		if normalize {
+			inMap[util.GetNormalizedVariable(x[0])] = x[1]
+		} else {
+			inMap[x[0]] = x[1]
+		}
 	}
 	return inMap
 }
