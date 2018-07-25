@@ -35,6 +35,11 @@ func TestDockerRun(t *testing.T) {
 			[]string{},
 			[]string{"HELLO=Hello"}, []string{"MOUNTAIN=../examples/"},
 			true, ""},
+		{"../testdata/stderr-output/", "stderr-test-0.0.1-seed:0.1.0",
+			[]string{"INPUT_FILE=../testdata/stderr-output/inputs.txt"},
+			[]string{},
+			[]string{}, []string{},
+			true, ""},
 	}
 
 	for _, c := range cases {
