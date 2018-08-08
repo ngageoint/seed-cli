@@ -5,15 +5,17 @@ seed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u USER_NAME
 
 *-in, -imageName* ::
     Docker image name to pull
-
 *-r, -registry* ::
     Specifies a specific registry (default is index.docker.io).
-
 *-o, -org* ::
     Specifies a specific organization (default is no organization).
-
 *-u, -user* ::
     Username to login to remote registry (default anonymous).
-
 *-p, -password* ::
     Password to login to remote registry (default anonymous).
+
+*EXAMPLE:* +
+Pulls the extractor-0.1.0-seed:1.0.0 image from the docker.io/geoint registry:
+
+    seed pull -in extractor-0.1.0-seed:0.1.0 -r docker.io -o geoint
+

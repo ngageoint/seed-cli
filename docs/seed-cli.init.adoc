@@ -1,7 +1,12 @@
 
-Initialize new project with example seed.manifest.json file
+Initializes new project directory with template seed.manifest.json file
 
 seed init [-d JOB_DIRECTORY]
 
 *-d, -directory* ::
     Directory to place the generated seed.manifest.json example (default is current directory).
+
+*EXAMPLE:* +
+The following command will put a template seed.manifest.json file in the examples/job directory:
+
+seed init -d examples/job

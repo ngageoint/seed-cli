@@ -4,16 +4,14 @@ Allows for discovery of Seed compliant images hosted within a Docker registry (d
 seed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]
 
 *-r, -registry* ::
-    Specifies a specific registry to search (default is index.docker.io).
-    
+    Specifies a specific registry to search (default is index.docker.io).   
 *-o, -org* ::
     Specifies a specific organization to filter (default is no filter).
-
 *-f, -filter* ::
     Specifies a filter to apply (default is no filter).
-
 *-u, -user* ::
     Username to login to remote registry (default is anonymous).
-
 *-p, -password* ::
     Password to login to remote registry (default is anonymous).
+
+*Note:* The Docker engine API does not support returning result sets of over 100 images due to no pagination capability. Until the API supports paginating over 100 results, the `seed search` command will only return a maximum of 100 seed image results. Furthermore, the docker engine search capability strips all special characters and will return images that contain any search term. Searching for foo-seed will return images with foo or seed in the name. 

@@ -15,7 +15,7 @@ seed - A test runner for Seed spec compliant algorithms
 *seed* [COMMAND] [OPTIONS] 
 
 *seed* batch -in IMAGE_NAME [-b BATCH_FILE | -d BATCH_DIRECTORY] [-e SETTING=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] +
-*seed* build [-d JOB_DIRECTORY] [-u USER_NAME -p PASSWORD] +
+*seed* build [-d JOB_DIRECTORY] [-u USER_NAME -p PASSWORD] [-publish Publish Options] +
 *seed* init [-d JOB_DIRECTORY] +
 *seed* list +
 *seed* publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options] +

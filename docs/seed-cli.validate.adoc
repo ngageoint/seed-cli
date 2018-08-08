@@ -1,9 +1,20 @@
 Validates a Seed spec
 
+The Validate command will validate a Seed json file against the Seed schema. This is also done as part of the build and run commands, but if a user is having problems getting their Seed file to validate this can be useful to debug without those additional steps. 
+
 seed validate [-d MANIFEST_DIRECTORY] [-s SCHEMA_FILE]
 
 *-d, -directory* ::
     Specifies the directory in which Seed is located (default is the current directory)
-    
 *-s, -schema* ::
     External Seed schema file; Overrides built in schema to validate Seed spec against
+
+*EXAMPLE:* +
+This command will validate the Seed file in the examples/extractor directory using the schema built-in to the Seed CLI tool:
+
+seed validate -d examples/extractor
+
+*EXAMPLE:* +
+To use a different schema, pass it in using the -s flag: 
+
+seed validate -d examples/extractor -s schema/0.1.0/seed.manifest.schema.json
