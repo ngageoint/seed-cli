@@ -38,12 +38,23 @@ seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f]
 
 *-r,  -registry* ::
     Specifies a specific registry to publish the image (default is docker.io).
+<<<<<<< HEAD
 *-o, -org* ::
     Required argument that specifies a specific organization to publish the image under.
+=======
+
+*-o, -org* ::
+    Required argument that specifies a specific organization to publish the image under.
+
+>>>>>>> fb6a11231aab4b25e79657cd9054c4776462152e
 *-f* ::
     Forces overwrite of the remote image if publish conflict is found.
 
 *PUBLISH CONFLICT OPTIONS:*
+<<<<<<< HEAD
+=======
+
+>>>>>>> fb6a11231aab4b25e79657cd9054c4776462152e
 seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f [-pp | -pm | -P | -jp | -jm | -JM ]]
 
 If the force flag (-f) is not set, the following options specify how a publish conflict is handled: +

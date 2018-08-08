@@ -1,8 +1,11 @@
 
 Executes Seed compliant Docker docker image
 
+<<<<<<< HEAD
 The primary purpose of the Seed CLI is to easily enable algorithm execution. The common stumbling blocks for new developers are being able to feed data into and retrieve out fo the containers as a part of execution. The seed run command facilitates this through introspection of the Seed interface indicating exactly what input data is required, allowing for simply specifying the system locations of data and handling all mounting and output validation and capture operations for the developer.
 
+=======
+>>>>>>> fb6a11231aab4b25e79657cd9054c4776462152e
 seed run -in IMAGE_NAME [-rm] [-q] [-i INPUT_FILE_KEY=INPUT_FILE_VALUE] [-e SETTING_KEY=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] [-rep 5] [-s SCHEMA_FILE]
 
 *-in, -imageName* ::
