@@ -30,6 +30,7 @@ build:
     - output/seed-windows-amd64
   script:
     - ./build-cli.sh $CI_COMMIT_TAG
+    - ./generate-manpage.sh
   only:
     - tags
 
