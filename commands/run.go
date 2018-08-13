@@ -157,7 +157,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	dockerRun := exec.Command("docker", dockerArgs...)
 	var errs bytes.Buffer
 	if !quiet {
-		dockerRun.Stderr = io.MultiWriter(&errs)
+		dockerRun.Stderr = io.MultiWriter(&errs, os.Stderr)
 		dockerRun.Stdout = os.Stderr
 	}
 
@@ -193,7 +193,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	}
 
 	if errs.String() != "" {
-		util.PrintUtil("stderr out for '%s':\n%s\n",
+		util.PrintUtil("stderr for '%s':\n%s\n",
 			imageName, errs.String())
 	}
 
