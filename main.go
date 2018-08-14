@@ -55,8 +55,12 @@ usage is as folllows:
 package main
 
 import (
+	"bytes"
+	"errors"
 	"flag"
+	"io"
 	"os"
+	"os/exec"
 	"strings"
 
 	"fmt"
@@ -80,6 +84,7 @@ var searchCmd *flag.FlagSet
 var validateCmd *flag.FlagSet
 var versionCmd *flag.FlagSet
 var cliVersion string
+var specCmd *flag.FlagSet
 
 func main() {
 	util.InitPrinter(util.PrintErr)
@@ -683,6 +688,11 @@ func DefineFlags() {
 		PrintVersionUsage()
 	}
 
+	specCmd = flag.NewFlagSet(constants.SpecCommand, flag.ExitOnError)
+	specCmd.Usage = func() {
+		PrintSpecUsage()
+	}
+
 	// Print usage if no command given
 	if len(os.Args) == 1 {
 		PrintUsage()
@@ -742,6 +752,10 @@ func DefineFlags() {
 		versionCmd.Parse(os.Args[2:])
 		PrintVersion()
 
+	case constants.SpecCommand:
+		specCmd.Parse(os.Args[2:])
+		PrintSpec()
+
 	default:
 		util.PrintUtil("%q is not a valid command.\n", os.Args[1])
 		PrintUsage()
@@ -773,6 +787,7 @@ func PrintUsage() {
 	util.PrintUtil("  pull\t\tAllows for pulling Seed compliant images from remote Docker registry\n")
 	util.PrintUtil("  run   \tExecutes Seed compliant Docker docker image\n")
 	util.PrintUtil("  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
+	util.PrintUtil("  spec\t\tDisplays the specification for the current Seed version\n")
 	util.PrintUtil("  validate\tValidates a Seed spec\n")
 	util.PrintUtil("  version\tPrints the version of Seed spec\n")
 	util.PrintUtil("\nRun 'seed COMMAND --help' for more information on a command.\n")
@@ -796,4 +811,32 @@ func PrintVersion() {
 	}
 	util.PrintUtil("Supported Seed schema versions: %s\n", schemas)
 	panic(util.Exit{0})
+}
+
+//PrintSpec shows the seed-spec manual page as help text
+func PrintSpec() error {
+
+	cmd := exec.Command("man", "seed-spec")
+	var errs bytes.Buffer
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stderr
+
+	// Run docker build
+	cmd.Run()
+
+	if errs.String() != "" {
+		util.PrintUtil("ERROR: Error displaying seed spec:\n%s\n",
+			errs.String())
+		util.PrintUtil("Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	return nil
+}
+
+//PrintBuildUsage prints the seed build usage arguments, then exits the program
+func PrintSpecUsage() {
+	util.PrintUtil("\nUsage:\tseed spec\n")
+	util.PrintUtil("\nDisplays the manual entry for the seed spec\n")
+	return
 }
