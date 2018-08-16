@@ -71,6 +71,7 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"github.com/zyxar/image2ascii/ascii"
 )
 
 var batchCmd *flag.FlagSet
@@ -776,6 +777,7 @@ func DefineFlags() {
 
 //PrintUsage prints the seed usage arguments
 func PrintUsage() {
+	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed COMMAND\n\n")
 	util.PrintUtil("A test runner for seed spec compliant algorithms\n\n")
 	util.PrintUtil("Commands:\n")
@@ -796,6 +798,7 @@ func PrintUsage() {
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
+	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed version \n")
 	util.PrintUtil("\nOutputs the version of the Seed CLI and specification.\n")
 	panic(util.Exit{0})
@@ -803,6 +806,7 @@ func PrintVersionUsage() {
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
+	PrintASCIIArt()
 	util.PrintUtil("Seed CLI v%s\n", cliVersion)
 	schemas, err := assets.AssetDir("schema")
 	if err != nil {
@@ -836,7 +840,15 @@ func PrintSpec() error {
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintSpecUsage() {
+	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed spec\n")
 	util.PrintUtil("\nDisplays the manual entry for the seed spec\n")
 	return
+}
+
+//PrintAsciiArt prints the ascii art before any seed help
+func PrintASCIIArt() {
+	imgBytes, _ := assets.Asset("images/wordmark.png")
+	a, _ := ascii.Decode(bytes.NewReader(imgBytes), ascii.Options{Color: true})
+	a.WriteTo(os.Stdout)
 }
