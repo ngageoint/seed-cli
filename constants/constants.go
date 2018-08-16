@@ -14,7 +14,6 @@ const RunCommand = "run"
 const SearchCommand = "search"
 const ValidateCommand = "validate"
 const VersionCommand = "version"
-const SpecCommand = "spec"
 
 //CacheFromFlag defines the docker cache-from option to utilize a previous built image
 const CacheFromFlag = "cache-from"
