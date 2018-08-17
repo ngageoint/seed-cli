@@ -10,9 +10,9 @@ func TestStreamPainter(t *testing.T) {
 	writer := NewStreamPainter(color.FgRed)
 	_, err := writer.Write([]byte("should be in red"))
 	if err != nil {
-		t.Error("ERRORED")
+		t.Errorf("Error should be 'nil', but was %v", err.Error())
 	}
 	if writer.paintColor != color.FgRed {
-		t.Error("ERRORED")
+		t.Errorf("Assigned color expected FgRed, but was %v", writer.paintColor)
 	}
 }
