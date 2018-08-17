@@ -3,7 +3,11 @@ package streampainter
 import (
 	"os"
 
+<<<<<<< HEAD
 	"github.com/fatih/color"
+=======
+	"github.com/faith/color"
+>>>>>>> 9060b75... added red text for stderr output
 )
 
 type StreamPainter struct {
