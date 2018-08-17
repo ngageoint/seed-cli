@@ -1,0 +1,309 @@
+= seed(1)
+Jonathan Meyer <jonathan.meyer@appliedis.com>; Mike Holt <mholt1@ball.com>; Derick Faller <dfaller@ball.com>; John Tobe <jtobe@ball.com>
+vSEED_VERSION
+:doctype: manpage
+:manmanual: SEED
+:mansource: SEED
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+seed - A test runner for Seed spec compliant algorithms
+
+== Synopsis
+
+*seed* [COMMAND] [OPTIONS] 
+
+*seed* batch -in IMAGE_NAME [-b BATCH_FILE | -d BATCH_DIRECTORY] [-e SETTING=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] +
+*seed* build [-d JOB_DIRECTORY] [-u USER_NAME -p PASSWORD] [-publish Publish Options] +
+*seed* init [-d JOB_DIRECTORY] +
+*seed* list +
+*seed* publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options] +
+*seed* pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u USER_NAME] [-p PASSWORD] +
+*seed* run -in IMAGE_NAME [-rm] [-q] [-i INPUT_FILE_KEY=INPUT_FILE_VALUE] [-e SETTING_KEY=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] [-rep 5] [-s SCHEMA_FILE] +
+*seed* search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password] +
+*seed* validate [-d MANIFEST_DIRECTORY] [-s SCHEMA_FILE] +
+*seed* version
+
+== Description
+
+include::readme.adoc[tag=intro]
+
+== Commands
+include::readme.adoc[tag=command-intro]
+
+=== batch
+
+Executes Seed compliant Docker image over multiple iterations
+
+include::readme.adoc[tag=batch-usage]
+
+seed batch -in IMAGE_NAME [-b BATCH_FILE | -d BATCH_DIRECTORY] [-e SETTING=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY]
+
+*-in, -imageName* ::
+    Docker image name to run; Required argument.
+*-b, -batch* ::
+    Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.  
+*-d, -directory* ::
+    Alternative to batch file; Specifies a directory of files to batch process (default is current directory).
+*-e, -setting* ::
+    Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE.
+*-m, -mount* ::
+    Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH.
+*-o, -outDir* ::
+    Specifies the job output directory.
+*-rm* ::
+    Automatically removes the container when the job exits (i.e. docker run --rm)
+*-s, -schema* ::
+    External Seed metadata schema file; Overrides built in schema to validate side-car metadata files
+
+*EXAMPLE:* + 
+include::readme.adoc[tag=batch-example]
+
+=== build
+
+Builds Seed compliant Docker image
+
+include::readme.adoc[tag=build-usage]
+
+seed build [-d JOB_DIRECTORY] [-c] [-D DOCKERFILE_DIRECTORY] [-m MANIFEST_DIRECTORY] [-u USER_NAME -p PASSWORD]
+
+*-c, -cache-from* ::
+    Utilizes the --cache-from option when building the docker image
+*-d, -directory* ::
+    Directory containing Seed spec and Dockerfile (default is current directory).
+*-D, -dockerfile* ::
+    Specifies the Dockerfile to use (default is Dockerfile within current directory)
+*-m, -manifest* ::
+    Specifies the seed manifest file to use (default is seed.manifest.json within the current directory)
+*-v, -version* ::
+    Version of built in seed manifest to validate against (default is 1.0.0).
+*-u, -user* ::
+    Username to login if needed to pull images (default anonymous).
+*-p, -password* ::
+    Password to login if needed to pull images (default anonymous).
+*-publish* ::
+    Will publish image after a successful build. May require extra arguments defined in the following sections
+
+*EXAMPLE*: +
+include::readme.adoc[tag=build-example]
+
+*BUILD AND PUBLISH OPTIONS:* +
+include::readme.adoc[tag=build-publish-usage]
+
+seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f]
+
+*-r,  -registry* ::
+    Specifies a specific registry to publish the image (default is docker.io).
+*-o, -org* ::
+    Required argument that specifies a specific organization to publish the image under.
+*-f* ::
+    Forces overwrite of the remote image if publish conflict is found.
+
+*PUBLISH CONFLICT OPTIONS:* +
+seed build [...] -publish -r REGISTRY -o ORGANIZATION [-f [-pp | -pm | -P | -jp | -jm | -JM ]]
+
+If the force flag (-f) is not set, the following options specify how a publish conflict is handled: +
+
+*-pp* ::
+    Force Patch version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-pm* ::
+    Force Minor version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-P* ::
+    Force Major version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-jp* ::
+    Force Patch version bump of 'jobVersion' in manifest on disk if publish conflict found
+*-jm* ::
+    Force Minor version bump of 'jobVersion' in manifest on disk if publish conflict found
+*-JM* ::
+    Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+=== init
+
+include::readme.adoc[tag=init-usage]
+
+seed init [-d JOB_DIRECTORY]
+
+*-d, -directory* ::
+    Directory to place the generated seed.manifest.json example (default is current directory).
+
+*EXAMPLE:* +
+include::readme.adoc[tag=init-example]
+
+=== list 
+
+Allows for listing of all Seed compliant images residing on the local system
+
+seed list
+
+*Example Output:* +
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE +
+extractor-0.1.0-seed      2.0.0               cb4065fe9c8f        7 days ago          4.15MB +
+addition-job-0.0.1-seed   1.0.0               15c15cf4a896        7 days ago          684MB +
+my-job-1.0.0-seed         1.0.0               dc955d34436f        13 days ago         3.97MB +
+test-seed                 latest              71e4d4addfdd        10 months ago       0B
+
+=== publish
+
+Publishes Seed compliant images to remote Docker registry
+
+include::readme.adoc[tag=publish-usage]
+
+Publishing will check if an image with the same name and tag exists in the registry and will fail if one is found unless either the force flag (-f) is set or a deconflict tag is specified to increase a version number. A common use case for seed algorithm developers is to publish new versions of their image and this can be done by specifying one of the job or package version flags. 
+
+seed publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]
+
+*-in, -imageName* ::
+    Specifies the Docker image name to publish; Must be an existing image residing on the local system.
+*-r, -registry* ::
+    Specifies a specific registry to publish the image (default is docker.io)
+*-o, -org* ::
+    Specifies a specific organization to publish the image under.
+*-u, -user* ::
+    Username to login if needed to publish images (default anonymous).
+*-p, -password* ::
+    Password to login if needed to publish images (default anonymous).
+*-f* ::
+    Forces overwrite of the remote image if publish conflict is found.
+
+*CONFLICT OPTIONS* +
+seed publish ... -f [-d SEED_DIRECTORY] [-pp] [-pm] [-P] [-jp] [-J]
+
+If the force flag (-f) is not set, the following options specify how a publish conflict is handled:
+
+*-d, -directory* ::
+    Specifies the directory containing the seed.manifest.json and dockerfile to rebuild the image. 
+*-pp* ::
+    Force Patch version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-pm* ::
+    Force Minor version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-P* ::
+    Force Major version bump of 'packageVersion' in manifest on disk if publish conflict found
+*-jp* ::
+    Force Patch version bump of 'jobVersion' in manifest on disk if publish conflict found
+*-jm* ::
+    Force Minor version bump of 'jobVersion' in manifest on disk if publish conflict found
+*-J* ::
+    Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found
+
+*EXAMPLE:* +
+This will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint +
+
+    seed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -jm -P
+
+Deconfliction is obtained by incrementing the minor version number of the 'jobVersion' and the major version number of the 'packageVersion'.
+
+*EXAMPLE:* + 
+This is an example of updating the existing extractor image to 1.0.0 by forcing a major package version bump:
+
+    seed publish -in extractor-0.1.0-seed:0.1.0 -r docker.io -o geoint -P
+
+*EXAMPLE:* +
+include::readme.adoc[tag=publish-example-3]
+
+=== pull
+
+Allows for pulling Seed compliant images from remote Docker registry
+
+seed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u USER_NAME] [-p PASSWORD]
+
+*-in, -imageName* ::
+    Docker image name to pull
+*-r, -registry* ::
+    Specifies a specific registry (default is index.docker.io).
+*-o, -org* ::
+    Specifies a specific organization (default is no organization).
+*-u, -user* ::
+    Username to login to remote registry (default anonymous).
+*-p, -password* ::
+    Password to login to remote registry (default anonymous).
+
+*EXAMPLE:* +
+include::readme.adoc[tag=pull-example]
+
+=== run
+
+Executes Seed compliant Docker docker image
+
+include::readme.adoc[tag=run-usage]
+
+seed run -in IMAGE_NAME [-rm] [-q] [-i INPUT_FILE_KEY=INPUT_FILE_VALUE] [-e SETTING_KEY=SETTING_VALUE] [-m MOUNT_KEY=HOST_PATH] [-o OUTPUT_DIRECTORY] [-rep 5] [-s SCHEMA_FILE]
+
+*-in, -imageName* ::
+    Docker image name to run
+
+*-i, -inputs* ::
+    Specifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE
+
+*-e, -setting* ::
+    Specifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE
+
+*-m, -mount* ::
+    Specifies the key/value mount values of the seed spec in the format MOUNT_KEY=HOST_PATH
+
+*-o, -outDir* ::
+    Job Output Directory Location
+
+*-rm* ::
+    Automatically remove the container when it exits (docker run --rm)
+
+*-q, -quiet* ::
+    Suppress stdout when running docker image
+
+*-rep, -repetitions* ::
+    Run docker image multiple times (i.e. -rep 5 runs the image 5 times)
+
+*-s, -schema* ::
+    External Seed metadata schema file; Overrides built in schema to validate side-car metadata files
+
+*EXAMPLE:* +
+include::readme.adoc[tag=run-example]
+
+=== search
+
+include::readme.adoc[tag=search-usage]
+
+seed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]
+
+*-r, -registry* ::
+    Specifies a specific registry to search (default is index.docker.io).   
+*-o, -org* ::
+    Specifies a specific organization to filter (default is no filter).
+*-f, -filter* ::
+    Specifies a filter to apply (default is no filter).
+*-u, -user* ::
+    Username to login to remote registry (default is anonymous).
+*-p, -password* ::
+    Password to login to remote registry (default is anonymous).
+
+*Note:* The Docker engine API does not support returning result sets of over 100 images due to no pagination capability. Until the API supports paginating over 100 results, the `seed search` command will only return a maximum of 100 seed image results. Furthermore, the docker engine search capability strips all special characters and will return images that contain any search term. Searching for foo-seed will return images with foo or seed in the name. 
+
+*EXAMPLE:* +
+include::readme.adoc[tag=search-example-1]
+
+*EXAMPLE:* +
+include::readme.adoc[tag=search-example-2]
+
+*EXAMPLE:* +
+include::readme.adoc[tag=search-example-3]
+
+=== validate
+Validates a Seed spec
+
+include::readme.adoc[tag=validate-usage]
+
+seed validate [-d MANIFEST_DIRECTORY] [-s SCHEMA_FILE]
+
+*-d, -directory* ::
+    Specifies the directory in which Seed is located (default is the current directory)
+*-s, -schema* ::
+    External Seed schema file; Overrides built in schema to validate Seed spec against
+
+*EXAMPLE:* +
+include::readme.adoc[tag=validate-example-1]
+
+*EXAMPLE:* +
+include::readme.adoc[tag=validate-example-2]
+
+=== version 
+include::readme.adoc[tag=version]
