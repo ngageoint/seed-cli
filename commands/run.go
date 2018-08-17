@@ -18,7 +18,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/faith/color"
 	"github.com/ngageoint/seed-cli/constants"
+	"github.com/ngageoint/seed-cli/streampainter"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
@@ -157,7 +159,7 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	dockerRun := exec.Command("docker", dockerArgs...)
 	var errs bytes.Buffer
 	if !quiet {
-		dockerRun.Stderr = io.MultiWriter(&errs, os.Stderr)
+		dockerRun.Stderr = io.MultiWriter(&errs, streampainter.NewStreamPainter(color.FgRed))
 		dockerRun.Stdout = os.Stderr
 	}
 

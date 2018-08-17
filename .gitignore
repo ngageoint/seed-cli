@@ -13,3 +13,6 @@ temp-*
 
 # test manifests updated during tests
 testdata/complete/seed.manifest.json
+
+# useless OSX Finder files
+*.DS_Store
