@@ -6,7 +6,7 @@ pushd "${0%/*}" > /dev/null
 
 UNAME=$(uname -s)
 
-vendor/go-bindata-${UNAME} -pkg assets -o assets/assets.go ./schema/*
+vendor/go-bindata-${UNAME} -pkg assets -o assets/assets.go ./schema/* ./images/wordmark.png
 
 go run main.go "$@"
 
