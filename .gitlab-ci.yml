@@ -20,7 +20,8 @@ before_script:
   - mkdir -p $GOPATH/src/github.com/ngageoint
   - ln -s $(pwd) $GOPATH/src/github.com/ngageoint/seed-cli
   - cd $GOPATH/src/github.com/ngageoint/seed-cli
-
+  - docker pull rochdev/alpine-asciidoctor:mini
+  
 build:
   stage: build
   artifacts:
@@ -30,7 +31,7 @@ build:
     - output/seed-windows-amd64
   script:
     - ./build-cli.sh $CI_COMMIT_TAG
-    - ./generate-manpage.sh
+    - docker run -v readme.adoc:/documents/readme.adoc -v seed-cli.adoc:/documents/seed-cli.adoc --name=seed-man rochdev/alpine-asciidoctor:mini asciidoctor -b manpage -D /documents/output seed-cli.adoc
   only:
     - tags
 
