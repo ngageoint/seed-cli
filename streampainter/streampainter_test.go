@@ -3,7 +3,7 @@ package streampainter
 import (
 	"testing"
 
-	"github.com/faith/color"
+	"github.com/fatih/color"
 )
 
 func TestStreamPainter(t *testing.T) {

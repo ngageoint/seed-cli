@@ -18,7 +18,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/faith/color"
+	"github.com/fatih/color"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/streampainter"
 	common_const "github.com/ngageoint/seed-common/constants"

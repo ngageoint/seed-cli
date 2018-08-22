@@ -3,7 +3,7 @@ package streampainter
 import (
 	"os"
 
-	"github.com/faith/color"
+	"github.com/fatih/color"
 )
 
 type StreamPainter struct {
