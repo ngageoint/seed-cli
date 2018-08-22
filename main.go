@@ -55,6 +55,7 @@ usage is as folllows:
 package main
 
 import (
+	"bytes"
 	"flag"
 	"os"
 	"strings"
@@ -67,6 +68,7 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"github.com/zyxar/image2ascii/ascii"
 )
 
 var batchCmd *flag.FlagSet
@@ -366,6 +368,7 @@ func DefineBuildFlags() {
 
 	// Print usage function
 	buildCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintBuildUsage()
 	}
 }
@@ -387,6 +390,7 @@ func DefineInitFlags() {
 
 	// Print usage function
 	initCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintInitUsage()
 	}
 }
@@ -443,6 +447,7 @@ func DefineBatchFlags() {
 
 	// Run usage function
 	batchCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintBatchUsage()
 	}
 }
@@ -511,6 +516,7 @@ func DefineRunFlags() {
 
 	// Run usage function
 	runCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintRunUsage()
 	}
 }
@@ -519,6 +525,7 @@ func DefineRunFlags() {
 func DefineListFlags() {
 	listCmd = flag.NewFlagSet("list", flag.ExitOnError)
 	listCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintListUsage()
 	}
 }
@@ -548,6 +555,7 @@ func DefineSearchFlags() {
 	searchCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
 
 	searchCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintSearchUsage()
 	}
 }
@@ -606,6 +614,7 @@ func DefinePublishFlags() {
 	publishCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
 
 	publishCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintPublishUsage()
 	}
 }
@@ -638,6 +647,7 @@ func DefinePullFlags() {
 	pullCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
 
 	pullCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintPullUsage()
 	}
 }
@@ -662,6 +672,7 @@ func DefineValidateFlags() {
 		"Version of example seed manifest to use (default is 1.0.0).")
 
 	validateCmd.Usage = func() {
+		PrintASCIIArt()
 		commands.PrintValidateUsage()
 	}
 }
@@ -762,6 +773,7 @@ func DefineFlags() {
 
 //PrintUsage prints the seed usage arguments
 func PrintUsage() {
+	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed COMMAND\n\n")
 	util.PrintUtil("A test runner for seed spec compliant algorithms\n\n")
 	util.PrintUtil("Commands:\n")
@@ -773,6 +785,7 @@ func PrintUsage() {
 	util.PrintUtil("  pull\t\tAllows for pulling Seed compliant images from remote Docker registry\n")
 	util.PrintUtil("  run   \tExecutes Seed compliant Docker docker image\n")
 	util.PrintUtil("  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
+	util.PrintUtil("  spec\t\tDisplays the specification for the current Seed version\n")
 	util.PrintUtil("  validate\tValidates a Seed spec\n")
 	util.PrintUtil("  version\tPrints the version of Seed spec\n")
 	util.PrintUtil("\nRun 'seed COMMAND --help' for more information on a command.\n")
@@ -781,6 +794,7 @@ func PrintUsage() {
 
 //PrintVersionUsage prints the seed version usage, then exits the program
 func PrintVersionUsage() {
+	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed version \n")
 	util.PrintUtil("\nOutputs the version of the Seed CLI and specification.\n")
 	panic(util.Exit{0})
@@ -788,6 +802,7 @@ func PrintVersionUsage() {
 
 //PrintVersion prints the seed CLI version
 func PrintVersion() {
+	PrintASCIIArt()
 	util.PrintUtil("Seed CLI v%s\n", cliVersion)
 	schemas, err := assets.AssetDir("schema")
 	if err != nil {
@@ -796,4 +811,11 @@ func PrintVersion() {
 	}
 	util.PrintUtil("Supported Seed schema versions: %s\n", schemas)
 	panic(util.Exit{0})
+}
+
+//PrintAsciiArt prints the ascii art before any seed help
+func PrintASCIIArt() {
+	imgBytes, _ := assets.Asset("images/wordmark.png")
+	a, _ := ascii.Decode(bytes.NewReader(imgBytes), ascii.Options{Color: true})
+	a.WriteTo(os.Stdout)
 }
