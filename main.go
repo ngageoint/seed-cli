@@ -229,7 +229,7 @@ func main() {
 			panic(util.Exit{1})
 		}
 
-		// run for any additional repetitions 
+		// run for any additional repetitions
 		if reps > 1 {
 			for i := 0; i < reps; i++ {
 				outputDirRep := outputDir
