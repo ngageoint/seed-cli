@@ -229,12 +229,22 @@ func main() {
 			panic(util.Exit{1})
 		}
 
-		for i := 0; i < reps; i++ {
-			outputDirRep := outputDir
-			if outputDir != "" {
-				outputDirRep = outputDir + fmt.Sprintf("-%d", i)
+		// run for any additional repetitions 
+		if reps > 1 {
+			for i := 0; i < reps; i++ {
+				outputDirRep := outputDir
+				if outputDir != "" {
+					outputDirRep = outputDir + fmt.Sprintf("-%d", i)
+				}
+				_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
+				if err != nil {
+					util.PrintUtil("%s\n", err.Error())
+					panic(util.Exit{1})
+				}
 			}
-			_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
+		} else {
+			// run once
+			_, err = commands.DockerRun(imageName, outputDir, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
 			if err != nil {
 				util.PrintUtil("%s\n", err.Error())
 				panic(util.Exit{1})
