@@ -1,0 +1,24 @@
+language: go
+go:
+- 1.5.x
+- 1.6.x
+- 1.7.x
+- 1.8.x
+- 1.9.x
+- 1.10.x
+- 1.11.x
+- tip
+before_install:
+- git clone https://github.com/zyxar/goico.git
+- ln -s ../goico/testdata ico/
+install:
+- go get -v .
+- go get github.com/stretchr/testify
+script:
+- image2ascii -i -c testdata/sqrk.jpg
+- go test ./ico
+- go test ./term
+notifications:
+  slack:
+    secure: bOje/mTZWvL3E309AB8HzJcBctTrcuJQzwzkCZOLGZriH31xK8c/us+v+F5RGXoaj7Pw47ZBGagRAFSSYLeIr+BaxvElHnolJlytxr1IMY3r8Rw1OhYyOOYyFR0HvD9DPBKK7OiBJHWO0viEQLRl772N5Uf43PJry/BBArPiHPE=
+  email: false

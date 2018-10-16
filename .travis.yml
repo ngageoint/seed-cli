@@ -8,8 +8,6 @@ services:
 install:
   - vendor/go-bindata-Linux -pkg assets -o assets/assets.go ./schema/*
   - go get github.com/ngageoint/seed-common/...
-  - go get golang.org/x/sys/unix/...
-  - go get github.com/zyxar/image2ascii/ascii
   - docker pull rochdev/alpine-asciidoctor:mini
 
 script:
