@@ -21,7 +21,6 @@ func TestDockerPublish(t *testing.T) {
 	version := "1.0.0"
 	for _, dir := range imgDirs {
 		img, err := DockerBuild(dir, version, "", "", ".", ".", "")
-		util.PrintUtil("Built image: %s\n", img)
 		if err != nil {
 			t.Errorf("Error building image %v for DockerPublish test", dir)
 		}
@@ -55,6 +54,9 @@ func TestDockerPublish(t *testing.T) {
 		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			false, false, false, true, true, false, false,
 			"localhost:5000/my-job-0.1.1-seed:1.0.0", true, ""},
+		{imgDirs[1], imgNames[1], "localhost:5000", "",
+			false, false, false, true, true, false, false,
+			"localhost:5000/escape-chars-1.0.0-seed:1.0.0", true, ""},
 	}
 
 	for _, c := range cases {

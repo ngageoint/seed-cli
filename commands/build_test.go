@@ -85,7 +85,7 @@ func TestSeedLabel(t *testing.T) {
 	}{
 		{"../examples/addition-job/", ".", "1.0.0", "addition-job-0.0.1-seed:1.0.0", true, ""},
 		{"../examples/extractor/", ".", "1.0.0", "extractor-0.1.0-seed:0.1.0", true, ""},
-		{"../testdata/escape-chars/", ".", "1.0.0", "escape-chars-1.0.0-seed:1.0.1", true, ""},
+		{"../testdata/escape-chars/", ".", "1.0.0", "escape-chars-1.0.0-seed:1.0.0", true, ""},
 	}
 
 	for _, c := range cases {
