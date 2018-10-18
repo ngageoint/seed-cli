@@ -17,7 +17,9 @@ func TestDockerPublish(t *testing.T) {
 
 	//build images to be used for testing in advance
 	imgDirs := []string{"../testdata/complete/"}
+	imgDirs = append(imgDirs, "../testdata/escape-chars")
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0"}
+	imgNames = append(imgNames, "escape-chars-1.0.0-seed:1.0.0")
 	version := "1.0.0"
 	for _, dir := range imgDirs {
 		_, err := DockerBuild(dir, version, "", "", ".", ".", "")
@@ -54,6 +56,9 @@ func TestDockerPublish(t *testing.T) {
 		{imgDirs[0], imgNames[0], "localhost:5000", "",
 			false, false, false, true, true, false, false,
 			"localhost:5000/my-job-0.1.1-seed:1.0.0", true, ""},
+		{imgDirs[1], imgNames[1], "localhost:5000", "",
+			false, true, false, true, true, false, false,
+			"localhost:5000/escape-chars-1.0.0-seed:1.0.0", true, ""},
 	}
 
 	for _, c := range cases {
