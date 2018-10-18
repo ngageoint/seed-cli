@@ -40,11 +40,6 @@ func TestDockerRun(t *testing.T) {
 			[]string{},
 			[]string{}, []string{},
 			true, ""},
-		{"../testdata/escape-chars/", "escape-chars-1.0.0-seed:1.0.0",
-			[]string{"INPUT_FILE=../testdata/escape-chars/inputs.txt"},
-			[]string{},
-			[]string{}, []string{},
-			true, ""},
 	}
 
 	for _, c := range cases {
