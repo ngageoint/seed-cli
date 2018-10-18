@@ -21,7 +21,7 @@ func TestDockerPublish(t *testing.T) {
 	version := "1.0.0"
 	for _, dir := range imgDirs {
 		img, err := DockerBuild(dir, version, "", "", ".", ".", "")
-		util.PrintUtil("Built image: %s\n", img)
+		util.PrintUtil("Built image: %s\n",)
 		if err != nil {
 			t.Errorf("Error building image %v for DockerPublish test", dir)
 		}
