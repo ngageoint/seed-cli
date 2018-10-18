@@ -5,7 +5,7 @@
     "jobVersion": "0.0.1",
     "packageVersion": "1.0.0",
     "title": "Number Addition",
-    "description": "Adds numbers together",
+    "description": "Adds numbers' together",
     "maintainer": {
       "name": "Emily Smith",
       "email": "esmith@example.com"
