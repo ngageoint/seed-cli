@@ -79,7 +79,6 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	buildArgs = append(buildArgs, "-t")
 	buildArgs = append(buildArgs, imageName)
 
-	util.PrintUtil("dockerfile: %s\n", dockerfile)
 	if dockerfile != "." {
 		dfile := util.GetFullPath(dockerfile, "")
 		if _, err = os.Stat(dfile); os.IsNotExist(err) {
@@ -97,7 +96,6 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label
 		label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
-		util.PrintUtil("DockerBuild label:\n%s\n", label)
 		buildArgs = append(buildArgs, "--label", label)
 	}
 	cmd := exec.Command("docker", buildArgs...)

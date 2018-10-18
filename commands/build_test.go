@@ -83,9 +83,9 @@ func TestSeedLabel(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-job/", "", "1.0.0", "addition-job-0.0.1-seed:1.0.0", true, ""},
-		{"../examples/extractor/", "", "1.0.0", "extractor-0.1.0-seed:0.1.0", true, ""},
-		{"../testdata/escape-chars/", "../testdata/escape-chars/seed.manifest.json", "1.0.0", "escape-chars-1.0.0-seed:1.0.1", true, ""},
+		{"../examples/addition-job/", ".", "1.0.0", "addition-job-0.0.1-seed:1.0.0", true, ""},
+		{"../examples/extractor/", ".", "1.0.0", "extractor-0.1.0-seed:0.1.0", true, ""},
+		{"../testdata/escape-chars/", ".", "1.0.0", "escape-chars-1.0.0-seed:1.0.1", true, ""},
 	}
 
 	for _, c := range cases {
@@ -99,7 +99,6 @@ func TestSeedLabel(t *testing.T) {
 
 		// retrieve seed from seed manifest
 		seed := objects.SeedFromManifestFile(seedFileName)
-
 		seed2 := objects.SeedFromImageLabel(c.imageName)
 		seedStr1 := fmt.Sprintf("%v", seed)
 		seedStr2 := fmt.Sprintf("%v", seed2)
