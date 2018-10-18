@@ -16,12 +16,12 @@ func TestDockerPublish(t *testing.T) {
 	util.RestartRegistry()
 
 	//build images to be used for testing in advance
-	imgDirs := []string{"../testdata/complete/","../testdata/escape-chars"}
+	imgDirs := []string{"../testdata/complete/", "../testdata/escape-chars"}
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0", "escape-chars-1.0.0-seed:1.0.0"}
 	version := "1.0.0"
 	for _, dir := range imgDirs {
 		img, err := DockerBuild(dir, version, "", "", ".", ".", "")
-		util.PrintUtil("Built image: %s\n",)
+		util.PrintUtil("Built image: %s\n", img)
 		if err != nil {
 			t.Errorf("Error building image %v for DockerPublish test", dir)
 		}
