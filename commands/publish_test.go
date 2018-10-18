@@ -20,7 +20,7 @@ func TestDockerPublish(t *testing.T) {
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0", "escape-chars-1.0.0-seed:1.0.0"}
 	version := "1.0.0"
 	for _, dir := range imgDirs {
-		img, err := DockerBuild(dir, version, "", "", ".", ".", "")
+		_, err := DockerBuild(dir, version, "", "", ".", ".", "")
 		if err != nil {
 			t.Errorf("Error building image %v for DockerPublish test", dir)
 		}
