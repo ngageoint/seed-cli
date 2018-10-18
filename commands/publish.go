@@ -92,6 +92,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			return err
 		}
 
+		util.PrintUtil("Building seed from image label %s\n", origImg)
 		version := objects.SeedFromImageLabel(origImg).SeedVersion
 		ValidateSeedFile("", version, seedFileName, common_const.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
