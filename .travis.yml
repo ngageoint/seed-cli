@@ -16,6 +16,7 @@ script:
   - echo "Validating formatting with gofmt..."
   - gofmt -l . | grep -v assets\.go | if [[ $(wc -l | sed 's/ //g')>0 ]] ; then echo gofmt should be run on $(gofmt -l . | grep -v assets\.go); exit 1 ;fi
   - ./build-cli.sh ${TRAVIS_TAG}
+  - docker version
   - docker run -d -p 5000:5000 --restart=always --name registry -v `pwd`/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd registry:2
   - go test -v ./...
   - docker run -v $TRAVIS_BUILD_DIR/readme.adoc:/documents/readme.adoc -v $TRAVIS_BUILD_DIR/seed-cli.adoc:/documents/seed-cli.adoc --name=seed-man rochdev/alpine-asciidoctor:mini asciidoctor -b manpage -D /documents/output seed-cli.adoc
