@@ -826,6 +826,6 @@ func PrintVersion() {
 //PrintAsciiArt prints the ascii art before any seed help
 func PrintASCIIArt() {
 	imgBytes, _ := assets.Asset("images/wordmark.png")
-	a, _ := ascii.Decode(bytes.NewReader(imgBytes), ascii.Options{Color: true})
+	a, _ := ascii.Decode(bytes.NewReader(imgBytes), ascii.Options{Color: true, Height: 12})
 	a.WriteTo(os.Stdout)
 }
