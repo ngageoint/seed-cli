@@ -288,7 +288,11 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			if normalName == key {
 				if k.Multiple {
 					//directory has already been added to mount args, just link file into that directory
-					os.Link(val, filepath.Join(tempDirectories[key], info.Name()))
+					err = os.Link(val, filepath.Join(tempDirectories[key], info.Name()))
+					if err != nil {
+						msg := fmt.Sprintf("ERROR: Error linking to input files.\n%s\n", err.Error())
+						return nil, 0.0, tempDirectories, errors.New(msg)
+					}
 				} else {
 					mountArgs = append(mountArgs, "-v")
 					mountArgs = append(mountArgs, val+":"+val)
