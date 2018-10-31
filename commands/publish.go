@@ -186,7 +186,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
 			buildArgs = append(buildArgs, "--label", label)
 		}
-		util.PrintUtil("INFO: Running Docker command\n:docker %s\n", strings.Join(buildArgs))
+		util.PrintUtil("INFO: Running Docker command\n:docker %s\n", strings.Join(buildArgs, " "))
 		rebuildCmd := exec.Command("docker", buildArgs...)
 		var errs bytes.Buffer
 		rebuildCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
