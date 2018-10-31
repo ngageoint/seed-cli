@@ -221,6 +221,16 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		}
 	}
 
+	if seed.Job.Errors != nil {
+		for _, e := range seed.Job.Errors {
+			if util.IsReserved(e.Name, allocated) {
+				buffer.WriteString("ERROR: job.errors Name " + e.Name +
+					" is a reserved variable. Please choose a different name value.\n")
+			}
+			util.IsInUse(e.Name, "job.errors", vars)
+		}
+	}
+
 	// Find any name collisions
 	for key, val := range vars {
 		if len(val) > 1 {
