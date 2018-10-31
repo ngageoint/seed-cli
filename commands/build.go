@@ -92,13 +92,14 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	buildArgs = append(buildArgs, util.GetFullPath(jobDirectory, ""))
 
-	util.PrintUtil("Build command: docker %s\n", strings.Join(buildArgs, " "))
-
 	if util.DockerVersionHasLabel() {
 		// Set the seed.manifest.json contents as an image label
 		label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
 		buildArgs = append(buildArgs, "--label", label)
 	}
+
+	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(buildArgs, " "))
+
 	cmd := exec.Command("docker", buildArgs...)
 	var errs bytes.Buffer
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
