@@ -43,6 +43,11 @@ func DockerPull(image, registry, org, username, password string) error {
 	var errs, out bytes.Buffer
 	// pull image
 	pullArgs := []string{"pull", remoteImage}
+	PrintUtil("INFO: Running Docker command:\ndocker ")
+	for _, s := range pullArgs {
+		PrintUtil("%s ", s)
+	}
+	PrintUtil("\n")
 	pullCmd := exec.Command("docker", pullArgs...)
 	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	pullCmd.Stdout = &out
