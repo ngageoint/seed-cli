@@ -148,12 +148,12 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	dockerArgs = append(dockerArgs, args...)
 
 	// Run
-	var cmd bytes.Buffer
-	cmd.WriteString("docker ")
-	for _, s := range dockerArgs {
-		cmd.WriteString(s + " ")
-	}
-	util.PrintUtil("INFO: Running Docker command:\n%s\n", cmd.String())
+	// var cmd bytes.Buffer
+	// cmd.WriteString("docker ")
+	// for _, s := range dockerArgs {
+	// 	cmd.WriteString(s + " ")
+	// }
+	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(dockerArgs, " "))
 
 	// Run Docker command and capture output
 	dockerRun := exec.Command("docker", dockerArgs...)

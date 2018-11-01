@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/ngageoint/seed-cli/constants"
@@ -43,6 +44,7 @@ func DockerPull(image, registry, org, username, password string) error {
 	var errs, out bytes.Buffer
 	// pull image
 	pullArgs := []string{"pull", remoteImage}
+	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(pullArgs, " "))
 	pullCmd := exec.Command("docker", pullArgs...)
 	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	pullCmd.Stdout = &out
@@ -66,6 +68,7 @@ func DockerPull(image, registry, org, username, password string) error {
 	tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	tagCmd.Stdout = &out
 
+	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(tagArgs, " "))
 	err = tagCmd.Run()
 	if err != nil {
 		util.PrintUtil("ERROR: Error executing docker tag.\n%s\n",
