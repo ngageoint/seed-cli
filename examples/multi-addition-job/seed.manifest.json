@@ -1,0 +1,72 @@
+{
+  "seedVersion": "1.0.0",
+  "job": {
+    "name": "multi-addition-job",
+    "jobVersion": "1.0.0",
+    "packageVersion": "1.0.0",
+    "title": "Number Addition",
+    "description": "Adds multiple numbers together",
+    "maintainer": {
+      "name": "Emily Smith",
+      "email": "esmith@example.com"
+    },
+    "timeout": 10,
+    "resources": {
+      "scalar": [
+        { "name": "cpus", "value": 0.1 },
+        { "name": "mem", "value": 16.0 },
+        { "name": "disk", "value": 1.0, "inputMultiplier": 1.0 },
+        { "name": "sharedMem", "value": 128 }
+      ]
+    },
+    "interface": {
+      "command": "${INPUT_FILE} ${OUTPUT_DIR}",
+      "inputs": {
+        "files": [
+          {
+            "name": "INPUT_FILE",
+            "required": true,
+            "mediaTypes": [
+              "text/plain"
+            ]
+          }
+        ]
+      },
+      "outputs": {
+        "files": [
+          {
+            "name": "OUTPUT_FILE",
+            "mediaType": "text/plain",
+            "pattern": "*_output.txt",
+            "multiple": true,
+            "required": true
+          }
+        ],
+        "json": [
+          {
+            "name": "x",
+            "type": "integer"
+          },
+          {
+            "name": "y",
+            "type": "integer"
+          },
+          {
+            "name": "z",
+            "key": "total",
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    "errors": [
+      {
+        "code": 1,
+        "name": "data-error",
+        "title": "No Input Provided",
+        "description": "No input files have been given. No data to add.",
+        "category": "data"
+      }
+    ]
+  }
+}

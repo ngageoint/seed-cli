@@ -283,12 +283,16 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command, "$"+key,
 			value, -1)
 
+		var errMsg bytes.Buffer
 		for _, k := range seed.Job.Interface.Inputs.Files {
 			normalName := util.GetNormalizedVariable(k.Name)
 			if normalName == key {
 				if k.Multiple {
 					//directory has already been added to mount args, just link file into that directory
-					os.Link(val, filepath.Join(tempDirectories[key], info.Name()))
+					err = os.Link(val, filepath.Join(tempDirectories[key], info.Name()))
+					if err != nil && os.IsPermission(err) {
+						errMsg.WriteString("ERROR: Permissions error linking to input files for input " + key + ".\n" + err.Error() + "\n")
+					}
 				} else {
 					mountArgs = append(mountArgs, "-v")
 					mountArgs = append(mountArgs, val+":"+val)
@@ -296,6 +300,9 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 					mountArgs = append(mountArgs, key+"="+val)
 				}
 			}
+		}
+		if errMsg.String() != "" {
+			return nil, 0.0, tempDirectories, errors.New(errMsg.String())
 		}
 	}
 
