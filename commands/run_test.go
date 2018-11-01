@@ -78,8 +78,9 @@ func TestDefineInputs(t *testing.T) {
 			"map[]", true, ""},
 		{"../examples/extractor/seed.manifest.json",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
-			"[-v $MULTIPLE$:/$MULTIPLETEMP$ -e MULTIPLE=/$MULTIPLETEMP$ -v $ZIP$:$ZIP$ -e ZIP=$ZIP$]", "0.1",
-			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""},
+			"[-v $MULTIPLE$:/$MULTIPLETEMP$ -e MULTIPLE=/$MULTIPLETEMP$ -v $ZIP$:$ZIP$ -e ZIP=$ZIP$]",
+			"0.1",
+			"map[MULTIPLE:$MULTIPLETEMP$]", true, ""}, // "ERROR: Permissions error linking to input files for input MULTIPLE."},
 		{"../testdata/complete/seed.manifest.json",
 			[]string{"inPut-File=../testdata/seed-scale.zip"},
 			"[-v $inPut-File$:$inPut-File$ -e INPUT_FILE=$inPut-File$]", "0.1",
@@ -91,7 +92,7 @@ func TestDefineInputs(t *testing.T) {
 		{"../testdata/complete-denormalized/seed.manifest.json",
 			[]string{"bad=../testdata/seed-scale.zip"},
 			"[]", "0.0",
-			"map[]", false, ""},
+			"map[]", false, "Incorrect input data files key/values provided."},
 	}
 
 	for _, c := range cases {
@@ -136,7 +137,6 @@ func TestDefineInputs(t *testing.T) {
 		if expectedTempDir != tempStr {
 			t.Errorf("DefineInputs(%q, %q) == \n%v, expected \n%v", seedFileName, c.inputs, tempStr, expectedTempDir)
 		}
-
 	}
 }
 
