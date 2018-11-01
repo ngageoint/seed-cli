@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"math"
 	"mime"
 	"os"
@@ -208,6 +209,18 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	return exitCode, err
 }
 
+func ListDir(path string) {
+	util.PrintUtil("Listing: %s\n", path)
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		util.PrintUtil("\t%s\n", f.Name())
+	}
+}
+
 //DefineInputs extracts the paths to any input data given by the 'run' command
 // flags 'inputs' and sets the path in the json object. Returns:
 // 	[]string: docker command args for input files in the format:
@@ -228,6 +241,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	tempDirectories = make(map[string]string)
 	for _, f := range seed.Job.Interface.Inputs.Files {
 		normalName := util.GetNormalizedVariable(f.Name)
+		util.PrintUtil("normalName: %s\n", normalName)
 		if f.Multiple {
 			tempDir := "temp-" + time.Now().Format(time.RFC3339)
 			tempDir = strings.Replace(tempDir, ":", "_", -1)
@@ -237,6 +251,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			mountArgs = append(mountArgs, util.GetFullPath(tempDir, "")+":/"+tempDir)
 			mountArgs = append(mountArgs, "-e")
 			mountArgs = append(mountArgs, normalName+"=/"+tempDir)
+
 		}
 		if f.Required == false {
 			unrequired = append(unrequired, normalName)
@@ -288,11 +303,20 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 			normalName := util.GetNormalizedVariable(k.Name)
 			if normalName == key {
 				if k.Multiple {
-					//directory has already been added to mount args, just link file into that directory
-					err = os.Link(val, filepath.Join(tempDirectories[key], info.Name()))
-					if err != nil && os.IsPermission(err) {
-						errMsg.WriteString("ERROR: Permissions error linking to input files for input " + key + ".\n" + err.Error() + "\n")
+					if info.IsDir() {
+						// Can't hardlink to a directory
+						// Can't symlink to an existing directory, so remove it first
+						os.Remove(tempDirectories[key])
+						if err = os.Symlink(val, tempDirectories[key]); err != nil {
+							errMsg.WriteString("ERROR: Permissions error linking to input files for input " + key + ".\n" + err.Error() + "\n")
+						}
+					} else {
+						//directory has already been added to mount args, just link file into that directory
+						if err = os.Link(val, filepath.Join(tempDirectories[key], info.Name())); err != nil && os.IsPermission(err) {
+							errMsg.WriteString("ERROR: Permissions error linking to input files for input " + key + ".\n" + err.Error() + "\n")
+						}
 					}
+
 				} else {
 					mountArgs = append(mountArgs, "-v")
 					mountArgs = append(mountArgs, val+":"+val)

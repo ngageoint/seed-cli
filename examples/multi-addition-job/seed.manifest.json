@@ -28,7 +28,8 @@
             "required": true,
             "mediaTypes": [
               "text/plain"
-            ]
+            ],
+            "multiple": true
           }
         ]
       },
