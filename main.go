@@ -56,8 +56,11 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
+	"io"
 	"os"
+	"os/exec"
 	"strings"
 
 	"fmt"
@@ -81,6 +84,7 @@ var runCmd *flag.FlagSet
 var searchCmd *flag.FlagSet
 var validateCmd *flag.FlagSet
 var versionCmd *flag.FlagSet
+var specCmd *flag.FlagSet
 var cliVersion string
 
 func main() {
@@ -704,6 +708,11 @@ func DefineFlags() {
 		PrintVersionUsage()
 	}
 
+	specCmd = flag.NewFlagSet(constants.SpecCommand, flag.ExitOnError)
+	specCmd.Usage = func() {
+		PrintSpecUsage()
+	}
+
 	// Print usage if no command given
 	if len(os.Args) == 1 {
 		PrintUsage()
@@ -763,6 +772,10 @@ func DefineFlags() {
 		versionCmd.Parse(os.Args[2:])
 		PrintVersion()
 
+	case constants.SpecCommand:
+		specCmd.Parse(os.Args[2:])
+		PrintSpec()
+
 	default:
 		util.PrintUtil("%q is not a valid command.\n", os.Args[1])
 		PrintUsage()
@@ -821,6 +834,30 @@ func PrintVersion() {
 	}
 	util.PrintUtil("Supported Seed schema versions: %s\n", schemas)
 	panic(util.Exit{0})
+}
+
+//PrintSpec shows the seed-spec manual page as help text
+func PrintSpec() error {
+	cmd := exec.Command("man", "seed-spec")
+	var errs bytes.Buffer
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stderr
+	// Run docker build
+	cmd.Run()
+	if errs.String() != "" {
+		util.PrintUtil("ERROR: Error displaying seed spec:\n%s\n",
+			errs.String())
+		util.PrintUtil("Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+	return nil
+}
+
+//PrintSpecUsage prints the seed build usage arguments, then exits the program
+func PrintSpecUsage() {
+	util.PrintUtil("\nUsage:\tseed spec\n")
+	util.PrintUtil("\nDisplays the manual entry for the seed spec\n")
+	return
 }
 
 //PrintAsciiArt prints the ascii art before any seed help
