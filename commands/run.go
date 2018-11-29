@@ -286,7 +286,7 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		// Handle replacing KEY or ${KEY} or $KEY
 		value := val
 		if directory, ok := tempDirectories[key]; ok {
-			value = directory //replace with the temp directory if multiple files
+			value = "/" + directory //replace with the temp directory located at the root if multiple files
 		}
 		seed.Job.Interface.Command = strings.Replace(seed.Job.Interface.Command,
 			"${"+key+"}", value, -1)
