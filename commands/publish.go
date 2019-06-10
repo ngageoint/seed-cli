@@ -75,6 +75,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	if err != nil {
 		util.PrintUtil("ERROR: Error searching for matching tag names.\n%s\n",
 			err.Error())
+		return err
 	}
 	conflict := util.ContainsString(images, origImg) || util.ContainsString(images, orgImg)
 	if conflict {
