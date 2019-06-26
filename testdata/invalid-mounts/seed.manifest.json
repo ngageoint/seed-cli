@@ -1,0 +1,60 @@
+{
+  "seedVersion":"1.0.0",
+  "job":{
+    "name":"dupe-mounts",
+    "jobVersion":"0.1.0",
+    "packageVersion":"0.1.0",
+    "title":"Duplicate mount names",
+    "description":"Processes an input PNG and outputs watermarked PNG.",
+    "maintainer": {
+      "name": "John Doe",
+      "email": "jdoe@example.com"
+    },
+    "timeout":30,
+    "resources":{},
+    "interface":{
+      "command":"app/job.sh ${INPUT_IMAGE} ${JOB_OUTPUT_DIR}",
+      "inputs":{
+        "files":[
+          {
+            "name": "INPUT",
+            "required": true,
+            "mediaTypes": [
+              "application/png"
+            ]
+          }
+        ]
+      },
+      "outputs":{
+        "files":[
+          {
+            "name":"OUTPUT_IMAGE",
+            "mediaType":"image/png",
+            "pattern":"*_watermark.png"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "name": "MOUNT_PATH",
+          "path": "/the/container/path",
+          "mode": "ro"
+        },
+        {
+          "name": "MOUNT_PATH",
+          "path": "/write",
+          "mode": "rw"
+        }
+      ]
+    },
+    "errors":[
+      {
+        "code":1,
+        "name":"image-corrupt",
+        "title":"Image Corrupt",
+        "description":"Image input is not recognized as a valid PNG.",
+        "category":"data"
+      }
+    ]
+  }
+}
