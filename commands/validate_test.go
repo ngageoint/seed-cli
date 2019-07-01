@@ -30,6 +30,8 @@ func TestValidate(t *testing.T) {
 			false, "Multiple Name values are assigned the same INPUT Name value. Each Name value must be unique."},
 		{"../testdata/invalid-duplicate-names/seed.manifest.json",
 			false, "Multiple Name values are assigned the same IMAGE_CORRUPT Name value. Each Name value must be unique."},
+		{"../testdata/invalid-mounts/seed.manifest.json",
+			false, "Multiple Name values are assigned the same MOUNT_PATH Name value. Each Name value must be unique."},
 	}
 
 	for _, c := range cases {
