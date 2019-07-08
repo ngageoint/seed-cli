@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.Quiet, nil, nil)
 }
 
 func TestDockerSearch(t *testing.T) {
@@ -29,7 +29,7 @@ func TestDockerSearch(t *testing.T) {
 
 	err := util.Login(registry, username, password)
 	if err != nil {
-		fmt.Println(err)
+		util.PrintUtil(err.Error())
 	}
 
 	imgDirs := []string{"../testdata/complete/"}

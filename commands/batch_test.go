@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.Quiet, nil, nil)
 }
 
 func TestProcessDirectory(t *testing.T) {
@@ -76,8 +76,6 @@ func TestProcessBatchFile(t *testing.T) {
 		seed := objects.SeedFromManifestFile(c.manifestFile)
 		out, err := ProcessBatchFile(seed, c.batchFile, c.outDir)
 		outstr := fmt.Sprintf("%v", out)
-		fmt.Println(outstr)
-		fmt.Println(c.expected)
 		if outstr != c.expected {
 			t.Errorf("ProcessFile(%q, %q, %q) == %v, expected %v", c.manifestFile, c.batchFile, c.outDir, outstr, c.expected)
 		}

@@ -75,7 +75,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 		if err != nil {
 			msg := fmt.Sprintf("FAIL: Input = %v \t ExitCode = %d \t Error = %s \n", truncatedInputs, exitCode, err.Error())
-			util.InitPrinter(util.PrintErr)
+			util.InitPrinter(util.PrintErr, os.Stderr, os.Stderr)
 			util.PrintUtil("%v", msg)
 		}
 
@@ -205,14 +205,14 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 			msg := fmt.Sprintf("ERROR: Batch file is missing required key %v", f.Name)
 			return nil, errors.New(msg)
 		} else if !hasKey {
-			fmt.Println("WARN: Missing input for key " + f.Name)
+			util.PrintUtil("WARN: Missing input for key " + f.Name)
 		}
 		extraKeys = util.RemoveString(extraKeys, f.Name)
 	}
 
 	if len(extraKeys) > 0 {
 		msg := fmt.Sprintf("WARN: These input keys don't match any specified keys in the Seed manifest: %v\n", extraKeys)
-		fmt.Println(msg)
+		util.PrintUtil(msg)
 	}
 
 	batchIO := []BatchIO{}
@@ -226,7 +226,7 @@ func ProcessBatchFile(seed objects.Seed, batchFile, outdir string) ([]BatchIO, e
 		inputNames := fmt.Sprintf("%d", i)
 		for j, file := range values {
 			if j > len(keys) {
-				fmt.Println("WARN: More files provided than keys")
+				util.PrintUtil("WARN: More files provided than keys")
 			}
 			fileInputs = append(fileInputs, keys[j]+"="+file)
 			inputNames += "-" + filepath.Base(file)

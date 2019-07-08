@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.Quiet, nil, nil)
 }
 
 func TestDockerRun(t *testing.T) {

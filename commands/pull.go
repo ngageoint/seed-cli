@@ -26,7 +26,7 @@ func DockerPull(image, registry, org, username, password string) error {
 
 		err := util.Login(registry, username, password)
 		if err != nil {
-			fmt.Println(err)
+			util.PrintUtil(err.Error())
 			return err
 		}
 	}
@@ -46,7 +46,11 @@ func DockerPull(image, registry, org, username, password string) error {
 	pullArgs := []string{"pull", remoteImage}
 	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(pullArgs, " "))
 	pullCmd := exec.Command("docker", pullArgs...)
-	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	if util.StdErr != nil {
+		pullCmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+	} else {
+		pullCmd.Stderr = &errs
+	}
 	pullCmd.Stdout = &out
 
 	err := pullCmd.Run()
@@ -65,7 +69,11 @@ func DockerPull(image, registry, org, username, password string) error {
 	// tag image
 	tagArgs := []string{"tag", remoteImage, image}
 	tagCmd := exec.Command("docker", tagArgs...)
-	tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	if util.StdErr != nil {
+		tagCmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+	} else {
+		tagCmd.Stderr = &errs
+	}
 	tagCmd.Stdout = &out
 
 	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(tagArgs, " "))

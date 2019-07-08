@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -38,8 +37,11 @@ func DockerList() (string, error) {
 
 		cmd.Stdin = dOut
 	}
-
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	if util.StdErr != nil {
+		cmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
 	cmd.Stdout = &out
 
 	// run images

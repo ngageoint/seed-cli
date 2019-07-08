@@ -30,9 +30,9 @@ import (
 
 //DockerRun Runs image described by Seed spec
 func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.PrintErr, os.Stderr, os.Stderr)
 	if quiet {
-		util.InitPrinter(util.Quiet)
+		util.InitPrinter(util.Quiet, nil, nil)
 	}
 
 	if imageName == "" {
@@ -154,10 +154,8 @@ func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settin
 	// Run Docker command and capture output
 	dockerRun := exec.Command("docker", dockerArgs...)
 	var errs bytes.Buffer
-	if !quiet {
-		dockerRun.Stderr = io.MultiWriter(&errs, streampainter.NewStreamPainter(color.FgRed))
-		dockerRun.Stdout = os.Stderr
-	}
+	dockerRun.Stderr = io.MultiWriter(&errs, streampainter.NewStreamPainter(color.FgRed))
+	dockerRun.Stdout = util.StdOut
 
 	// Run docker run
 	runTime := time.Now()

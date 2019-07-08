@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -54,7 +53,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	// Validate seed file
 	err = ValidateSeedFile("", version, seedFileName, common_const.SchemaManifest)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "ERROR: seed file could not be validated. See errors for details.")
+		util.PrintUtil("ERROR: seed file could not be validated. See errors for details.")
 		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
 		return "", err
@@ -102,8 +101,12 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	cmd := exec.Command("docker", buildArgs...)
 	var errs bytes.Buffer
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	cmd.Stdout = os.Stderr
+	if util.StdErr != nil {
+		cmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
+	cmd.Stdout = util.StdErr
 
 	// Run docker build
 	if err := cmd.Run(); err != nil {

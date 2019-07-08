@@ -16,6 +16,7 @@ import (
 	"github.com/ngageoint/seed-cli/constants"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
+	RegistryFactory "github.com/ngageoint/seed-common/registry"
 	"github.com/ngageoint/seed-common/util"
 )
 
@@ -39,6 +40,14 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		return errors.New(msg)
 	}
 
+	temp := strings.Split(origImg, ":")
+	if len(temp) != 2 {
+		err := errors.New("ERROR: Invalid seed name: %s. Unable to split into name/tag pair\n")
+		return err
+	}
+	repoName := temp[0]
+	repoTag := temp[1]
+
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -48,20 +57,19 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 		err := util.Login(registry, username, password)
 		if err != nil {
-			fmt.Println(err)
+			util.PrintUtil(err.Error())
 		}
 	}
 
 	//1. Check names and verify it doesn't conflict
 	tag := ""
 	img := origImg
-	orgImg := origImg
 
 	// docker tag if registry and/or org specified
 	if registry != "" || org != "" {
 		if org != "" {
 			tag = org + "/"
-			orgImg = tag + origImg
+			repoName = tag + repoName
 		}
 		if registry != "" {
 			tag = registry + "/" + tag
@@ -71,13 +79,22 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	}
 
 	// Check for image confliction.
-	images, err := DockerSearch(registry, org, "", username, password)
+	conflict := false
+	reg, err := RegistryFactory.CreateRegistry(registry, org, username, password)
 	if err != nil {
-		util.PrintUtil("ERROR: Error searching for matching tag names.\n%s\n",
-			err.Error())
+		err = errors.New(checkError(err, registry, username, password))
 		return err
 	}
-	conflict := util.ContainsString(images, origImg) || util.ContainsString(images, orgImg)
+	if reg == nil {
+		err = errors.New("Unknown error connecting to registry")
+		return err
+	}
+
+	if reg != nil && err == nil {
+		manifest, _ := reg.GetImageManifest(repoName, repoTag)
+		conflict = manifest != ""
+	}
+
 	if conflict {
 		util.PrintUtil("INFO: Image %s exists on registry %s\n", img, registry)
 	}
@@ -190,8 +207,12 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		util.PrintUtil("INFO: Running Docker command\n:docker %s\n", strings.Join(buildArgs, " "))
 		rebuildCmd := exec.Command("docker", buildArgs...)
 		var errs bytes.Buffer
-		rebuildCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-		rebuildCmd.Stdout = os.Stderr
+		if util.StdErr != nil {
+			rebuildCmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+		} else {
+			rebuildCmd.Stderr = &errs
+		}
+		rebuildCmd.Stdout = util.StdErr
 
 		// Run docker build
 		rebuildCmd.Run()

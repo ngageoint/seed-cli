@@ -88,7 +88,7 @@ var specCmd *flag.FlagSet
 var cliVersion string
 
 func main() {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.PrintErr, os.Stderr, os.Stderr)
 	// Handles any panics/actual exits. Ensures deferred functions are called
 	// before program exit.
 	defer util.HandleExit()
@@ -840,8 +840,12 @@ func PrintVersion() {
 func PrintSpec() error {
 	cmd := exec.Command("man", "seed-spec")
 	var errs bytes.Buffer
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	cmd.Stdout = os.Stderr
+	if util.StdErr != nil {
+		cmd.Stderr = io.MultiWriter(util.StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
+	cmd.Stdout = util.StdErr
 	// Run docker build
 	cmd.Run()
 	if errs.String() != "" {
