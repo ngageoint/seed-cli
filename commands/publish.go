@@ -80,23 +80,25 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 	// Check for image confliction.
 	conflict := false
-	reg, err := RegistryFactory.CreateRegistry(registry, org, username, password)
-	if err != nil {
-		err = errors.New(checkError(err, registry, username, password))
-		return err
-	}
-	if reg == nil {
-		err = errors.New("Unknown error connecting to registry")
-		return err
-	}
+	if !force {
+		reg, err := RegistryFactory.CreateRegistry(registry, org, username, password)
+		if err != nil {
+			err = errors.New(checkError(err, registry, username, password))
+			return err
+		}
+		if reg == nil {
+			err = errors.New("Unknown error connecting to registry")
+			return err
+		}
 
-	if reg != nil && err == nil {
-		manifest, _ := reg.GetImageManifest(repoName, repoTag)
-		conflict = manifest != ""
-	}
+		if reg != nil && err == nil {
+			manifest, _ := reg.GetImageManifest(repoName, repoTag)
+			conflict = manifest != ""
+		}
 
-	if conflict {
-		util.PrintUtil("INFO: Image %s exists on registry %s\n", img, registry)
+		if conflict {
+			util.PrintUtil("INFO: Image %s exists on registry %s\n", img, registry)
+		}
 	}
 
 	// If it conflicts, bump specified version number
@@ -229,7 +231,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		img = tag + img
 	}
 
-	err = util.Tag(origImg, img)
+	err := util.Tag(origImg, img)
 	if err != nil {
 		return err
 	}

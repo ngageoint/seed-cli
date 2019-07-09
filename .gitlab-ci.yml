@@ -1,4 +1,5 @@
 # Environment variables that must be set in Gitlab CI/CD Pipeline variables
+# ASCII_DOCTOR_IMAGE
 # CENTOS_IMAGE
 # CI_COMMIT_TAG
 # DOCKER_IMAGE
@@ -20,7 +21,7 @@ before_script:
   - mkdir -p $GOPATH/src/github.com/ngageoint
   - ln -s $(pwd) $GOPATH/src/github.com/ngageoint/seed-cli
   - cd $GOPATH/src/github.com/ngageoint/seed-cli
-  - docker pull rochdev/alpine-asciidoctor:mini
+  - docker pull $ASCII_DOCTOR_IMAGE
   
 build:
   stage: build
