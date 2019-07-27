@@ -21,29 +21,38 @@ import (
 )
 
 //DockerPublish executes the seed publish command
-func DockerPublish(origImg, registry, org, username, password, jobDirectory string,
-	force, P, pm, pp, J, jm, jp bool) error {
+func DockerPublish(origImg, manifest, registry, org, username, password, jobDirectory string,
+	force, P, pm, pp, J, jm, jp bool) (string, error) {
+
+	if origImg == "" {
+		util.PrintUtil("INFO: Image name not specified. Attempting to use manifest: %v\n", manifest)
+		temp, err := objects.GetImageNameFromManifest(manifest, jobDirectory)
+		if err != nil {
+			return "", err
+		}
+		origImg = temp
+	}
 
 	if origImg == "" {
 		err := errors.New("ERROR: No input image specified.")
 		util.PrintUtil("%s\n", err.Error())
-		return err
+		return "", err
 	}
 
 	if exists, err := util.ImageExists(origImg); !exists {
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
-			return err
+			return "", err
 		}
 		msg := fmt.Sprintf("Unable to find image: %s. Did you specify a valid tag?", origImg)
 		util.PrintUtil("%s\n", msg)
-		return errors.New(msg)
+		return "", errors.New(msg)
 	}
 
 	temp := strings.Split(origImg, ":")
 	if len(temp) != 2 {
 		err := errors.New("ERROR: Invalid seed name: %s. Unable to split into name/tag pair\n")
-		return err
+		return "", err
 	}
 	repoName := temp[0]
 	repoTag := temp[1]
@@ -84,11 +93,11 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		reg, err := RegistryFactory.CreateRegistry(registry, org, username, password)
 		if err != nil {
 			err = errors.New(checkError(err, registry, username, password))
-			return err
+			return "", err
 		}
 		if reg == nil {
 			err = errors.New("Unknown error connecting to registry")
-			return err
+			return "", err
 		}
 
 		if reg != nil && err == nil {
@@ -105,11 +114,21 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 	if conflict && !force {
 		util.PrintUtil("INFO: Force flag not specified, attempting to rebuild with new version number.\n")
 
-		//1. Verify we have a valid manifest (-d option or within the current directory)
-		seedFileName, err := util.SeedFileName(jobDirectory)
-		if err != nil {
-			util.PrintUtil("ERROR: %s\n", err.Error())
-			return err
+		//1. Verify we have a valid manifest
+		seedFileName := ""
+		if manifest != "." && manifest != "" {
+			seedFileName = util.GetFullPath(manifest, jobDirectory)
+			if _, err := os.Stat(seedFileName); os.IsNotExist(err) {
+				util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
+				return "", err
+			}
+		} else {
+			temp, err := util.SeedFileName(jobDirectory)
+			seedFileName = temp
+			if err != nil {
+				util.PrintUtil("ERROR: %s\n", err.Error())
+				return "", err
+			}
 		}
 
 		version := objects.SeedFromImageLabel(origImg).SeedVersion
@@ -183,7 +202,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 		if !J && !jm && !jp && !P && !pm && !pp {
 			util.PrintUtil("ERROR: No tag deconfliction method specified. Aborting seed publish.\n")
 			util.PrintUtil("Exiting seed...\n")
-			return errors.New("Image exists and no tag deconfliction method specified.")
+			return "", errors.New("Image exists and no tag deconfliction method specified.")
 		}
 
 		img = objects.BuildImageName(&seed)
@@ -191,11 +210,11 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 		// write version back to the seed manifest
 		seedJSON, _ := json.MarshalIndent(&seed, "", "  ")
-		err = ioutil.WriteFile(seedFileName, seedJSON, os.ModePerm)
+		err := ioutil.WriteFile(seedFileName, seedJSON, os.ModePerm)
 		if err != nil {
 			util.PrintUtil("ERROR: Error occurred writing updated seed version to %s.\n%s\n",
 				seedFileName, err.Error())
-			return errors.New("Error updating seed version in manifest.")
+			return "", errors.New("Error updating seed version in manifest.")
 		}
 
 		// Build Docker image
@@ -224,7 +243,7 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 			util.PrintUtil("ERROR: Error re-building image '%s':\n%s\n",
 				img, errs.String())
 			util.PrintUtil("Exiting seed...\n")
-			return errors.New(errs.String())
+			return "", errors.New(errs.String())
 		}
 
 		// Set final image name to tag + image
@@ -233,29 +252,31 @@ func DockerPublish(origImg, registry, org, username, password, jobDirectory stri
 
 	err := util.Tag(origImg, img)
 	if err != nil {
-		return err
+		return img, err
 	}
 
 	err = util.Push(img)
 	if err != nil {
-		return err
+		return img, err
 	}
 
 	err = util.RemoveImage(img)
 	if err != nil {
-		return err
+		return img, err
 	}
 
-	return nil
+	return img, nil
 }
 
 //PrintPublishUsage prints the seed publish usage information, then exits the program
 func PrintPublishUsage() {
-	util.PrintUtil("\nUsage:\tseed publish -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]\n")
+	util.PrintUtil("\nUsage:\tseed publish [-in IMAGE_NAME] [-M MANIFEST] [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]\n")
 	util.PrintUtil("\nAllows for the publish of seed compliant images.\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to publish\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
+	util.PrintUtil("  -%s -%s\t  Manifest file to use if an image name is not specified (default is seed.manifest.json within the current directory).\n",
+		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil("  -%s  -%s\t Specifies a specific registry to publish the image\n",
 		constants.ShortRegistryFlag, constants.RegistryFlag)
 	util.PrintUtil("  -%s  -%s\t Specifies a specific organization to publish the image\n",

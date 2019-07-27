@@ -29,10 +29,19 @@ import (
 )
 
 //DockerRun Runs image described by Seed spec
-func DockerRun(imageName, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
+func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, json, settings, mounts []string, rmDir, quiet bool) (int, error) {
 	util.InitPrinter(util.PrintErr, os.Stderr, os.Stderr)
 	if quiet {
 		util.InitPrinter(util.Quiet, nil, nil)
+	}
+
+	if imageName == "" {
+		util.PrintUtil("INFO: Image name not specified. Attempting to use manifest: %v\n", manifest)
+		temp, err := objects.GetImageNameFromManifest(manifest, "")
+		if err != nil {
+			return 0, err
+		}
+		imageName = temp
 	}
 
 	if imageName == "" {
@@ -664,8 +673,8 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 				}
 			} else {
 
-				util.PrintUtil("SUCCESS: Files found for output %v:\n",
-					f.Name, strconv.Itoa(len(matchList)))
+				util.PrintUtil("SUCCESS: %v files found for output %v:\n",
+					strconv.Itoa(len(matchList)), f.Name)
 				for _, s := range matchList {
 					util.PrintUtil(s)
 				}
@@ -750,13 +759,15 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 
 //PrintRunUsage prints the seed run usage arguments, then exits the program
 func PrintRunUsage() {
-	util.PrintUtil("\nUsage:\tseed run -in IMAGE_NAME [OPTIONS] \n")
+	util.PrintUtil("\nUsage:\tseed run [-in IMAGE_NAME] [-M MANIFEST] [OPTIONS] \n")
 
 	util.PrintUtil("\nRuns Docker image defined by seed spec.\n")
 
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s  -%s \tDocker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
+	util.PrintUtil("  -%s -%s\t  Manifest file to use if an image name is not specified (default is seed.manifest.json within the current directory).\n",
+		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil("  -%s   -%s \t\tSpecifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
 		constants.ShortInputsFlag, constants.InputsFlag)
 	util.PrintUtil("  -%s   -%s \tSpecifies the key/value setting values of the seed spec in the format SETTING_KEY=VALUE\n",

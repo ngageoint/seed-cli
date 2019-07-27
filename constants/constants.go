@@ -9,6 +9,7 @@ const BuildCommand = "build"
 const InitCommand = "init"
 const ListCommand = "list"
 const PublishCommand = "publish"
+const UnpublishCommand = "unpublish"
 const PullCommand = "pull"
 const RunCommand = "run"
 const SearchCommand = "search"
@@ -38,7 +39,7 @@ const ShortDockerfileFlag = "D"
 const ManifestFlag = "manifest"
 
 //ShortManifestFlag defines the shorthand manifest file
-const ShortManifestFlag = "m"
+const ShortManifestFlag = "M"
 
 //SettingFlag defines the SettingFlag
 const SettingFlag = "setting"

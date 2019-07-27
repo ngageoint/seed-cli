@@ -17,6 +17,7 @@ func TestDockerRun(t *testing.T) {
 	cases := []struct {
 		directory        string
 		imageName        string
+		manifest         string
 		inputs           []string
 		json             []string
 		settings         []string
@@ -24,18 +25,24 @@ func TestDockerRun(t *testing.T) {
 		expected         bool
 		expectedErrorMsg string
 	}{
-		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0",
+		{"../examples/addition-job/", "addition-job-0.0.1-seed:1.0.0", "",
 			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
 			[]string{},
 			[]string{"SETTING_ONE=one", "SETTING_TWO=two"},
 			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
 			true, ""},
-		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0",
+		{"../examples/addition-job/", "", "../examples/addition-job/seed.manifest.json",
+			[]string{"INPUT_FILE=../examples/addition-job/inputs.txt"},
+			[]string{},
+			[]string{"SETTING_ONE=one", "SETTING_TWO=two"},
+			[]string{"MOUNT_BIN=../testdata", "MOUNT_TMP=../testdata"},
+			true, ""},
+		{"../examples/extractor/", "extractor-0.1.0-seed:0.1.0", "",
 			[]string{"ZIP=../testdata/seed-scale.zip", "MULTIPLE=../testdata/"},
 			[]string{},
 			[]string{"HELLO=Hello"}, []string{"MOUNTAIN=../examples/"},
 			true, ""},
-		{"../testdata/stderr-output/", "stderr-test-0.0.1-seed:0.1.0",
+		{"../testdata/stderr-output/", "stderr-test-0.0.1-seed:0.1.0", "",
 			[]string{"INPUT_FILE=../testdata/stderr-output/inputs.txt"},
 			[]string{},
 			[]string{}, []string{},
@@ -48,15 +55,15 @@ func TestDockerRun(t *testing.T) {
 		metadataSchema := ""
 		version := "1.0.0"
 		DockerBuild(c.directory, version, "", "", ".", ".", "")
-		_, err := DockerRun(c.imageName, outputDir, metadataSchema,
+		_, err := DockerRun(c.imageName, c.manifest, outputDir, metadataSchema,
 			c.inputs, c.json, c.settings, c.mounts, true, true)
 		success := err == nil
 		if success != c.expected {
-			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
+			t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, c.manifest, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err, nil)
 		}
 		if err != nil {
 			if !strings.Contains(err.Error(), c.expectedErrorMsg) {
-				t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err.Error(), c.expectedErrorMsg)
+				t.Errorf("DockerRun(%q, %q, %q, %q, %q, %q, %q) == %v, expected %v", c.imageName, c.manifest, outputDir, metadataSchema, c.inputs, c.settings, c.mounts, err.Error(), c.expectedErrorMsg)
 			}
 		}
 	}

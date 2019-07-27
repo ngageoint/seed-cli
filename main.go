@@ -79,6 +79,7 @@ var buildCmd *flag.FlagSet
 var initCmd *flag.FlagSet
 var listCmd *flag.FlagSet
 var publishCmd *flag.FlagSet
+var unpublishCmd *flag.FlagSet
 var pullCmd *flag.FlagSet
 var runCmd *flag.FlagSet
 var searchCmd *flag.FlagSet
@@ -145,6 +146,23 @@ func main() {
 		panic(util.Exit{0})
 	}
 
+	// seed unpublish: Removes an image frome a remote registry
+	if unpublishCmd.Parsed() {
+		registry := unpublishCmd.Lookup(constants.RegistryFlag).Value.String()
+		org := unpublishCmd.Lookup(constants.OrgFlag).Value.String()
+		user := unpublishCmd.Lookup(constants.UserFlag).Value.String()
+		pass := unpublishCmd.Lookup(constants.PassFlag).Value.String()
+		image := unpublishCmd.Lookup(constants.ImgNameFlag).Value.String()
+		manifest := unpublishCmd.Lookup(constants.ManifestFlag).Value.String()
+
+		err := commands.DockerUnpublish(image, manifest, registry, org, user, pass)
+		if err != nil {
+			util.PrintUtil("%s\n", err.Error())
+			panic(util.Exit{1})
+		}
+		panic(util.Exit{0})
+	}
+
 	// Checks if Docker requires sudo access. Prints error message if so.
 	util.CheckSudo()
 
@@ -186,7 +204,7 @@ func main() {
 			jm := buildCmd.Lookup(constants.JobVersionMinor).Value.String() == constants.TrueString
 			jp := buildCmd.Lookup(constants.JobVersionPatch).Value.String() == constants.TrueString
 
-			err := commands.DockerPublish(imgName, registry, org, user, pass, jobDirectory,
+			_, err := commands.DockerPublish(imgName, manifest, registry, org, user, pass, jobDirectory,
 				force, P, pm, pp, J, jm, jp)
 			if err != nil {
 				util.PrintUtil("%s\n", err.Error())
@@ -201,12 +219,13 @@ func main() {
 		batchDir := batchCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		batchFile := batchCmd.Lookup(constants.BatchFlag).Value.String()
 		imageName := batchCmd.Lookup(constants.ImgNameFlag).Value.String()
+		manifest := batchCmd.Lookup(constants.ManifestFlag).Value.String()
 		settings := strings.Split(batchCmd.Lookup(constants.SettingFlag).Value.String(), ",")
 		mounts := strings.Split(batchCmd.Lookup(constants.MountFlag).Value.String(), ",")
 		outputDir := batchCmd.Lookup(constants.JobOutputDirFlag).Value.String()
 		rmFlag := batchCmd.Lookup(constants.RmFlag).Value.String() == constants.TrueString
 		metadataSchema := batchCmd.Lookup(constants.SchemaFlag).Value.String()
-		err := commands.BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema, settings, mounts, rmFlag)
+		err := commands.BatchRun(batchDir, batchFile, imageName, manifest, outputDir, metadataSchema, settings, mounts, rmFlag)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -217,6 +236,7 @@ func main() {
 	// seed run: Runs docker image provided or found in seed manifest
 	if runCmd.Parsed() {
 		imageName := runCmd.Lookup(constants.ImgNameFlag).Value.String()
+		manifest := runCmd.Lookup(constants.ManifestFlag).Value.String()
 		inputs := strings.Split(runCmd.Lookup(constants.InputsFlag).Value.String(), ",")
 		json := strings.Split(runCmd.Lookup(constants.JsonFlag).Value.String(), ",")
 		settings := strings.Split(runCmd.Lookup(constants.SettingFlag).Value.String(), ",")
@@ -240,7 +260,7 @@ func main() {
 				if outputDir != "" {
 					outputDirRep = outputDir + fmt.Sprintf("-%d", i)
 				}
-				_, err := commands.DockerRun(imageName, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
+				_, err := commands.DockerRun(imageName, manifest, outputDirRep, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
 				if err != nil {
 					util.PrintUtil("%s\n", err.Error())
 					panic(util.Exit{1})
@@ -248,7 +268,7 @@ func main() {
 			}
 		} else {
 			// run once
-			_, err = commands.DockerRun(imageName, outputDir, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
+			_, err = commands.DockerRun(imageName, manifest, outputDir, metadataSchema, inputs, json, settings, mounts, rmFlag, quiet)
 			if err != nil {
 				util.PrintUtil("%s\n", err.Error())
 				panic(util.Exit{1})
@@ -264,6 +284,7 @@ func main() {
 		user := publishCmd.Lookup(constants.UserFlag).Value.String()
 		pass := publishCmd.Lookup(constants.PassFlag).Value.String()
 		origImg := publishCmd.Lookup(constants.ImgNameFlag).Value.String()
+		manifest := publishCmd.Lookup(constants.ManifestFlag).Value.String()
 		jobDirectory := publishCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		force := publishCmd.Lookup(constants.ForcePublishFlag).Value.String() == constants.TrueString
 
@@ -275,7 +296,7 @@ func main() {
 		jm := publishCmd.Lookup(constants.JobVersionMinor).Value.String() == constants.TrueString
 		jp := publishCmd.Lookup(constants.JobVersionPatch).Value.String() == constants.TrueString
 
-		err := commands.DockerPublish(origImg, registry, org, user, pass, jobDirectory,
+		_, err := commands.DockerPublish(origImg, manifest, registry, org, user, pass, jobDirectory,
 			force, P, pm, pp, J, jm, jp)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
@@ -431,6 +452,12 @@ func DefineBatchFlags() {
 	batchCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
 		"Name of Docker image to run")
 
+	var manifest string
+	batchCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	batchCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+
 	var settings objects.ArrayFlags
 	batchCmd.Var(&settings, constants.SettingFlag,
 		"Defines the value to be applied to setting")
@@ -475,6 +502,12 @@ func DefineRunFlags() {
 		"Name of Docker image to run")
 	runCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
 		"Name of Docker image to run")
+
+	var manifest string
+	runCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	runCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
 
 	var inputs objects.ArrayFlags
 	runCmd.Var(&inputs, constants.InputsFlag,
@@ -591,6 +624,12 @@ func DefinePublishFlags() {
 	publishCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
 		"Name of Docker image to publish")
 
+	var manifest string
+	publishCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	publishCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+
 	var d string
 	publishCmd.StringVar(&d, constants.JobDirectoryFlag, ".",
 		"Directory of seed spec and Dockerfile (default is current directory).")
@@ -630,6 +669,44 @@ func DefinePublishFlags() {
 	publishCmd.Usage = func() {
 		PrintASCIIArt()
 		commands.PrintPublishUsage()
+	}
+}
+
+//DefineUnpublishFlags defines the flags for the seed unpublish command
+func DefineUnpublishFlags() {
+	unpublishCmd = flag.NewFlagSet(constants.UnpublishCommand, flag.ExitOnError)
+
+	var imgNameFlag string
+	unpublishCmd.StringVar(&imgNameFlag, constants.ImgNameFlag, "",
+		"Name of Docker image to remove from registry")
+	unpublishCmd.StringVar(&imgNameFlag, constants.ShortImgNameFlag, "",
+		"Name of Docker image to remove from registry")
+
+	var manifest string
+	unpublishCmd.StringVar(&manifest, constants.ManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+	unpublishCmd.StringVar(&manifest, constants.ShortManifestFlag, ".",
+		"Manifest file to use (default is seed.manifest.json in the current directory).")
+
+	var registry string
+	unpublishCmd.StringVar(&registry, constants.RegistryFlag, "", "Specifies registry to remove image from.")
+	unpublishCmd.StringVar(&registry, constants.ShortRegistryFlag, "", "Specifies registry to remove image from.")
+
+	var org string
+	unpublishCmd.StringVar(&org, constants.OrgFlag, "", "Specifies organization to remove image from.")
+	unpublishCmd.StringVar(&org, constants.ShortOrgFlag, "", "Specifies organization to remove image from.")
+
+	var user string
+	unpublishCmd.StringVar(&user, constants.UserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+	unpublishCmd.StringVar(&user, constants.ShortUserFlag, "", "Specifies username to use for authorization (default is anonymous).")
+
+	var password string
+	unpublishCmd.StringVar(&password, constants.PassFlag, "", "Specifies password to use for authorization (default is empty).")
+	unpublishCmd.StringVar(&password, constants.ShortPassFlag, "", "Specifies password to use for authorization (default is empty).")
+
+	unpublishCmd.Usage = func() {
+		PrintASCIIArt()
+		commands.PrintUnpublishUsage()
 	}
 }
 
@@ -701,6 +778,7 @@ func DefineFlags() {
 	DefineListFlags()
 	DefineSearchFlags()
 	DefinePublishFlags()
+	DefineUnpublishFlags()
 	DefinePullFlags()
 	DefineValidateFlags()
 	versionCmd = flag.NewFlagSet(constants.VersionCommand, flag.ExitOnError)
@@ -727,7 +805,7 @@ func DefineFlags() {
 
 	case constants.BatchCommand:
 		cmd = batchCmd
-		minArgs = 3
+		minArgs = 2
 
 	case constants.BuildCommand:
 		cmd = buildCmd
@@ -746,7 +824,7 @@ func DefineFlags() {
 
 	case constants.RunCommand:
 		cmd = runCmd
-		minArgs = 3
+		minArgs = 2
 
 	case constants.SearchCommand:
 		cmd = searchCmd
@@ -758,7 +836,11 @@ func DefineFlags() {
 
 	case constants.PublishCommand:
 		cmd = publishCmd
-		minArgs = 3
+		minArgs = 2
+
+	case constants.UnpublishCommand:
+		cmd = unpublishCmd
+		minArgs = 2
 
 	case constants.PullCommand:
 		cmd = pullCmd
@@ -798,17 +880,18 @@ func DefineFlags() {
 func PrintUsage() {
 	PrintASCIIArt()
 	util.PrintUtil("\nUsage:\tseed COMMAND\n\n")
-	util.PrintUtil("A test runner for seed spec compliant algorithms\n\n")
+	util.PrintUtil("A tool for assisting in creating seed spec compliant algorithms\n\n")
 	util.PrintUtil("Commands:\n")
 	util.PrintUtil("  build \tBuilds Seed compliant Docker image\n")
 	util.PrintUtil("  batch \tExecutes Seed compliant docker image over multiple iterations\n")
 	util.PrintUtil("  init  \tInitialize new project with example seed.manifest.json file\n")
-	util.PrintUtil("  list  \tAllows for listing of all Seed compliant images residing on the local system\n")
-	util.PrintUtil("  publish\tAllows for publish of Seed compliant images to remote Docker registry\n")
-	util.PrintUtil("  pull\t\tAllows for pulling Seed compliant images from remote Docker registry\n")
-	util.PrintUtil("  run   \tExecutes Seed compliant Docker docker image\n")
+	util.PrintUtil("  list  \tLists all Seed compliant images residing on the local system\n")
+	util.PrintUtil("  publish\tPublishes Seed compliant images to remote Docker registry\n")
+	util.PrintUtil("  pull\t\tPulls images from remote Docker registry\n")
+	util.PrintUtil("  run   \tExecutes Seed compliant Docker image\n")
 	util.PrintUtil("  search\tAllows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)\n")
 	util.PrintUtil("  spec\t\tDisplays the specification for the current Seed version\n")
+	util.PrintUtil("  unpublish\tRemoves images from remote Docker registry\n")
 	util.PrintUtil("  validate\tValidates a Seed spec\n")
 	util.PrintUtil("  version\tPrints the version of Seed spec\n")
 	util.PrintUtil("\nRun 'seed COMMAND --help' for more information on a command.\n")

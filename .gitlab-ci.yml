@@ -8,22 +8,21 @@
 # REGISTRY
 # ORG
 
-image: $REGISTRY/$ORG/seed-common:latest
-
 services:
   - ${DIND}
 
 stages:
   - build
+  - docs
 #  - test
 
 before_script:
   - mkdir -p $GOPATH/src/github.com/ngageoint
   - ln -s $(pwd) $GOPATH/src/github.com/ngageoint/seed-cli
   - cd $GOPATH/src/github.com/ngageoint/seed-cli
-  - docker pull $ASCII_DOCTOR_IMAGE
-  
+
 build:
+  image: $SEED_COMMON:$CI_COMMIT_TAG
   stage: build
   artifacts:
     paths:
@@ -32,9 +31,20 @@ build:
     - output/seed-windows-amd64
   script:
     - ./build-cli.sh $CI_COMMIT_TAG
-    - docker run -v readme.adoc:/documents/readme.adoc -v seed-cli.adoc:/documents/seed-cli.adoc --name=seed-man rochdev/alpine-asciidoctor:mini asciidoctor -b manpage -D /documents/output seed-cli.adoc
   only:
     - tags
+
+# uncomment once we have an asciidoctor image with manpage on the high side
+#docs:
+#  image: $ASCII_DOCTOR_IMAGE
+#  stage: docs
+#  artifacts:
+#    paths:
+#    - /documents/output/seed-cli.adoc
+#  script:
+#    - asciidoctor -b manpage -D /documents/output seed-cli.adoc
+#  only:
+#    - tags
 
 # uncomment once we have an image with go and docker working on the high side #147
 #test:

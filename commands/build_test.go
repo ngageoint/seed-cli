@@ -24,9 +24,9 @@ func TestDockerBuild(t *testing.T) {
 	}{
 		/*0*/ {"../examples/addition-job/", "1.0.0", ".", ".", true, ""},
 		/*1*/ {"../examples/extractor/", "1.0.0", ".", ".", true, ""},
-		/*2*/ {"../examples/addition-job/", "1.0.0", "../examples/addition-job/seed.manifest.json", ".", true, ""},
+		/*2*/ {"../examples/addition-job/", "1.0.0", "", ".", true, ""},
 		/*3*/ {"../examples/extractor/", "1.0.0", ".", "../examples/extractor/Dockerfile", true, ""},
-		/*4*/ {"../examples/addition-job/", "1.0.0", "../examples/addition-job/seed.manifest.json", "../examples/addition-job/Dockerfile", true, ""},
+		/*4*/ {"../examples/addition-job/", "1.0.0", "", "../examples/addition-job/Dockerfile", true, ""},
 		/*5*/ {"", "", ".", ".", false, "seed.manifest.json cannot be found"},
 		/*6*/ {"../testdata/invalid-duplicate-names/", "1.0.0", ".", ".", false, "Multiple Name values are assigned"},
 	}

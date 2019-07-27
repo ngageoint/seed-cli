@@ -21,7 +21,17 @@ type BatchIO struct {
 	Outdir string
 }
 
-func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
+func BatchRun(batchDir, batchFile, imageName, manifest, outputDir, metadataSchema string, settings, mounts []string, rmFlag bool) error {
+
+	if imageName == "" {
+		util.PrintUtil("INFO: Image name not specified. Attempting to use manifest: %v\n", manifest)
+		temp, err := objects.GetImageNameFromManifest(manifest, "")
+		if err != nil {
+			return err
+		}
+		imageName = temp
+	}
+
 	if imageName == "" {
 		return errors.New("ERROR: No input image specified.")
 	}
@@ -63,7 +73,7 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 	bar.Output = os.Stderr
 	defer bar.Finish()
 	for _, in := range inputs {
-		exitCode, err := DockerRun(imageName, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
+		exitCode, err := DockerRun(imageName, manifest, in.Outdir, metadataSchema, in.Inputs, in.Json, settings, mounts, rmFlag, true)
 
 		//trim inputs to print only the key values and filenames
 		truncatedInputs := []string{}
@@ -89,16 +99,18 @@ func BatchRun(batchDir, batchFile, imageName, outputDir, metadataSchema string, 
 
 //PrintBatchUsage prints the seed batch usage arguments, then exits the program
 func PrintBatchUsage() {
-	util.PrintUtil("\nUsage:\tseed batch -in IMAGE_NAME [OPTIONS] \n")
+	util.PrintUtil("\nUsage:\tseed batch [-in IMAGE_NAME] [-M MANIFEST] [OPTIONS] \n")
 
 	util.PrintUtil("\nRuns Docker image defined by seed spec.\n")
 
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
+	util.PrintUtil("  -%s -%s\t  Manifest file to use if an image name is not specified (default is seed.manifest.json within the current directory).\n",
+		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil("  -%s  -%s \t Optional file specifying input keys and file mapping for batch processing. Supersedes directory flag.\n",
 		constants.ShortBatchFlag, constants.BatchFlag)
-	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory)\n",
+	util.PrintUtil("  -%s  -%s Alternative to batch file.  Specifies a directory of files to batch process (default is current directory).\n",
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s \t\t Automatically remove the container when it exits (docker run --rm)\n",
 		constants.RmFlag)

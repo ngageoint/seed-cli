@@ -64,6 +64,8 @@ func checkError(err error, url, username, password string) string {
 		}
 	} else if strings.Contains(errStr, "status=404") {
 		humanError = "Connected to registry but received a 404 error. Please check the url and try again."
+	} else if strings.Contains(errStr, "status=405") {
+		humanError = "Connected to registry this operation is not permitted."
 	} else {
 		humanError = "Could not connect to the specified registry. Please check the url and try again."
 	}

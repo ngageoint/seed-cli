@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -36,8 +37,8 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	var seedFileName string
 	var err error
-	if manifest != "." {
-		seedFileName = util.GetFullPath(manifest, "")
+	if manifest != "." && manifest != "" {
+		seedFileName = util.GetFullPath(manifest, jobDirectory)
 		if _, err = os.Stat(seedFileName); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
 			return "", err
@@ -123,12 +124,47 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		return imageName, errors.New(errs.String())
 	}
 
+	inputStr := ""
+	if seed.Job.Interface.Inputs.Files != nil {
+		for _, f := range seed.Job.Interface.Inputs.Files {
+			normalName := util.GetNormalizedVariable(f.Name)
+			inputStr = fmt.Sprintf("%s-i %s=<file> ", inputStr, normalName)
+		}
+	}
+
+	settingStr := ""
+	if seed.Job.Interface.Inputs.Json != nil {
+		for _, f := range seed.Job.Interface.Inputs.Json {
+			normalName := util.GetNormalizedVariable(f.Name)
+			settingStr = fmt.Sprintf("%s-e %s=<setting> ", settingStr, normalName)
+		}
+	}
+
+	if seed.Job.Interface.Settings != nil {
+		for _, f := range seed.Job.Interface.Settings {
+			normalName := util.GetNormalizedVariable(f.Name)
+			settingStr = fmt.Sprintf("%s-e %s=<setting> ", settingStr, normalName)
+		}
+	}
+
+	mountStr := ""
+	if seed.Job.Interface.Mounts != nil {
+		for _, f := range seed.Job.Interface.Mounts {
+			mountStr = fmt.Sprintf("%s-m %s=<mount_path> ", mountStr, f.Name)
+		}
+	}
+
+	util.PrintUtil("INFO: Successfully built image. This image can be published with the following command:\n")
+	util.PrintUtil("seed publish -in %s -r hub.docker.com -o geoint\n", imageName)
+	util.PrintUtil("This image can be run with the following command:\n")
+	util.PrintUtil("seed run -rm -in %s %s %s %s-o <outdir>\n", imageName, inputStr, settingStr, mountStr)
+
 	return imageName, nil
 }
 
 //PrintBuildUsage prints the seed build usage arguments, then exits the program
 func PrintBuildUsage() {
-	util.PrintUtil("\nUsage:\tseed build [-d JOB_DIRECTORY]\n")
+	util.PrintUtil("\nUsage:\tseed build [-c] [-d JOB_DIRECTORY] [-D DOCKERFILE] [-M MANIFEST] [-v VERSION] [-u USERNAME] [-p PASSWORD]\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s  Utilizes the --cache-from option when building the docker image\n",
 		constants.ShortCacheFromFlag, constants.CacheFromFlag)
@@ -137,10 +173,9 @@ func PrintBuildUsage() {
 		constants.ShortJobDirectoryFlag, constants.JobDirectoryFlag)
 	util.PrintUtil("  -%s -%s  Specifies the Dockerfile to use (default is Dockerfile within current directory)\n",
 		constants.ShortDockerfileFlag, constants.DockerfileFlag)
-	util.PrintUtil("  -%s -%s\t  Specifies the seed manifest file to use (default is seed.manifest.json within the current directory)\n",
+	util.PrintUtil("  -%s -%s\t  Specifies the seed manifest file to use (default is seed.manifest.json within the current directory).\n",
 		constants.ShortManifestFlag, constants.ManifestFlag)
-	util.PrintUtil(
-		"  -%s -%s\t  Version of built in seed manifest to validate against (default is 1.0.0).\n",
+	util.PrintUtil("  -%s -%s\t  Version of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)
 	util.PrintUtil("  -%s -%s\t  Username to login if needed to pull images (default anonymous).\n",
 		constants.ShortUserFlag, constants.UserFlag)
@@ -171,5 +206,8 @@ func PrintBuildUsage() {
 		constants.JobVersionMinor)
 	util.PrintUtil("  -%s\t\t  Force Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		"JM")
+
+	util.PrintUtil("\nExample: \tseed build\n")
+	util.PrintUtil("\nThis will build a seed image from the manifest named 'seed.manifest.json' and the dockerfile named 'Dockerfile' in the current directory.\n")
 	return
 }
