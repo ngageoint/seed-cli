@@ -70,10 +70,14 @@ seed init -d examples/job
 
 //# tag::run-usage[]
 The primary purpose of the CLI is to easily enable algorithm execution. The common stumbling blocks for new developers
-are being able to feed data into and retrieve out fo the containers as a part of execution. The `seed run` command
+are being able to feed data into and retrieve out of the containers as a part of execution. The `seed run` command
 facilitates this through introspection of the Seed interface indicating exactly what input data is required, allowing
 for simply specifying the system locations of data and handling all mounting and output validation and capture
 operations for the developer.
+
+If gpu resources are requested in the seed manifest file then `seed run` will automatically attempt to allocate the requested GPU resources. 
+Nvidia-docker(2.0) not being installed or insufficient GPU resources available will result in a docker error.   
+Instructions for installing nvidia-docker(2.0) can be found here: https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)
 //# end::run-usage[]
 
 //# tag::run-example[]

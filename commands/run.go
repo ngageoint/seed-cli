@@ -592,6 +592,17 @@ func DefineResources(seed *objects.Seed, inputSizeMiB float64) ([]string, float6
 			resources = append(resources, fmt.Sprintf("--shm-size=%dm", intMem))
 			value = fmt.Sprintf("%d", intMem)
 		}
+		if s.Name == "gpus" {
+			var gpustring string
+			for g := 0; g < int(s.Value); g++ {
+				gpustring += strconv.Itoa(g) + ","
+			}
+			gpustring = strings.Trim(gpustring, ",")
+			resources = append(resources, "--runtime=nvidia")
+			resources = append(resources, "-e")
+			resources = append(resources, fmt.Sprintf("NVIDIA_VISIBLE_DEVICES=%s", gpustring))
+			value = fmt.Sprintf("%d", int(s.Value))
+		}
 
 		envVar := util.GetNormalizedVariable("ALLOCATED_" + s.Name)
 		resources = append(resources, "-e")
