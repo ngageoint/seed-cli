@@ -102,7 +102,7 @@ const ShortRegistryFlag = "r"
 const OrgFlag = "org"
 
 //ShortOrgFlag shorthand flag that defines organization
-const ShortOrgFlag = "o"
+const ShortOrgFlag = "O"
 
 //FilterFlag defines filter
 const FilterFlag = "filter"

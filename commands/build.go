@@ -155,8 +155,10 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	}
 
 	util.PrintUtil("INFO: Successfully built image. This image can be published with the following command:\n")
-	util.PrintUtil("seed publish -in %s -r hub.docker.com -o geoint\n", imageName)
+	util.PrintUtil("seed publish -in %s -r my.registry.address\n", imageName)
 	util.PrintUtil("This image can be run with the following command:\n")
+	runCmd := util.CleanString("seed run -rm -in %s %s %s %s-o <outdir>", imageName, inputStr, settingStr, mountStr)
+	util.PrintUtil("%s\n", runCmd)
 	util.PrintUtil("seed run -rm -in %s %s %s %s-o <outdir>\n", imageName, inputStr, settingStr, mountStr)
 
 	return imageName, nil

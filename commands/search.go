@@ -31,7 +31,7 @@ func DockerSearch(url, org, filter, username, password string) ([]string, error)
 
 //PrintSearchUsage prints the seed search usage information, then exits the program
 func PrintSearchUsage() {
-	util.PrintUtil("\nUsage:\tseed search [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
+	util.PrintUtil("\nUsage:\tseed search [-r REGISTRY_NAME] [-O ORGANIZATION_NAME] [-f FILTER] [-u Username] [-p password]\n")
 	util.PrintUtil("\nAllows for discovery of seed compliant images hosted within a Docker registry.\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s\tSpecifies a specific registry to search (default is index.docker.io).\n",

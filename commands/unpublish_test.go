@@ -38,7 +38,8 @@ func TestDockerUnpublish(t *testing.T) {
 	imgNames := []string{"my-job-0.1.0-seed:0.1.0", "my-job-1.0.0-seed:1.0.0", "not-a-valid-image:latest"}
 	manifests := []string{"../testdata/complete/seed.manifest.json"}
 	origImg := "my-job-0.1.0-seed:0.1.0"
-	remoteImg := []string{"localhost:5000/my-job-0.1.0-seed:0.1.0", "localhost:5000/my-job-1.0.0-seed:1.0.0", "localhost:5000/not-a-valid-image"}
+	remoteImg := []string{"localhost:5000/my-job-0.1.0-seed:0.1.0", "localhost:5000/my-job-1.0.0-seed:1.0.0",
+		"localhost:5000/not-a-valid-image", "localhost:5000/test/my-job-0.1.0-seed:0.1.0"}
 	version := "1.0.0"
 
 	for _, dir := range imgDirs {
@@ -95,6 +96,9 @@ func TestDockerUnpublish(t *testing.T) {
 		// test successful image name
 		{imgNames[2], manifests[0], "localhost:5000", "", "testuser", "testpassword",
 			true, "", "not-a-valid-image", "latest"},
+		// test org
+		{imgNames[0], manifests[0], "localhost:5000", "test", "testuser", "testpassword",
+			true, "", "test/my-job-0.1.0-seed", "0.1.0"},
 	}
 
 	for i, c := range cases {

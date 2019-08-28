@@ -247,6 +247,7 @@ func DockerPublish(origImg, manifest, registry, org, username, password, jobDire
 		}
 
 		// Set final image name to tag + image
+		origImg = img
 		img = tag + img
 	}
 
@@ -270,7 +271,7 @@ func DockerPublish(origImg, manifest, registry, org, username, password, jobDire
 
 //PrintPublishUsage prints the seed publish usage information, then exits the program
 func PrintPublishUsage() {
-	util.PrintUtil("\nUsage:\tseed publish [-in IMAGE_NAME] [-M MANIFEST] [-r REGISTRY_NAME] [-o ORG_NAME] [-u username] [-p password] [Conflict Options]\n")
+	util.PrintUtil("\nUsage:\tseed publish [-in IMAGE_NAME] [-M MANIFEST] [-r REGISTRY_NAME] [-O ORG_NAME] [-u username] [-p password] [Conflict Options]\n")
 	util.PrintUtil("\nAllows for the publish of seed compliant images.\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to publish\n",
@@ -305,7 +306,8 @@ func PrintPublishUsage() {
 	util.PrintUtil("  -%s\t\tForce Major version bump of 'jobVersion' in manifest on disk if publish conflict found\n",
 		constants.JobVersionMajor)
 
-	util.PrintUtil("\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r hub.docker.com -o geoint -jm -P\n")
-	util.PrintUtil("\nThis will build a new image example-0.2.0-seed:1.0.0 and publish it to hub.docker.com/geoint\n")
+	util.PrintUtil("\nExample: \tseed publish -in example-0.1.3-seed:0.1.3 -r my.registry.address -jm -P\n")
+	util.PrintUtil("\nIf example-0.1.3-seed:0.1.3 does not exist on the registry the image will be published there.")
+	util.PrintUtil("If it does exist this will build a new image example-0.2.0-seed:1.0.0 and publish it to the registry\n")
 	return
 }

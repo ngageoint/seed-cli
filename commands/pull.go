@@ -95,7 +95,7 @@ func DockerPull(image, registry, org, username, password string) error {
 
 //PrintPullUsage prints the seed pull usage information, then exits the program
 func PrintPullUsage() {
-	util.PrintUtil("\nUsage:\tseed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-o ORGANIZATION_NAME] [-u Username] [-p password]\n")
+	util.PrintUtil("\nUsage:\tseed pull -in IMAGE_NAME [-r REGISTRY_NAME] [-O ORGANIZATION_NAME] [-u Username] [-p password]\n")
 	util.PrintUtil("\nPulls seed image from remote repository.\n")
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s -%s Docker image name to pull\n",

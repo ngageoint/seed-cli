@@ -777,7 +777,7 @@ func PrintRunUsage() {
 	util.PrintUtil("\nOptions:\n")
 	util.PrintUtil("  -%s  -%s \tDocker image name to run\n",
 		constants.ShortImgNameFlag, constants.ImgNameFlag)
-	util.PrintUtil("  -%s -%s\t  Manifest file to use if an image name is not specified (default is seed.manifest.json within the current directory).\n",
+	util.PrintUtil("  -%s   -%s\tManifest file to use if an image name is not specified (default is seed.manifest.json within the current directory).\n",
 		constants.ShortManifestFlag, constants.ManifestFlag)
 	util.PrintUtil("  -%s   -%s \t\tSpecifies the key/value input data values of the seed spec in the format INPUT_FILE_KEY=INPUT_FILE_VALUE\n",
 		constants.ShortInputsFlag, constants.InputsFlag)
