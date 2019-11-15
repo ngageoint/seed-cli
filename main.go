@@ -111,10 +111,11 @@ func main() {
 
 	// seed validate: Validate seed.manifest.json. Does not require docker
 	if validateCmd.Parsed() {
+		warningFlag := validateCmd.Lookup(constants.WarnAsErrorsFlag).Value.String() == constants.TrueString
 		schemaFile := validateCmd.Lookup(constants.SchemaFlag).Value.String()
 		dir := validateCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		version := validateCmd.Lookup(constants.VersionFlag).Value.String()
-		err := commands.Validate(schemaFile, dir, version)
+		err := commands.Validate(warningFlag, schemaFile, dir, version)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -178,6 +179,7 @@ func main() {
 
 	// seed build: Build Docker image
 	if buildCmd.Parsed() {
+		warningFlag := buildCmd.Lookup(constants.WarnAsErrorsFlag).Value.String() == constants.TrueString
 		jobDirectory := buildCmd.Lookup(constants.JobDirectoryFlag).Value.String()
 		version := buildCmd.Lookup(constants.VersionFlag).Value.String()
 		user := buildCmd.Lookup(constants.UserFlag).Value.String()
@@ -185,7 +187,8 @@ func main() {
 		manifest := buildCmd.Lookup(constants.ManifestFlag).Value.String()
 		dockerfile := buildCmd.Lookup(constants.DockerfileFlag).Value.String()
 		cacheFrom := buildCmd.Lookup(constants.CacheFromFlag).Value.String()
-		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom)
+
+		imgName, err := commands.DockerBuild(jobDirectory, version, user, pass, manifest, dockerfile, cacheFrom, warningFlag)
 		if err != nil {
 			util.PrintUtil("%s\n", err.Error())
 			panic(util.Exit{1})
@@ -367,6 +370,12 @@ func DefineBuildFlags() {
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
 	buildCmd.StringVar(&password, constants.ShortPassFlag, "",
 		"Optional password if dockerfile pulls images from private repository (default is empty).")
+
+	var warningsAsErrors bool
+	buildCmd.BoolVar(&warningsAsErrors, constants.WarnAsErrorsFlag, false,
+		"Treats validation warnings as errors")
+	buildCmd.BoolVar(&warningsAsErrors, constants.ShortWarnAsErrorsFlag, false,
+		"Treats validation warnings as errors")
 
 	var publish bool
 	buildCmd.BoolVar(&publish, constants.PublishCommand, false, "Publishes image after successful build.")
@@ -745,8 +754,13 @@ func DefinePullFlags() {
 
 //DefineValidateFlags defines the flags for the validate command
 func DefineValidateFlags() {
-	var directory string
 	validateCmd = flag.NewFlagSet(constants.ValidateCommand, flag.ExitOnError)
+	var warningsAsErrors bool
+	validateCmd.BoolVar(&warningsAsErrors, constants.WarnAsErrorsFlag, false,
+		"Treats validation warnings as errors")
+	validateCmd.BoolVar(&warningsAsErrors, constants.ShortWarnAsErrorsFlag, false,
+		"Treats validation warnings as errors")
+	var directory string
 	validateCmd.StringVar(&directory, constants.JobDirectoryFlag, ".",
 		"Location of the seed.manifest.json spec to validate")
 	validateCmd.StringVar(&directory, constants.ShortJobDirectoryFlag, ".",

@@ -658,7 +658,7 @@ func CheckRunOutput(seed *objects.Seed, outDir, metadataSchema string, diskLimit
 						if schema != "" {
 							schema = util.GetFullPath(schema, "")
 						}
-						err := ValidateSeedFile(schema, seed.SeedVersion, metadata, common_const.SchemaMetadata)
+						err := ValidateSeedFile(false, schema, seed.SeedVersion, metadata, common_const.SchemaMetadata)
 						if err != nil {
 							util.PrintUtil("ERROR: Side-car metadata file %s validation error: %s", metadata, err.Error())
 						}

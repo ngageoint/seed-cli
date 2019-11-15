@@ -163,3 +163,9 @@ const ShortVersionFlag = "v"
 
 //ResultsFileManifestName defines the filename for the results_manifest file
 const ResultsFileManifestName = "seed.outputs.json"
+
+//ShortWarnAsErrorsFlag shorthand defines whether to treat warnings as errors
+const ShortWarnAsErrorsFlag = "w"
+
+//WarnAsErrorsFlag defines whether to treat warnings as errors
+const WarnAsErrorsFlag = "warnings"

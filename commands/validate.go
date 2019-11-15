@@ -15,7 +15,7 @@ import (
 )
 
 //Validate seed validate: Validate seed.manifest.json. Does not require docker
-func Validate(schemaFile, dir, version string) error {
+func Validate(warningsAsErrors bool, schemaFile, dir, version string) error {
 	var err error = nil
 	var seedFileName string
 
@@ -28,7 +28,7 @@ func Validate(schemaFile, dir, version string) error {
 		schemaFile = "file:///" + util.GetFullPath(schemaFile, dir)
 	}
 
-	err = ValidateSeedFile(schemaFile, version, seedFileName, common_const.SchemaManifest)
+	err = ValidateSeedFile(warningsAsErrors, schemaFile, version, seedFileName, common_const.SchemaManifest)
 
 	return err
 }
@@ -46,11 +46,13 @@ func PrintValidateUsage() {
 	util.PrintUtil(
 		"  -%s -%s\tVersion of built in seed manifest to validate against (default is 1.0.0).\n",
 		constants.ShortVersionFlag, constants.VersionFlag)
+	util.PrintUtil("  -%s -%s\tSpecifies whether to treat warnings as errors during validation\n",
+		constants.ShortWarnAsErrorsFlag, constants.WarnAsErrorsFlag)
 	return
 }
 
 //ValidateSeedFile Validates the seed.manifest.json file based on the given schema
-func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType common_const.SchemaType) error {
+func ValidateSeedFile(warningsAsErrors bool, schemaFile, version, seedFileName string, schemaType common_const.SchemaType) error {
 	var result *gojsonschema.Result
 	var err error
 
@@ -125,6 +127,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		return nil
 	}
 
+	// Identify un-specified recommended resources
 	recommendedResources := []string{"mem", "cpus", "disk"}
 	if seed.Job.Resources.Scalar != nil {
 		for _, s := range seed.Job.Resources.Scalar {
@@ -139,7 +142,6 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 
 	// Grab all scalar resource names (verify none are set to OUTPUT_DIR)
 	var allocated []string
-	// var vars map[string]string
 	vars := make(map[string][]string)
 	if seed.Job.Resources.Scalar != nil {
 		for _, s := range seed.Job.Resources.Scalar {
@@ -154,6 +156,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 		}
 	}
 
+	normalizedWarnings := make(map[string]string)
 	if seed.Job.Interface.Inputs.Files != nil {
 		for _, f := range seed.Job.Interface.Inputs.Files {
 			// check against the ALLOCATED_* and OUTPUT_DIR
@@ -163,6 +166,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 			}
 
 			util.IsInUse(f.Name, "job.interface.inputs.files", vars)
+			util.IsNormalized(f.Name, "job.interface.inputs.files", normalizedWarnings)
 		}
 	}
 
@@ -174,6 +178,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 			}
 
 			util.IsInUse(f.Name, "job.interface.inputs.json", vars)
+			util.IsNormalized(f.Name, "job.interface.inputs.json", normalizedWarnings)
 		}
 	}
 
@@ -184,7 +189,8 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 				buffer.WriteString("ERROR: job.interface.outputs.files Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
-			util.IsInUse(f.Name, "job.interface.outputData.files", vars)
+			util.IsInUse(f.Name, "job.interface.outputs.files", vars)
+			util.IsNormalized(f.Name, "job.interface.outputs.files", normalizedWarnings)
 		}
 	}
 
@@ -195,7 +201,8 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 				buffer.WriteString("ERROR: job.interface.outputData.json Name " +
 					f.Name + " is a reserved variable. Please choose a different name value.\n")
 			}
-			util.IsInUse(f.Name, "job.interface.outputData.json", vars)
+			util.IsInUse(f.Name, "job.interface.outputs.json", vars)
+			util.IsNormalized(f.Name, "job.interface.outputs.json", normalizedWarnings)
 		}
 	}
 
@@ -207,6 +214,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 					" is a reserved variable. Please choose a different name value.\n")
 			}
 			util.IsInUse(m.Name, "job.interface.mounts", vars)
+			util.IsNormalized(m.Name, "job.interface.mounts", normalizedWarnings)
 		}
 	}
 
@@ -218,6 +226,7 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 					" is a reserved variable. Please choose a different name value.\n")
 			}
 			util.IsInUse(s.Name, "job.interface.settings", vars)
+			util.IsNormalized(s.Name, "job.interface.settings", normalizedWarnings)
 		}
 	}
 
@@ -239,6 +248,18 @@ func ValidateSeedFile(schemaFile, version, seedFileName string, schemaType commo
 			for _, v := range val {
 				buffer.WriteString("\t" + v + "\n")
 			}
+		}
+	}
+
+	//Identify any un-normalized environment variables
+	util.PrintUtil("INFO: Checking for variable name normalization...\n")
+	for key, val := range normalizedWarnings {
+		msg := fmt.Sprintf("Name value " + val + "." + key + " should be normalized.")
+
+		if warningsAsErrors {
+			buffer.WriteString(fmt.Sprintf("\033[41mERROR: " + msg + "\033[0m\n"))
+		} else {
+			util.PrintUtil("\033[30;43mWARNING: " + msg + "\033[0m\n")
 		}
 	}
 

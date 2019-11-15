@@ -132,7 +132,7 @@ func DockerPublish(origImg, manifest, registry, org, username, password, jobDire
 		}
 
 		version := objects.SeedFromImageLabel(origImg).SeedVersion
-		ValidateSeedFile("", version, seedFileName, common_const.SchemaManifest)
+		ValidateSeedFile(false, "", version, seedFileName, common_const.SchemaManifest)
 		seed := objects.SeedFromManifestFile(seedFileName)
 
 		util.PrintUtil("INFO: An image with the name %s already exists. ", img)

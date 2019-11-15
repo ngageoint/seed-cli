@@ -17,7 +17,7 @@ import (
 )
 
 //DockerBuild Builds the docker image with the given image tag.
-func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string) (string, error) {
+func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile, cacheFrom string, warnAsError bool) (string, error) {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := common_const.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -52,12 +52,12 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	}
 
 	// Validate seed file
-	err = ValidateSeedFile("", version, seedFileName, common_const.SchemaManifest)
+	err = ValidateSeedFile(warnAsError, "", version, seedFileName, common_const.SchemaManifest)
 	if err != nil {
-		util.PrintUtil("ERROR: seed file could not be validated. See errors for details.")
+		util.PrintUtil("ERROR: seed file could not be validated. See errors for details.\n")
 		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
-		return "", err
+		return "", nil
 	}
 
 	// retrieve seed from seed manifest
@@ -183,6 +183,8 @@ func PrintBuildUsage() {
 		constants.ShortUserFlag, constants.UserFlag)
 	util.PrintUtil("  -%s -%s\t  Password to login if needed to pull images (default anonymous).\n",
 		constants.ShortPassFlag, constants.PassFlag)
+	util.PrintUtil("  -%s -%s\t  Specifies whether to treat warnings as errors during validation\n",
+		constants.ShortWarnAsErrorsFlag, constants.WarnAsErrorsFlag)
 
 	util.PrintUtil("\nBuild and Publish options:\n")
 	util.PrintUtil("  -%s\t  Will publish image after a successful build.\n",
