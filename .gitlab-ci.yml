@@ -7,6 +7,8 @@
 # $CI_BUILD_TOKEN
 # REGISTRY
 # ORG
+variables:
+  SEED_COMMON: geoint/seed-common
 
 services:
   - ${DIND}
