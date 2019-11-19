@@ -43,7 +43,7 @@ func TestDockerUnpublish(t *testing.T) {
 	version := "1.0.0"
 
 	for _, dir := range imgDirs {
-		_, err := DockerBuild(dir, version, "", "", ".", ".", "")
+		_, err := DockerBuild(dir, version, "", "", ".", ".", "", false)
 		if err != nil {
 			t.Errorf("Error building image %v for DockerUnpublish test", dir)
 		}

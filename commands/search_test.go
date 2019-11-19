@@ -39,7 +39,7 @@ func TestDockerSearch(t *testing.T) {
 	validImgNameStr := fmt.Sprintf("%s", validImgNames)
 	version := "1.0.0"
 	for _, dir := range imgDirs {
-		_, err := DockerBuild(dir, version, "", "", ".", ".", "")
+		_, err := DockerBuild(dir, version, "", "", ".", ".", "", false)
 		if err != nil {
 			t.Errorf("Error building image from %v for DockerSearch test: %v", dir, err)
 		}
