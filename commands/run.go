@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-cli/constants"
 	"github.com/ngageoint/seed-cli/streampainter"
 	common_const "github.com/ngageoint/seed-common/constants"
@@ -58,8 +59,8 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	seed := objects.SeedFromImageLabel(imageName)
 
 	// build docker run command
-	dockerArgs := []string{"run"}
-
+	var dockerArgs, dockerCommand = cliutil.DockerCommandArgsInit()
+	dockerArgs = append(dockerArgs, "run")
 	if rmDir {
 		dockerArgs = append(dockerArgs, "--rm")
 	}
@@ -161,7 +162,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(dockerArgs, " "))
 
 	// Run Docker command and capture output
-	dockerRun := exec.Command("docker", dockerArgs...)
+	dockerRun := exec.Command(dockerCommand, dockerArgs...)
 	var errs bytes.Buffer
 	dockerRun.Stderr = io.MultiWriter(&errs, streampainter.NewStreamPainter(color.FgRed))
 	dockerRun.Stdout = util.StdOut

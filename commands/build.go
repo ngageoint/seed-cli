@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-cli/constants"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
@@ -68,8 +69,8 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	// Build Docker image
 	util.PrintUtil("INFO: Building %s\n", imageName)
-	buildArgs := []string{"build"}
-
+	var buildArgs, dockerCommand = cliutil.DockerCommandArgsInit()
+	buildArgs = append(buildArgs, "build")
 	// docker doesn't care about validating the cache-from image
 	if cacheFrom != "" {
 		buildArgs = append(buildArgs, "--cache-from")
@@ -100,7 +101,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(buildArgs, " "))
 
-	cmd := exec.Command("docker", buildArgs...)
+	cmd := exec.Command(dockerCommand, buildArgs...)
 	var errs bytes.Buffer
 	if util.StdErr != nil {
 		cmd.Stderr = io.MultiWriter(util.StdErr, &errs)

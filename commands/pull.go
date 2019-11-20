@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-cli/constants"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
@@ -43,9 +44,10 @@ func DockerPull(image, registry, org, username, password string) error {
 
 	var errs, out bytes.Buffer
 	// pull image
-	pullArgs := []string{"pull", remoteImage}
+	var pullArgs, dockerCommand = cliutil.DockerCommandArgsInit()
+	pullArgs = append(pullArgs, "pull", remoteImage)
 	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(pullArgs, " "))
-	pullCmd := exec.Command("docker", pullArgs...)
+	pullCmd := exec.Command(dockerCommand, pullArgs...)
 	if util.StdErr != nil {
 		pullCmd.Stderr = io.MultiWriter(util.StdErr, &errs)
 	} else {

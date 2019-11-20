@@ -61,6 +61,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"fmt"
@@ -164,8 +165,10 @@ func main() {
 		panic(util.Exit{0})
 	}
 
-	// Checks if Docker requires sudo access. Prints error message if so.
-	util.CheckSudo()
+	// Checks if we have elevated privileges to run docker. Only required for windows. Prints error message if privileges are missing.
+	if runtime.GOOS == "windows" {
+		util.CheckSudo()
+	}
 
 	// seed list: Lists all seed compliant images on (default) local machine
 	if listCmd.Parsed() {
