@@ -159,7 +159,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	dockerArgs = append(dockerArgs, args...)
 
 	// Run
-	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(dockerArgs, " "))
+	util.PrintUtil("INFO: Running Docker command:\n%s %s\n", dockerCommand, strings.Join(dockerArgs, " "))
 
 	// Run Docker command and capture output
 	dockerRun := exec.Command(dockerCommand, dockerArgs...)

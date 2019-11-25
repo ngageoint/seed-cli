@@ -99,7 +99,7 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		buildArgs = append(buildArgs, "--label", label)
 	}
 
-	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(buildArgs, " "))
+	util.PrintUtil("INFO: Running Docker command:\n%s %s\n", dockerCommand, strings.Join(buildArgs, " "))
 
 	cmd := exec.Command(dockerCommand, buildArgs...)
 	var errs bytes.Buffer

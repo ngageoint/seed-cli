@@ -46,7 +46,7 @@ func DockerPull(image, registry, org, username, password string) error {
 	// pull image
 	var pullArgs, dockerCommand = cliutil.DockerCommandArgsInit()
 	pullArgs = append(pullArgs, "pull", remoteImage)
-	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(pullArgs, " "))
+	util.PrintUtil("INFO: Running Docker command:\n%s %s\n", dockerCommand, strings.Join(pullArgs, " "))
 	pullCmd := exec.Command(dockerCommand, pullArgs...)
 	if util.StdErr != nil {
 		pullCmd.Stderr = io.MultiWriter(util.StdErr, &errs)
