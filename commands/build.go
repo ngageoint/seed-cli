@@ -56,7 +56,6 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	err = ValidateSeedFile(warnAsError, "", version, seedFileName, common_const.SchemaManifest)
 	if err != nil {
 		util.PrintUtil("ERROR: seed file could not be validated. See errors for details.\n")
-		// util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
 		return "", err
 	}
