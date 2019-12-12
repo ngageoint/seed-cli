@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-common/util"
 )
 
@@ -16,10 +17,13 @@ func DockerList() (string, error) {
 	var errs, out bytes.Buffer
 	var cmd *exec.Cmd
 	reference := util.DockerVersionHasReferenceFilter()
+	var buildArgs, dockerCommand = cliutil.DockerCommandArgsInit()
 	if reference {
-		cmd = exec.Command("docker", "images", "--filter=reference=*-seed*")
+		buildArgs = append(buildArgs, "images", "--filter=reference=*-seed*")
+		cmd = exec.Command(dockerCommand, buildArgs...)
 	} else {
-		dCmd := exec.Command("docker", "images")
+		buildArgs = append(buildArgs, "images")
+		dCmd := exec.Command(dockerCommand, buildArgs...)
 		cmd = exec.Command("grep", "-seed")
 		var dErr bytes.Buffer
 		dCmd.Stderr = &dErr

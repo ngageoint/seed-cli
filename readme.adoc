@@ -21,6 +21,9 @@ can be seen from the command-line by launching the CLI without any arguments:
 seed
 ----
 
+Note that many seed commands call docker in the background, and those docker commands often require elevated privileges. 
+When necessary, seed will attempt to run these commands as sudo and you may be prompted for a password.
+
 The full list of available commands will be returned as output. High-level overview of each command and its expected
 usage can be found in the following sections.
 

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-cli/constants"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
@@ -219,14 +220,15 @@ func DockerPublish(origImg, manifest, registry, org, username, password, jobDire
 
 		// Build Docker image
 		util.PrintUtil("INFO: Building %s\n", img)
-		buildArgs := []string{"build", "-t", img, jobDirectory}
+		var buildArgs, dockerCommand = cliutil.DockerCommandArgsInit()
+		buildArgs = append(buildArgs, "build", "-t", img, jobDirectory)
 		if util.DockerVersionHasLabel() {
 			// Set the seed.manifest.json contents as an image label
 			label := "com.ngageoint.seed.manifest=" + objects.GetManifestLabel(seedFileName)
 			buildArgs = append(buildArgs, "--label", label)
 		}
-		util.PrintUtil("INFO: Running Docker command\n:docker %s\n", strings.Join(buildArgs, " "))
-		rebuildCmd := exec.Command("docker", buildArgs...)
+		util.PrintUtil("INFO: Running Docker command:\n%s %s\n", dockerCommand, strings.Join(buildArgs, " "))
+		rebuildCmd := exec.Command(dockerCommand, buildArgs...)
 		var errs bytes.Buffer
 		if util.StdErr != nil {
 			rebuildCmd.Stderr = io.MultiWriter(util.StdErr, &errs)

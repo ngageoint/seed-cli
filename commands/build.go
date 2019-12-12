@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ngageoint/seed-cli/cliutil"
 	"github.com/ngageoint/seed-cli/constants"
 	common_const "github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/objects"
@@ -55,9 +56,8 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	err = ValidateSeedFile(warnAsError, "", version, seedFileName, common_const.SchemaManifest)
 	if err != nil {
 		util.PrintUtil("ERROR: seed file could not be validated. See errors for details.\n")
-		util.PrintUtil("%s", err.Error())
 		util.PrintUtil("Exiting seed...\n")
-		return "", nil
+		return "", err
 	}
 
 	// retrieve seed from seed manifest
@@ -68,8 +68,8 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 
 	// Build Docker image
 	util.PrintUtil("INFO: Building %s\n", imageName)
-	buildArgs := []string{"build"}
-
+	var buildArgs, dockerCommand = cliutil.DockerCommandArgsInit()
+	buildArgs = append(buildArgs, "build")
 	// docker doesn't care about validating the cache-from image
 	if cacheFrom != "" {
 		buildArgs = append(buildArgs, "--cache-from")
@@ -98,9 +98,9 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		buildArgs = append(buildArgs, "--label", label)
 	}
 
-	util.PrintUtil("INFO: Running Docker command:\ndocker %s\n", strings.Join(buildArgs, " "))
+	util.PrintUtil("INFO: Running Docker command:\n%s %s\n", dockerCommand, strings.Join(buildArgs, " "))
 
-	cmd := exec.Command("docker", buildArgs...)
+	cmd := exec.Command(dockerCommand, buildArgs...)
 	var errs bytes.Buffer
 	if util.StdErr != nil {
 		cmd.Stderr = io.MultiWriter(util.StdErr, &errs)
