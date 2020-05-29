@@ -809,8 +809,6 @@ Scale then stores the secrets in a {vault-url}[HashiCorp Vault] secret store whe
 The system will automatically retrieve any secrets defined in the Seed job and inject them at runtime. 
 You can also contact the Scale team for assistance with adding JobTypes that contain secrets.
 
-=== Security
-
 === Optimization
 
 ==== Image Optimization
