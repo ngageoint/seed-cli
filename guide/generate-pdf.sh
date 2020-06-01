@@ -1,6 +1,3 @@
-echo Patching doc for PDF generation...
-apk -U add perl
-
 echo Generating PDF...
 asciidoctor-pdf -a pdf-style=styles/pdf-theme.yml -a pdf-fontsdir=styles/fonts/ -D /documents/output index.adoc
 

@@ -16,6 +16,7 @@ Emily Smith <emily.smith@appliedis.com>; Jonathan Meyer <jonathan.meyer@appliedi
 :docker-install-url: https://docs.docker.com/install/
 :docker-run-user-url: https://docs.docker.com/engine/reference/run/#user
 :docker-volumes-url: https://docs.docker.com/storage/volumes/
+:hashicorp-vault-url: https://www.vaultproject.io/
 :pillow-docs-url: https://pillow.readthedocs.io/en/stable/
 :python-beginners-guide-url: https://wiki.python.org/moin/BeginnersGuide/Download
 :scale-url: https://ngageoint.github.io/scale/
@@ -23,14 +24,13 @@ Emily Smith <emily.smith@appliedis.com>; Jonathan Meyer <jonathan.meyer@appliedi
 :seed-releases-url: https://github.com/ngageoint/seed-cli/releases
 :seed-version: 1.2.1
 :silo-url: https://github.com/ngageoint/seed-silo
-:vault-url: https://www.vaultproject.io/
 :pipenv-url: https://pipenv.pypa.io/en/latest/
 :venv-url: https://docs.python.org/3/library/venv.html
 
 == Purpose
 
 Scale and Seed optimize algorithm development from proof of concept to operational execution within distributed processing clusters.
-This guide introduces data scientists and algorithm developers to the these technologies developed at the National Geospatial-Intelligence Agency (NGA) Research. 
+This guide introduces data scientists and algorithm developers to these technologies developed at the Research directorate of the National Geospatial-Intelligence Agency (NGA). 
 
 {scale-url}[Scale] is a distributed processing framework for near real-time processing of large data sets. 
 It frees data scientists and algorithm developers from the complexity of distributed system concepts and offers an integration platform for highly parallel processing of data. 
@@ -50,7 +50,7 @@ Frameworks such as Scale can use these endpoints to assist users in finding algo
 
 The Seed command-line interface (CLI) is a standalone tool for working with Seed jobs locally. 
 This document will focus primarily on using the Seed CLI to build, test and publish your algorithm as a Seed-compliant Docker image. 
-The Seed toolchain consists of the CLI, SILO, {vault-url}[Vault] (if using <<Secret Data>>) and a processing system that can consume Seed images, such as Scale. 
+The Seed toolchain consists of the CLI, SILO, {hashicorp-vault-url[Vault] (if using <<Secret Data>>) and a processing system that can consume Seed images, such as Scale. 
 Our recommendation is to familiarize yourself with using Seed by working through this tutorial. 
 Details on more advanced topics are provided in the <<Reference>> section.
 
@@ -67,7 +67,7 @@ mkdir test-dir && cd test-dir
 
 === Docker and Linux Fundamentals
 
-Before using Seed, you should have a working familiarity with developing code using modern tools, at minimum knowledge of Docker and Linux fundamentals. 
+Before using Seed, you should have a working familiarity with developing code using modern tools; at minimum knowledge of Docker and Linux fundamentals. 
 This guide is written with the assumption that you are using a Linux workstation. 
 The Seed CLI is heavily reliant on Docker to build and package Seed images (Docker image with Seed metadata), so it is highly recommended that you have superuser (i.e. `sudo`) access. 
 
@@ -89,7 +89,7 @@ To verify that installation was successful and confirm the Docker version, run t
 
 [NOTE]
 ====
-Depending on your environment, you may need to superuser privileges to execute the `docker` command; e.g. `sudo docker`. 
+Depending on your environment, you may need superuser privileges to execute the `docker` command; e.g. `sudo docker`. 
 ====
 
 Output should be similar to the following:
@@ -182,7 +182,7 @@ arrive at a complete Seed image. By the end of this guide, you will be able to:
 For your algorithm to be compatible with Seed, it must satisfy the following criteria:
 
 * *Run on Linux.* There is no language limitation other than it must be able to execute on Linux. You can use the Docker base image of your choice. Alpine and CentOS are the preferred Linux flavors.
-* *Command-line Invocation.* Seed provides input via either arguments or environment variables. If your algorithm is prompting for input from a user, the job will continue to wait until it times out. There areno display popups such as error dialogs, file selection menus, splash screens, etc. In the event where a display device is required for rendering data, a pseudo device must be used.
+* *Command-line Invocation.* Seed provides input via either arguments or environment variables. If your algorithm is prompting for input from a user, the job will continue to wait until it times out. There are no display popups such as error dialogs, file selection menus, splash screens, etc. In the event where a display device is required for rendering data, a pseudo device must be used.
 * *Configurable.* Your algorithm will be run in a standalone container, therefore absolute file paths must not be embedded in the source code for your development environment. Necessary file paths should be passable into the algorithm either via an environment variable or from the command line.
 * *Reporting.* While this isn’t required, it is ideal if your algorithm outputs its progress and errors to the console and returns an appropriate exit code. Unique exit codes should be used for failures that can be anticipated. If failures are not captured appropriately, Seed will only be able to identify a general algorithm error, which may make debugging issues more difficult.
 
@@ -337,7 +337,7 @@ sudo docker build -t img-test .
 The image may take a minute or two to build.
 The `-t` flag is used to specify the name and optional tag for the Docker image in the 'name:tag' format.
 In this case, we have used the name `img-test`, but we could use any name.
-Once it completes successfully, you should output similar to the following:
+Once it completes successfully, you should see output similar to the following:
 ```
 Successfully built 84dd346586d1
 Successfully tagged img-test:latest
@@ -485,7 +485,7 @@ There are a number of specific settings we made here that are worth highlighting
 1. `job.interface.command`. This setting defines exactly what command is issued on container launch. It mirrors the Docker command we ran in the previous section. The primary difference here is the use of environment variables. 
 2. `job.interface.command` environment variables. These variable names correspond to the `name` values within the `job.interface.inputs` and `job.interface.outputs` objects. If an `ENTRYPOINT` is specified in the Dockerfile, the contents of this setting will be passed to it.
 3. `${INPUT_FILE}`. The Seed specification contract ensures that this variable will be populated with an absolute path to the input since we have marked it as a required input.
-4. `${BYTE_COUNT}`. The Seed specification contract ensures that this variable will be populated with an integer value to the input since we have given it the explicit type "integer" and marked it as a required input.
+4. `${DEGREES}`. The Seed specification contract ensures that this variable will be populated with an integer value to the input since we have given it the explicit type "integer" and marked it as a required input.
 5. `${OUTPUT_DIR}`. Seed provides some contextual values that ensure there are consistent locations for output capture. The `OUTPUT_DIR` environment variable is provided to all jobs and any file products must be placed under this location. 
 6.  `OUTPUT_FILE` pattern expression. The expression is rooted at `OUTPUT_DIR` and all patterns defined are relative to that location. This is why we tell our job to write to `${OUTPUT_DIR}/output.txt` and our `pattern` is defined as `*.txt`. 
 7. `job.resources.scalar`.  We provided a fractional CPU requirement and an amount of memory. We can use the `inputMultiplier` setting to inform Seed to allocate memory (MiB) in proportion to the total size of input files (MiB). In other words, if our `INPUT_FILE` is 25 MiB the allocated memory will be: 256 MiB + (4.0 * 25 MiB) = 356 MiB.
@@ -512,9 +512,6 @@ Alternatively, the `-D` or `-dockerfile` and `-M` or `-manifest` options can be 
 and/or manifest file.
 ====
 
-The first step of the build is to apply validation. We can see the file that is being validated against the schema. 
-We are also informed that our resources section does not contain all the recommended resource objects:
-
 ```
 INFO: Validating seed manifest file /Users/user/code/seed/guide/example/seed.manifest.json against schema...
 INFO: Checking for variable name collisions...
@@ -523,8 +520,10 @@ Specifying cpu, memory and disk requirements are highly recommended
 The following resources are not defined: [disk]
 SUCCESS: No errors found. /Users/user/code/seed/guide/example/seed.manifest.json is valid.
 ```
-
-Our build did successfully complete. 
+The first step of the build is to apply validation. 
+We can see the file that is being validated against the schema. 
+We are also informed that our resources section does not contain all the recommended resource objects.
+Our build completed successfully. 
 We can see the `com.ngageoint.seed.manifest` LABEL that contains our serialized manifest in Step 3/3 of the Docker build process, as well as the `seed run` command in the final line of the output:
 
 ```
@@ -696,6 +695,11 @@ Seed supports several registry backends commonly used in the Docker ecosystem.
 Docker Hub is a managed registry that makes it easy to publish your Seed image without configuring any additional services of your own.
 Before you can publish, you will need to register for an account at https://hub.docker.com.
 
+[TIP]
+====
+Executing `docker login` before running `seed publish` eliminates the need to specify a username/password in the `seed publish` statement if you are publishing to your own registry.
+====
+
 The following command will publish our Seed image that we built and tested to Docker Hub:
 
 ```
@@ -805,7 +809,7 @@ The following settings are expected:
 ```
 
 When running the Seed job on a Scale cluster, secret names and values are input as part of the JobType definition in Scale. 
-Scale then stores the secrets in a {vault-url}[HashiCorp Vault] secret store where they are only accessible by running jobs. 
+Scale then stores the secrets in a {hashicorp-vault-url[HashiCorp Vault] secret store where they are only accessible by running jobs. 
 The system will automatically retrieve any secrets defined in the Seed job and inject them at runtime. 
 You can also contact the Scale team for assistance with adding JobTypes that contain secrets.
 
@@ -839,7 +843,7 @@ This will facilitate live viewing of output for long-running processes.
 
 ==== Meaningful Errors
 Specific error conditions represented by unique process exit codes should be used to give clear feedback when a known error has occurred. 
-These can be used to distinguish between data errors where the data arrived but contained an error that could not be automatically addressed by the job and errors that occurred within the job execution itself. 
+These can be used to distinguish between data errors (where the data arrived but contained an error that could not be automatically addressed by the job) and errors that occurred within the job execution itself. 
 See also <<Why should I define error codes?>> in the FAQ section.
 
 ==== Runtime Configuration
@@ -877,8 +881,8 @@ Many resources for learning about Docker can be found on the https://www.docker.
 The primary goal of this guide is to explain how to integrate an algorithm with Seed and not focus on how to build a Docker container.
 
 ==== Why not just add all the files in my directory to the Docker image?
-The image should be as small as necessary. It is pulled across the network each time it runs on a node.  
-Smaller images result in less network traffic.
+The image should be as small as possibly and only include the necessary files.
+It is pulled across the network each time it runs on a node, so smaller images result in less network traffic.
 
 ==== Why not just increase the hardware resources as much as possible?  I want it to run fast.
 It is critical to strike a balance between the minimum resources required to run the algorithm and acceptable runtimes. 
@@ -888,13 +892,15 @@ In a cloud environment, wasted resources equate to wasted money.
 When job requirements depend on the input, the Seed manifest supports specifying a multiplicative value for the resource requests via the `inputMultiplier` property.
 
 ==== My algorithm requires some reference data, should I just embed it into the Docker image?
-It depends. If the total size of the file(s) is sufficiently small; e.g. less than 100 MB, then add it into the Docker image. 
+It depends.
+If the total size of the file(s) is sufficiently small (e.g. less than 100 MB), add it into the Docker image.
 If it has larger requirements, such as a lookup directory, please work with the Scale team to create a mountable directory.
 
 ==== How to secure sensitive information like passwords inside my Docker image?
 The Seed manifest allows the developer to define "Settings", which will be defined as environment variables at runtime. 
-These "Settings" can be marked as "secret" and will be stored in {vault-url}[HashiCorp Vault]. 
-The values for these environment variables are hidden from the API and are only injected at runtime. See <<Secret Data>> for more details.
+These "Settings" can be marked as "secret" and will be stored in {hashicorp-vault-url}[HashiCorp Vault] when running the job in a processing system that consumes Seed images, such as Scale.
+The values for these environment variables are hidden and only injected at runtime.
+See <<Secret Data>> for more details.
 
 ==== Why should I define error codes?
 The developer should properly capture and define errors in their code using exit codes.  
@@ -924,6 +930,6 @@ Shell: `exit 42`
 ==== My algorithm involves running Python code, followed by Matlab code, and finally C code. Should I put it all in one Docker image?
 It depends. 
 Does each step involve heavy processing or create time-consuming intermediate products? 
-If so, they would be better as their own standalone jobs with its output products being passed to a subsequent step in a recipe. 
+If so, they would be better as their own standalone jobs with its output products being passed to a subsequent step in a workflow. 
 If the individual steps are relatively small (in runtime and resources), it can all run within a single container using a shell script or similar to execute each step.
 
