@@ -52,7 +52,7 @@ The Seed command-line interface (CLI) is a standalone tool for working with Seed
 This document will focus primarily on using the Seed CLI to build, test and publish your algorithm as a Seed-compliant Docker image. 
 The Seed toolchain consists of the CLI, SILO, {vault-url}[Vault] (if using <<Secret Data>>) and a processing system that can consume Seed images, such as Scale. 
 Our recommendation is to familiarize yourself with using Seed by working through this tutorial. 
-Detailed reference on more advanced topics is provided and special attention should be given to the <<Security>> section.
+Details on more advanced topics are provided in the <<Reference>> section.
 
 [TIP]
 ====
