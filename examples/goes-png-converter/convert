@@ -1,0 +1,7 @@
+#!/bin/sh
+
+INPUT=$1
+
+export DATASET=$(gdalinfo $INPUT | tee contents.txt | grep SUBDATASET_1_NAME | cut -d= -f2)
+gdal_translate -ot float32 -unscale -CO COMPRESS=deflate $DATASET fulldisk.tif
+gdal_translate -ot Byte -of png -scale 0 650 0 255 fulldisk.tif $2/fulldisk.png

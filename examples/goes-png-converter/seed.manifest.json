@@ -1,0 +1,60 @@
+{
+  "seedVersion": "1.0.0",
+  "job": {
+    "name": "goes-png-converter",
+    "jobVersion": "1.0.0",
+    "packageVersion": "1.0.0",
+    "title": "GOES nc to png",
+    "description": "Reads a NetCDF GOES file and outputs a PNG representation",
+    "tags": [
+      "nc",
+      "png",
+      "goes",
+      "image processing"
+    ],
+    "maintainer": {
+      "name": "Jonathan Meyer",
+      "organization": "AIS",
+      "email": "jonathan.meyer@appliedis.com",
+      "url": "http://appliedis.com"
+    },
+    "timeout": 3600,
+    "interface": {
+      "command": "sh /convert ${INPUT_FILE} ${OUTPUT_DIR}",
+      "inputs": {
+        "files": [
+          {
+            "name": "INPUT_FILE",
+            "required": true
+          }
+        ]
+      },
+      "outputs": {
+        "files": [
+          {
+            "name": "OUTPUT_PNG",
+            "mediaType": "image/png",
+            "pattern": "fulldisk.png"
+          }
+        ]
+      }
+    },
+    "resources": {
+      "scalar": [
+        {
+          "name": "cpus",
+          "value": 1
+        },
+        {
+          "name": "mem",
+          "value": 1024
+        },
+        {
+          "name": "disk",
+          "value": 1,
+          "inputMultiplier": 2
+        }
+      ]
+    }
+  }
+}
