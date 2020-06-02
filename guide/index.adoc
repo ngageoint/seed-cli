@@ -235,13 +235,6 @@ def rotate_image(source_image_path, rotate_degrees, output_dir):
 
     return product_image_name
 
-def write_results_manifest(output_dir, product_image):
-
-    with open(os.path.join(output_dir, 'results_manifest.json'), 'w+') as fout:
-        json_string = json.dumps({'output_data': [{'name': 'ROTATED_IMAGE','path': product_image}]})
-        fout.write(json_string)
-        print(json_string)
-
 if __name__ == "__main__":
 
     source_image_path = sys.argv[1]
@@ -249,7 +242,6 @@ if __name__ == "__main__":
     output_dir = sys.argv[3]
 
     product_image_path = rotate_image(source_image_path, rotate_degrees, output_dir)
-    write_results_manifest(output_dir, product_image_path)
 ```
 
 Run the algorithm using the following command:
@@ -259,11 +251,6 @@ python image_rotate.py seed.png 180 output
 ```
 
 A new image file named `ROTATED_180_seed.png` will be created in the `output` directory.
-The following output will be displayed in the console and also saved as `results_manifest.json` in the `output` directory:
-
-```
-{"output_data": [{"name": "ROTATED_IMAGE", "path": "ROTATED_180_seed.png"}]}
-```
 
 ===== Python Troubleshooting
 
@@ -323,8 +310,10 @@ ENV LIBRARY_PATH=/lib:/usr/lib
 RUN pip install --upgrade pip && \
     pip install --upgrade Pillow >= 7
 
-ADD ./image_rotate.py /
-ADD ./image_rotate.sh /
+WORKDIR /algo
+
+ADD ./image_rotate.py .
+ADD ./image_rotate.sh .
 ```
 
 With these files, we can create our initial Docker containerized sample algorithm. 
@@ -352,7 +341,6 @@ Output should be similar to the following:
 ```
 -----------------------------------------------------------------
 Rotating image with arguments seed.png 45 output
-{"output_data": [{"name": "ROTATED_IMAGE", "path": "ROTATED_45_seed.png"}]}
 Done rotating image
 -----------------------------------------------------------------
 ```
@@ -361,19 +349,18 @@ Let's recap what we've done:
 
 1. We wrote a simple Python algorithm that consumes three positional parameters: input file path, degrees of rotation, and output file directory.
 2. Our algorithm uses the {pillow-docs-url}[Pillow] library to rotate the image a specified number of degrees.
-3. The algorithm outputs some information about the output to the command line and to a file.
-4. The algorithm saves the rotated image as a new file in the specified output directory.
-5. We wrote a simple shell script to launch our algorithm.
-6. We wrote a basic Dockerfile that identified a base image, installed dependencies, and copied our algorithm and launch script into it.
-7. We built a Docker image of our own and called it `img-test`.
-8. Finally, we ran a Docker container from our `img-test` image, mounted a volume, and passed it the command to run our algorithm with the required positional parameters.
+3. The algorithm saves the rotated image as a new file in the specified output directory.
+4. We wrote a simple shell script to launch our algorithm.
+5. We wrote a basic Dockerfile that identified a base image, installed dependencies, and copied our algorithm and launch script into it.
+6. We built a Docker image of our own and called it `img-test`.
+7. Finally, we ran a Docker container from our `img-test` image, mounted a volume, and passed it the command to run our algorithm with the required positional parameters.
 
 There are some observations we should make about what we just accomplished.
 
 1. We made our data accessible to the container in our `docker run` command by mounting a volume with `-v ${PWD}:/algo`. This maps our current working directory to the path `/algo` inside the container. 
 2. We used the `WORKDIR` command in our Dockerfile to set the working directory to `/algo`.
 3. We prefixed our call to the script with `sh` so that we did not have to set the execute bit. Alternatively, we could set the execute bit in the Dockerfile with `RUN chmod +x ./image_rotate.sh`.
-4. We used our `rotate_image.sh` script to call our Python code and is a common pattern when writing Dockerfiles.
+4. We used our `rotate_image.sh` script to call our Python code. This is a common pattern when writing Dockerfiles.
 5. Because we mounted our current directory as a volume, our specified output directory `output` is created in our current directory, and the output of the algorithm is placed in this directory.
 
 [TIP]
@@ -383,7 +370,8 @@ Further discussion of volume mounts and getting data into a container can be fou
 
 With the `img-test` Docker image created, we could share this with other people on our local machine. 
 We could also tag it and push it to a remote registry (hub.docker.com, quay.io, etc.) and others would be able to run it. 
-For a basic algorithm example, this is fairly simple, but what if we have a more complicated algorithm with specific resource requirements? What if our algorithm requires large supporting reference datasets? 
+For a basic algorithm example, this is fairly simple, but what if we have a more complicated algorithm with specific resource requirements? 
+What if our algorithm requires large supporting reference datasets? 
 What if we need to leverage runtime licenses that must be carefully protected? 
 What if we want all of these requirements to be explicitly documented and transparent to the consumers of your algorithm? 
 Seed helps solve these problems.
@@ -618,7 +606,7 @@ With a complete Seed image now created, we can now run our job using the Seed im
 The last line of the console output shows us how we can use the Seed CLI to run our Seed job:
 
 ```
-seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file>  -e BYTE_COUNT=<setting>  -o <outdir>
+seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file>  -j DEGREES=<setting>  -o <outdir>
 ```
 
 === Run
@@ -647,7 +635,6 @@ The following input file keys are expected:
 ```
 
 The first three lines show how the `seed run` command inferred the image from our current directory because it contained a Seed manifest, which was then used to find the Seed image built from it. 
-
 The next two lines beginning with `ERROR` show how the CLI is also able to identify the inputs that are required, but we failed to provide (in this case, `INPUT_FILE`). 
 Let's specify these inputs and try again:
 
@@ -663,7 +650,6 @@ docker run -v /Users/user/code/seed/guide/example/seed.png:/Users/user/code/seed
 
 -----------------------------------------------------------------
 Rotating image with arguments /Users/user/code/seed/guide/example/seed.png 180 /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00
-{"output_data": [{"name": "ROTATED_IMAGE", "path": "ROTATED_180_seed.png"}]}
 Done rotating image
 -----------------------------------------------------------------
 

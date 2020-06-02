@@ -20,7 +20,6 @@ docker run --rm -v $(pwd):/var/www ${SASS_IMAGE} sh styles/compile-sass.sh
 echo Generating HTML...
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} asciidoctor -D /documents/output index.adoc
 
-echo Generating PDF...
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} sh generate-pdf.sh
 
 popd > /dev/null

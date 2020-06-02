@@ -23,13 +23,6 @@ def rotate_image(source_image_path, rotate_degrees, output_dir):
 
     return product_image_name
 
-def write_results_manifest(output_dir, product_image):
-
-    with open(os.path.join(output_dir, 'results_manifest.json'), 'w+') as fout:
-        json_string = json.dumps({'output_data': [{'name': 'ROTATED_IMAGE','path': product_image}]})
-        fout.write(json_string)
-        print(json_string)
-
 if __name__ == "__main__":
 
     source_image_path = sys.argv[1]
@@ -37,4 +30,3 @@ if __name__ == "__main__":
     output_dir = sys.argv[3]
 
     product_image_path = rotate_image(source_image_path, rotate_degrees, output_dir)
-    write_results_manifest(output_dir, product_image_path)
