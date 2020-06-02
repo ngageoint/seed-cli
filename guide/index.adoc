@@ -212,36 +212,7 @@ Using tools such as {pipenv-url}[pipenv] or {venv-url}[venv] will help simplify 
 We are going to write our algorithm using basic Linux commands. Use your favorite text editor or IDE to create an `image_rotate.py` file:
 
 ```python
-import json
-import os
-import shutil
-import sys
-from PIL import Image
-
-def rotate_image(source_image_path, rotate_degrees, output_dir):
-    """Rotates an image a specified number of degrees"""
-    product_image_name =  f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
-
-    # Open source image
-    original_image = Image.open(source_image_path)
-
-    # Rotate it 90 degrees
-    rotated_image = original_image.rotate(int(rotate_degrees), 0, 1)
-    rotated_image.save(product_image_name)
-
-    # Move saved image to output directory
-    product_image_path = os.path.join(output_dir, product_image_name)
-    shutil.move(product_image_name, product_image_path)
-
-    return product_image_name
-
-if __name__ == "__main__":
-
-    source_image_path = sys.argv[1]
-    rotate_degrees = sys.argv[2]
-    output_dir = sys.argv[3]
-
-    product_image_path = rotate_image(source_image_path, rotate_degrees, output_dir)
+include::example/image_rotate.py[]
 ```
 
 Run the algorithm using the following command:
@@ -267,9 +238,10 @@ If the following `SyntaxError` occurs, it likely means you are using Python 2 in
 Please refer to these {python-beginners-guide-url}/[instructions] for installing Python.
 
 ```
-  File "image_rotate.py", line 9
-    product_image_name =  f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
-                                                                                          ^
+File "image_rotate.py", line 9
+  product_image_name =  
+    f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
+                                                                    ^
 SyntaxError: invalid syntax
 ```
 
@@ -278,23 +250,7 @@ SyntaxError: invalid syntax
 First, create a script called `image_rotate.sh` in the same directory as the Python file created above:
 
 ```sh
-#!/bin/bash
-
-INPUT=$1
-DEGREES=$2
-OUTPUT_DIR=$3
-
-echo ''
-echo '-----------------------------------------------------------------'
-echo 'Rotating image with arguments '${INPUT} ${DEGREES} ${OUTPUT_DIR}
-
-python /image_rotate.py $INPUT $DEGREES $OUTPUT_DIR
-rc=$?
-
-echo 'Done rotating image'
-echo '-----------------------------------------------------------------'
-echo ''
-exit ${rc}
+include::example/image_rotate.sh[]
 ```
 
 We will use this script to invoke our image rotation algorithm.
@@ -302,18 +258,7 @@ We will use this script to invoke our image rotation algorithm.
 Create a file named `Dockerfile` in the same directory:
 
 ```sh
-FROM python:3.8-alpine
-
-RUN apk add build-base python-dev py-pip jpeg-dev zlib-dev
-ENV LIBRARY_PATH=/lib:/usr/lib
-
-RUN pip install --upgrade pip && \
-    pip install --upgrade Pillow >= 7
-
-WORKDIR /algo
-
-ADD ./image_rotate.py .
-ADD ./image_rotate.sh .
+include::example/Dockerfile[]
 ```
 
 With these files, we can create our initial Docker containerized sample algorithm. 
@@ -393,6 +338,8 @@ The newly-created `seed.manifest.json` file includes all common sections of the 
 ====
 The full Seed specification can be found at {seed-url}/seed.html.
 ====  
+
+sys::[ls -l *.txt]
 
 Let's start by updating the manifest for our sample algorithm to match the following:
 
