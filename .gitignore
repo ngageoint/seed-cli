@@ -3,10 +3,11 @@
 
 # Build / src directories
 src
-output
+output*
 
 # Generated assets
 assets/assets.go
+html.css*
 
 # Scratch directories
 temp-*

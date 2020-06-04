@@ -5,18 +5,27 @@ language: go
 services:
   - docker
 
+before_install:
+  - export SEED_LATEST=$(tail -1 .versions)
+  - mkdir -p output
+
 install:
   - vendor/go-bindata-Linux -pkg assets -o assets/assets.go ./schema/*
   - go get github.com/ngageoint/seed-common/...
   - docker pull rochdev/alpine-asciidoctor:mini
 
 script:
+  - ASCIIDOCTOR_IMAGE=${ASCIIDOCTOR_IMAGE:=rochdev/alpine-asciidoctor:mini}
+  # build seed-cli
   - echo "Validating formatting with gofmt..."
   - gofmt -l . | grep -v assets\.go | if [[ $(wc -l | sed 's/ //g')>0 ]] ; then echo gofmt should be run on $(gofmt -l . | grep -v assets\.go); exit 1 ;fi
   - ./build-cli.sh ${TRAVIS_TAG}
   - docker run -d -p 5000:5000 --restart=always --name registry -v `pwd`/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd -e REGISTRY_STORAGE_DELETE_ENABLED=true registry:2
   - go test ./...
   - docker run -v $TRAVIS_BUILD_DIR/readme.adoc:/documents/readme.adoc -v $TRAVIS_BUILD_DIR/seed-cli.adoc:/documents/seed-cli.adoc --name=seed-man rochdev/alpine-asciidoctor:mini asciidoctor -b manpage -D /documents/output seed-cli.adoc
+  # generate seed user guide
+  - guide/generate-outputs.sh
+  - docker run -v $TRAVIS_BUILD_DIR/guide:/documents --rm ${ASCIIDOCTOR_IMAGE} asciidoctor -D /documents/output index.adoc
 
 deploy:
   # Deployment that pushes GitHub releases of software on tag
@@ -27,6 +36,15 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
+
+  # Only performed on master builds. For releases, timing of master build must be after artifacts are available.
+  - provider: pages
+    local_dir: guide/output
+    skip_cleanup: true
+    github_token: $GH_TOKEN
+    on:
+      branch: master
+      condition: $TRAVIS_PULL_REQUEST == false
 
 notifications:
   webhooks:
