@@ -244,7 +244,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 	tempDirectories = make(map[string]string)
 	for _, f := range seed.Job.Interface.Inputs.Files {
 		normalName := util.GetNormalizedVariable(f.Name)
-		util.PrintUtil("normalName: %s\n", normalName)
 		if f.Multiple {
 			tempDir := "temp-" + time.Now().Format(time.RFC3339)
 			tempDir = strings.Replace(tempDir, ":", "_", -1)
