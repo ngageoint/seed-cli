@@ -496,7 +496,7 @@ Successfully tagged image-rotate-1.0.0-seed:1.0.0
 INFO: Successfully built image. This image can be published with the following command:
 seed publish -in image-rotate-1.0.0-seed:1.0.0 -r my.registry.address
 This image can be run with the following command:
-seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file> -j DEGREES=<setting> -o <outdir>
+seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file> -j DEGREES=<json> -o <outdir>
 ```
 
 Let's address the warning regarding disk resource by updating our manifest with a third object in the `job.resources.scalar` array:
@@ -552,7 +552,7 @@ With a complete Seed image now created, we can now run our job using the Seed im
 The last line of the console output shows us how we can use the Seed CLI to run our Seed job:
 
 ```
-seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file> -j DEGREES=<setting>  -o <outdir>
+seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=<file> -j DEGREES=<json> -o <outdir>
 ```
 
 === Run
