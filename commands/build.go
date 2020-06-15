@@ -132,14 +132,15 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 		}
 	}
 
-	settingStr := ""
+	jsonStr := ""
 	if seed.Job.Interface.Inputs.Json != nil {
 		for _, f := range seed.Job.Interface.Inputs.Json {
 			normalName := util.GetNormalizedVariable(f.Name)
-			settingStr = fmt.Sprintf("%s-e %s=<setting> ", settingStr, normalName)
+			jsonStr = fmt.Sprintf("%s-j %s=<json> ", jsonStr, normalName)
 		}
 	}
 
+	settingStr := ""
 	if seed.Job.Interface.Settings != nil {
 		for _, f := range seed.Job.Interface.Settings {
 			normalName := util.GetNormalizedVariable(f.Name)
@@ -157,9 +158,8 @@ func DockerBuild(jobDirectory, version, username, password, manifest, dockerfile
 	util.PrintUtil("INFO: Successfully built image. This image can be published with the following command:\n")
 	util.PrintUtil("seed publish -in %s -r my.registry.address\n", imageName)
 	util.PrintUtil("This image can be run with the following command:\n")
-	runCmd := util.CleanString("seed run -rm -in %s %s %s %s-o <outdir>", imageName, inputStr, settingStr, mountStr)
+	runCmd := util.CleanString("seed run -rm -in %s %s %s %s %s-o <outdir>", imageName, inputStr, jsonStr, settingStr, mountStr)
 	util.PrintUtil("%s\n", runCmd)
-	util.PrintUtil("seed run -rm -in %s %s %s %s-o <outdir>\n", imageName, inputStr, settingStr, mountStr)
 
 	return imageName, nil
 }
