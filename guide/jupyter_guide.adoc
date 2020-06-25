@@ -1,14 +1,14 @@
-:imagesdir: images/jupyter
+:imagesdir: images/
 
 ==== Jupyter Integration
 Using a Jupyter Notebook algorithm to make a Seed job is possible, but it requires more steps than a standard script. This guide will assume a basic understanding of Jupyter Notebooks.
 
+===== Requirements
+All the necessary software for creating a standard Seed image is also required for a Jupyter Notebook image. 
+
 ===== Sample Notebook
 
 The sample Notebook will rotate an image a specified number of degrees just as in the sample algorithm in the Seed tutorial. Once the notebook is integrated into the Docker image the process will be identical to the sample algorithm.
-
-====== Requirements
-All the necessary software for creating a standard Seed image is also required for a Jupyter Notebook image. 
 
 ====== Making the Notebook
 
@@ -20,11 +20,11 @@ jupyter notebook
 
 After setting up the server, the application should open the default the browser to the Jupyter Notebook web application. Once there, select the *New* button at the top right and from the drop down click *Python3*. This will open a new tab with the notebook editor. Using the editor, create an `image_rotate.ipynb` file:
 
-image::image_rotate.png[width=50%]
+image::jupyter/image_rotate.png[width=100%, pdfwidth=100%]
 
 Currently the notebook will not run properly as the variables in the first code cell are set to `None`. To test the notebooks functionality, these variables can be set to real values like below. 
 
-image::image_rotate_test_values.png[width=50%]
+image::jupyter/image_rotate_test_values.png[width=100%, pdfwidth=100%]
 
 The notebook can then be run by selecting *Cell* from the toolbar and then selecting *Run All* from the dropdown. Make sure to set the values of the variables to `None` after testing. 
 
@@ -47,7 +47,7 @@ It is not necessary to set the variable values to `None`, however it does allow 
 
 To allow Papermill to be able to see these variables, the cell requires a special tag. To add tags they first must be editable: select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Tags*. If done correctly the cells will have an add tag bar as displayed below.
 
-image::image_rotate_tags.png[width=50%]
+image::jupyter/image_rotate_tags.png[width=100%, pdfwidth=100%]
 
 From there in the text input next to the *Add tag* button type in "parameters" and click *Add tag*. In terms of the Jupyter Notebook itself that is all that is currently needed for adding parameter functionality. This will be expanded on later.
 
@@ -57,7 +57,7 @@ Incase of unintended behavior, it is often necessary to exit an algorithm early.
 ====== Implementing Return Codes
 Another side effect of `sys.exit(x)` not working as intended is the inability to control the return codes via python code cells. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Edit Metadata*. If done correctly the cells will have an *Edit Metadata* button as displayed below.
 
-image::image_rotate_meta.png[]
+image::jupyter/image_rotate_meta.png[width=100%, pdfwidth=100%]
 
 Click the *Edit Metadata* button for the intended cell and it will bring up a pop-up to edit the metadata. The format of the metadata is json. Some cells may have some metadata already, such as the second cell which will have the parameterize tag within the cell data. To add a return code to the cell by adding the following json.
 
