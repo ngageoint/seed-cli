@@ -1,65 +1,66 @@
 :imagesdir: images/
+:jupyter-install-url: https://jupyter.readthedocs.io/en/latest/install.html
 
 ==== Jupyter Integration
 Using a Jupyter Notebook algorithm to make a Seed job is possible, but it requires more steps than a standard script. This guide will assume a basic understanding of Jupyter Notebooks.
 
 ===== Requirements
-All the necessary software for creating a standard Seed image is also required for a Jupyter Notebook image. 
+All the necessary software for creating a standard Seed image is also required for a Jupyter Notebook image. In addition, notebooks also require the Jupyter Notebook software. Once Python and pip is installed, Jupyter Notebooks can be installed by the following commands.
+
+```sh
+pip3 install --upgrade pip
+pip3 install jupyter
+```
+
+For more information, look at the {jupyter-install-url}[Jupyter Installation Guide].
 
 ===== Sample Notebook
 
-The sample Notebook will rotate an image a specified number of degrees just as in the sample algorithm in the Seed tutorial. Once the notebook is integrated into the Docker image the process will be identical to the sample algorithm.
+The sample Notebook will rotate an image a specified number of degrees just as in the sample algorithm in the Seed tutorial. Once the notebook is integrated into Docker the image process will be identical to the sample algorithm.
 
 ====== Making the Notebook
 
-Open the terminal or Command Line in your project folder and run the following
+Open the terminal or command line in your project folder and run the following
 
 ```sh
 jupyter notebook
 ```
 
-After setting up the server, the application should open the default the browser to the Jupyter Notebook web application. Once there, select the *New* button at the top right and from the drop down click *Python3*. This will open a new tab with the notebook editor. Using the editor, create an `image_rotate.ipynb` file:
+After setting up the server, the application should open the default the browser to the Jupyter Notebook web application. Once there, select the *New* button at the top right and from the drop down click *Python3*. This will open a new tab with the notebook editor. Using the editor, create an *image_rotate.ipynb* file:
 
 image::jupyter/image_rotate.png[width=100%, pdfwidth=100%]
 
-Currently the notebook will not run properly as the variables in the first code cell are set to `None`. To test the notebooks functionality, these variables can be set to real values like below. 
+Currently the notebook will not run properly as the variables in the first code cell are set to *None*. To test the notebooks functionality, these variables can be set to real values like below. 
 
 image::jupyter/image_rotate_test_values.png[width=100%, pdfwidth=100%]
 
-The notebook can then be run by selecting *Cell* from the toolbar and then selecting *Run All* from the dropdown. Make sure to set the values of the variables to `None` after testing. 
-
-[NOTE]
-====
-Jupyter supports other languages/kernels, however the current method of making the notebooks SEED compliant is currently limited to python.
-====  
+The notebook can then be run by selecting *Cell* from the toolbar and then selecting *Run All* from the dropdown. Make sure to set the values of the variables back to *None* after testing. 
 
 ====== Adding Arguments to the Notebook
-Jupyter Notebooks by default do not support arguments. This is by design as for the most part they are run interactively. To add parametrization to a notebook, this guide will be using *Papermill*. Papermill can also be used to execute notebooks, but this feature will not be utilized.
+Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parametrization to a notebook a thrid party tool is required. This guide will be using Papermill. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.
 
-To add parameters to a notebook, it is necessary to add cells that contain variables whose names are the intended parameter names.  
-
-it is necessary to create a cell with all parameters set as variables. In the case of the sample, the parameters are `input_file_path` and `output_directory` as seen in the second cell.
+To add parameters to a notebook, it is necessary to add cells that contain variables whose names are the intended parameter names. In the case of the sample, the parameters are `input_file_path` and `output_directory` as seen in the second cell.
 
 [NOTE]
 ====
-It is not necessary to set the variable values to `None`, however it does allow for easy error checking as seen in the third cell.
+It is not necessary to set the variable values to *None*, however it does allow for easy error checking as seen in the third cell.
 ====
 
 To allow Papermill to be able to see these variables, the cell requires a special tag. To add tags they first must be editable: select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Tags*. If done correctly the cells will have an add tag bar as displayed below.
 
 image::jupyter/image_rotate_tags.png[width=100%, pdfwidth=100%]
 
-From there in the text input next to the *Add tag* button type in "parameters" and click *Add tag*. In terms of the Jupyter Notebook itself that is all that is currently needed for adding parameter functionality. This will be expanded on later.
+From there in the text input next to the *Add tag* button type in "parameters" and click *Add tag*.
 
 ====== Adding Error Handling the Notebook
-Incase of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, only raises an exception. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic `CellExecutionError`. This  ungraceful exit problem will be alleviated by the use of a script which will be discussed later. For the Jupyter Notebook if an early exit is required raise an appropriate exception like in the third cell.
+Incase of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, raise an exception instead of exitting. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic *CellExecutionError*. This  ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.
 
 ====== Implementing Return Codes
-Another side effect of `sys.exit(x)` not working as intended is the inability to control the return codes via python code cells. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Edit Metadata*. If done correctly the cells will have an *Edit Metadata* button as displayed below.
+Another side effect of `sys.exit(<return-code>)` unwanted behavior is the inability to set a return code. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Edit Metadata*. If done correctly the cells will have an *Edit Metadata* button as displayed below.
 
 image::jupyter/image_rotate_meta.png[width=100%, pdfwidth=100%]
 
-Click the *Edit Metadata* button for the intended cell and it will bring up a pop-up to edit the metadata. The format of the metadata is json. Some cells may have some metadata already, such as the second cell which will have the parameterize tag within the cell data. To add a return code to the cell by adding the following json.
+Click the *Edit Metadata* button for the intended cell and it will bring up a pop-up to edit the metadata. The format of the metadata is json. Some cells may have some metadata already, such as the second cell which will have the parameterize tag within the cell data. To add a return code to the cell use the following json.
 
 ```json
 "code": <return-code>
@@ -70,13 +71,13 @@ Click the *Edit Metadata* button for the intended cell and it will bring up a po
 The Name does not need to be named `"code"` for this pair, however for the rest of the guide this is how this pair will be referenced
 ====
 
-Currently this will not do effect the notebook at all along with the `parameter` tag. In order to give these metadata changes functionality, a python script to run the notebook is required.
+Currently the changes made by editing the metadata and adding the parameter tag have no effect on notebook execution. In order to give these metadata changes functionality, a python script to run the notebook is required.
 
 ===== Python Script
 Normally it would be possible to execute the notebook using the *nbconvert* tool in the command line, and it is. However, by doing this the metadata changes aren't being used. Likewise execution is also possible with *Papermill* which would include the parameters, but would lose the return codes in the metadata. Therefore, it is necessary to write a script which leverages these tools in order to use all the metadata changes.
 
 ====== Sample Script
-The script below will be what will be used with the sample Jupyter Notebook already provided. This script should work for most standard python3 notebooks provided that the `parameters` dict is given the correct pairs.
+The script below will be what will be used with the sample Jupyter Notebook already provided. This script should work for most standard python3 notebooks provided that the *parameters* dictionary is given the correct pairs.
 
 ```python
 include::example/jupyter/run_notebook.py[]
@@ -85,7 +86,7 @@ include::example/jupyter/run_notebook.py[]
 If it is necessary to create a custom script for your Jupyter Notebook, the following will go more in depth on the general process of how to make a script.
 
 ====== Reading in the Notebook
-Reading in a notebook requires first opening up a notebook and then reading the json data that makes up the notebook to a variable, which in this case will be named `nb`. Opening the notebook is pretty standard, reading it uses the `nbformat` tool. This will also be used later to write to an output notebook. Code to open a notebook is shown below.
+Reading in a notebook requires first opening up a notebook and then reading the json data that makes up the notebook to a variable, which in this case will be named *nb*. Opening the notebook is standard, reading it uses the *nbformat* tool. This will also be used later to write to an output notebook. Code to open a notebook is shown below.
 
 ```python
 f = open(nbFileName, "r")
@@ -94,7 +95,7 @@ f.close()
 ```
 
 ====== Papermill
-As previously discussed, to add parameters to a Jupyter Notebook a "parameter" tag needs to be attached to a cell so that *Papermill* recognizes it. To use *Papermill* in the helper script the following code is required.
+As previously discussed, to add parameters to a Jupyter Notebook a "parameter" tag needs to be attached to a cell so that Papermill recognizes it. An example of how Papermill can be used is below.
 
 ```python
 nb = mill.execute_notebook(
@@ -106,7 +107,7 @@ nb = mill.execute_notebook(
     )
 ```
 
-`nb_input_file_path` and `nb_output_file_path` are the direct paths to the intended location and names of the input and output Jupyter Notebooks. The `parameters` parameter must be a dict containing pairs of parameters set in the Jupyter Notebook and their intended value. `prepare_only=true` only exports the parameter values to the Jupyter Notebook and does not execute the notebook. Execution of the notebook is done later in the script using Jupyter's *nbconvert* tool.
+*nb_input_file_path* and *nb_output_file_path* are the direct paths to the intended location and names of the input and output Jupyter Notebooks. The `parameters` parameter must be a dict containing pairs of parameters set in the Jupyter Notebook and their intended value. *prepare_only=true* only exports the parameter values to the Jupyter Notebook and does not execute the notebook. Execution of the notebook is done later in the script using Jupyter's *nbconvert* tool.
 
 ====== Preprocessor
 While its not entirely necessary to manually create a preprocessor to run the notebook, but doing so gives you a lot more customization including:
@@ -115,14 +116,15 @@ While its not entirely necessary to manually create a preprocessor to run the no
 * Specifying the Kernel used 
 * Custom Preprocessor
 
-Creating a custom preprocessor is most likely overkill, but will give the most control over execution. Cell-by-cell execution and specifying the kernel are easy to implement by comparison and are used in the sample script. To create a preprocessor to execute the notebook, look at the code displayed below.
+Creating a custom preprocessor will require development, but will give the most control over execution. Cell-by-cell execution and specifying the kernel are easy to implement by comparison and are used in the sample script. To create a preprocessor to execute the notebook, look at the code displayed below.
 
 ```python
 ex = ExecutePreprocessor(kernel_name=<kernel>)
 ex.km, ex.kc = ex.start_new_kernel()
 ```
 
-For the value of `kernel_name` set it to python2 or python3, depending on what version used to make the Jupyter Notebook. The python kernel is already required for any notebook, regardless of kernel, so nothing else extra is required.
+For the value of *kernel_name* set it to python2 or python3, depending on what version used to make the Jupyter Notebook. The python kernel is already required for any notebook, regardless of kernel, so nothing else extra is required.
+
 [NOTE]
 ====
 Other non-python kernels may be supported in the future. For those, you would need to install them in your docker file like *IPython*.
@@ -159,12 +161,7 @@ else:
     return_code = ERROR_GENERIC_CELL
 ```
 
-[NOTE]
-==== 
-The name searched does not need to be `"code"`, but it must match what name was added to the cell metadata.
-====
-
-====== 4.7 Write to Notebook
+====== Write to Notebook
 Writing to a notebook is very similar in implementation to reading a notebook. As before, a output notebook must first be opened (and created) and then the *nbformat* tool is used to write the executed cells to the output notebook.
 
 ```python
