@@ -1,11 +1,12 @@
 :imagesdir: images/
 :jupyter-install-url: https://jupyter.readthedocs.io/en/latest/install.html
+:papermill: https://papermill.readthedocs.io/en/latest/
 
 ==== Jupyter Integration
 Using a Jupyter Notebook algorithm to make a Seed job is possible, but it requires more steps than a standard script. This guide will assume a basic understanding of Jupyter Notebooks.
 
 ===== Requirements
-All the necessary software for creating a standard Seed image is also required for a Jupyter Notebook image. In addition, notebooks also require the Jupyter Notebook software. Once Python and pip is installed, Jupyter Notebooks can be installed by the following commands.
+All the necessary software for creating a standard Seed image, seen in <<Algorithm Requirements>>, is also required for a Jupyter Notebook image. In addition, notebooks also require the Jupyter Notebook software. Once Python and pip is installed, Jupyter Notebooks can be installed by the following commands.
 
 ```sh
 pip3 install --upgrade pip
@@ -37,7 +38,7 @@ image::jupyter/image_rotate_test_values.png[width=100%, pdfwidth=100%]
 The notebook can then be run by selecting *Cell* from the toolbar and then selecting *Run All* from the dropdown. Make sure to set the values of the variables back to *None* after testing. 
 
 ====== Adding Arguments to the Notebook
-Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parametrization to a notebook a thrid party tool is required. This guide will be using Papermill. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.
+Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parametrization to a notebook a third party tool is required. This guide will be using {papermill}[Papermill]. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.
 
 To add parameters to a notebook, it is necessary to add cells that contain variables whose names are the intended parameter names. In the case of the sample, the parameters are `input_file_path` and `output_directory` as seen in the second cell.
 
@@ -53,7 +54,7 @@ image::jupyter/image_rotate_tags.png[width=100%, pdfwidth=100%]
 From there in the text input next to the *Add tag* button type in "parameters" and click *Add tag*.
 
 ====== Adding Error Handling the Notebook
-Incase of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, raise an exception instead of exitting. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic *CellExecutionError*. This  ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.
+In case of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, raise an exception instead of exiting. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic *CellExecutionError*. This  ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.
 
 ====== Implementing Return Codes
 Another side effect of `sys.exit(<return-code>)` unwanted behavior is the inability to set a return code. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Edit Metadata*. If done correctly the cells will have an *Edit Metadata* button as displayed below.
@@ -74,7 +75,7 @@ The Name does not need to be named `"code"` for this pair, however for the rest 
 Currently the changes made by editing the metadata and adding the parameter tag have no effect on notebook execution. In order to give these metadata changes functionality, a python script to run the notebook is required.
 
 ===== Python Script
-Normally it would be possible to execute the notebook using the *nbconvert* tool in the command line, and it is. However, by doing this the metadata changes aren't being used. Likewise execution is also possible with *Papermill* which would include the parameters, but would lose the return codes in the metadata. Therefore, it is necessary to write a script which leverages these tools in order to use all the metadata changes.
+A python script is used to execute the notebook, handle exceptions, add parameters and read the metadata. It leverages *nbformat*, *nbcnvert*, and *Papermill* tools. 
 
 ====== Sample Script
 The script below will be what will be used with the sample Jupyter Notebook already provided. This script should work for most standard python3 notebooks provided that the *parameters* dictionary is given the correct pairs.
@@ -123,7 +124,7 @@ ex = ExecutePreprocessor(kernel_name=<kernel>)
 ex.km, ex.kc = ex.start_new_kernel()
 ```
 
-For the value of *kernel_name* set it to python2 or python3, depending on what version used to make the Jupyter Notebook. The python kernel is already required for any notebook, regardless of kernel, so nothing else extra is required.
+For the value of *kernel_name* set it to python3. The python kernel is already required for any notebook, regardless of kernel, so nothing else extra is required.
 
 [NOTE]
 ====
@@ -177,7 +178,7 @@ First, create a script called image_rotate.sh in the same directory as the Pytho
 include::example/jupyter/image_rotate.sh[]
 ```
 
-We will use the script  to invoke out Jupyter algorithm
+We will use the script to invoke our Jupyter algorithm
 
 Create a file named Dockerfile in the same directory:
 
@@ -188,14 +189,14 @@ include::example/jupyter/Dockerfile[]
 With these files, we can create our initial Docker containerized sample algorithm. Issue the following terminal commands to build the Docker image:
 
 ```sh
-sudo docker build -t img-test .
+sudo docker build -t nb-img-test .
 ```
 
 The image may take a minute or two to build. The -t flag is used to specify the name and optional tag for the Docker image in the 'name:tag' format. In this case, we have used the name img-test, but we could use any name. Once it completes successfully, you should see output similar to the following:
 
 ```sh
 Successfully built 84dd346586d1
-Successfully tagged img-test:latest
+Successfully tagged nb-img-test:latest
 ```
 
 Now run the Docker container using the following command:
@@ -220,6 +221,6 @@ Done rotating image
 ```
 
 ===== Initialization
-the rest of the process is identical to the included example, go to section 5.3 and follow the rest of the tutorial.
+the rest of the process is identical to the included example, go to the <<Initialization>> section and follow the rest of the tutorial.
 
 

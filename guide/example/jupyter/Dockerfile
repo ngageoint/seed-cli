@@ -11,7 +11,6 @@ RUN pip install --upgrade pip && \
     python3 -m pip install ipykernel && \
     python3 -m ipykernel install --user
 
-RUN mkdir -p /usr/algo
 WORKDIR /usr/algo
 
 COPY ./run_notebook.py .
