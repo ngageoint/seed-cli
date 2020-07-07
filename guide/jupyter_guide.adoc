@@ -202,7 +202,7 @@ Successfully tagged nb-img-test:latest
 Now run the Docker container using the following command:
 
 ```sh
-jupyter % docker container run --rm -it -v ${PWD}:/usr/algo img-test:latest ./image_rotate.sh seed.png 45 output 
+jupyter % docker container run --rm -it -v ${PWD}:/usr/algo nb-img-test:latest ./image_rotate.sh seed.png 45 output 
 ```
 
 Output should be similar to the following:
