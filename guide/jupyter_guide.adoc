@@ -38,7 +38,7 @@ image::jupyter/image_rotate_test_values.png[width=100%, pdfwidth=100%]
 The notebook can then be run by selecting *Cell* from the toolbar and then selecting *Run All* from the dropdown. Make sure to set the values of the variables back to *None* after testing. 
 
 ====== Adding Arguments to the Notebook
-Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parametrization to a notebook a third party tool is required. This guide will be using {papermill}[Papermill]. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.
+Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parameterization to a notebook a third party tool is required. This guide will be using {papermill}[Papermill]. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.
 
 To add parameters to a notebook, it is necessary to add cells that contain variables whose names are the intended parameter names. In the case of the sample, the parameters are `input_file_path` and `output_directory` as seen in the second cell.
 
@@ -54,7 +54,7 @@ image::jupyter/image_rotate_tags.png[width=100%, pdfwidth=100%]
 From there in the text input next to the *Add tag* button type in "parameters" and click *Add tag*.
 
 ====== Adding Error Handling the Notebook
-In case of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, raise an exception instead of exiting. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic *CellExecutionError*. This  ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.
+In case of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as `sys.exit(<return-code>)`, raise an exception instead of exiting. This does stop cell execution, but does not stop Jupyter's kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic *CellExecutionError*. This ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.
 
 ====== Implementing Return Codes
 Another side effect of `sys.exit(<return-code>)` unwanted behavior is the inability to set a return code. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select *Edit* from the toolbar, from the dropdown select *Cell Toolbar*, and from that dropdown select *Edit Metadata*. If done correctly the cells will have an *Edit Metadata* button as displayed below.
