@@ -25,7 +25,6 @@ script:
   - docker run -v $TRAVIS_BUILD_DIR/readme.adoc:/documents/readme.adoc -v $TRAVIS_BUILD_DIR/seed-cli.adoc:/documents/seed-cli.adoc --name=seed-man rochdev/alpine-asciidoctor:mini asciidoctor -b manpage -D /documents/output seed-cli.adoc
   # generate seed user guide
   - guide/generate-outputs.sh
-  - docker run -v $TRAVIS_BUILD_DIR/guide:/documents --rm ${ASCIIDOCTOR_IMAGE} asciidoctor -D /documents/output index.adoc
 
 deploy:
   # Deployment that pushes GitHub releases of software on tag
