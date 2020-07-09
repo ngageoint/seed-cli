@@ -21,6 +21,7 @@ echo Generating HTML...
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} asciidoctor -a imagesdir=./images -D /documents/output index.adoc
 
 echo Copying HTML image assets...
+chown -R ${USER}: $(pwd)/output
 cp -r $(pwd)/images $(pwd)/output
 
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} sh generate-pdf.sh
