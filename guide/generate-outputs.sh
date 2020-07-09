@@ -17,11 +17,12 @@ pushd $(dirname $0) > /dev/null
 echo Compiling css from sass...
 docker run --rm -v $(pwd):/var/www ${SASS_IMAGE} sh styles/compile-sass.sh
 
+mkdir -p $(pwd)/output
+
 echo Generating HTML...
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} asciidoctor -a imagesdir=./images -D /documents/output index.adoc
 
 echo Copying HTML image assets...
-chmod 777 $(pwd)/output
 cp -r $(pwd)/images $(pwd)/output
 
 docker run -v $(pwd):/documents --rm ${ASCIIDOCTOR_IMAGE} sh generate-pdf.sh
