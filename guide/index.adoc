@@ -69,8 +69,8 @@ mkdir test-dir && cd test-dir
 === Docker and Linux Fundamentals
 
 Before using Seed, you should have a working familiarity with developing code using modern tools; at minimum knowledge of Docker and Linux fundamentals. 
-This guide is written with the assumption that you are using a Linux workstation. 
-The Seed CLI is heavily reliant on Docker to build and package Seed images (Docker image with Seed metadata), so it is highly recommended that you have superuser (i.e. `sudo`) access. 
+This guide is written with the assumption that you are using a Linux workstation.
+The Seed CLI is heavily reliant on Docker to build and package Seed images (Docker image with Seed metadata), so it is highly recommended that you have superuser (i.e. `sudo`) access.
 
 [WARNING]
 ====
@@ -451,6 +451,11 @@ A significant advantage of using Seed CLI is that it can emulate the resource co
 Validation and injection of the Seed manifest into the final package ensures adherence to the {seed-url}/seed.html[specification]. 
 The CLI allows you to validate a standalone manifest file, as well as apply validation as part of the build process. 
 Let's build our job to see this in action:
+
+[NOTE]
+====
+Depending on your environment, you may need superuser privileges to execute the `seed` command; e.g. `sudo seed build`. 
+====
 
 ```sh
 seed build
