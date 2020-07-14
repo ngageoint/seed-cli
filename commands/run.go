@@ -70,6 +70,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	var resourceArgs []string
 	var inputSize float64
 	var outputSize float64
+	var errors error
 
 	// expand INPUT_FILEs to specified Inputs files
 	if seed.Job.Interface.Inputs.Files != nil {
@@ -78,8 +79,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 			defer util.RemoveAllFiles(v)
 		}
 		if err != nil {
-			util.PrintUtil("ERROR: Error occurred processing inputs arguments.\n%s", err.Error())
-			return -1, err
+			errors = fmt.Errorf("\nERROR: Error occurred processing inputs arguments.\n%v", err)
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 			inputSize = size
@@ -90,8 +90,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	if seed.Job.Interface.Inputs.Json != nil {
 		inJson, err := DefineInputJson(&seed, json)
 		if err != nil {
-			util.PrintUtil("ERROR: Error occurred processing json arguments.\n%s", err.Error())
-			return -1, err
+			errors = fmt.Errorf("%v\nERROR: Error occurred processing json arguments.\n%v", errors, err)
 		} else if inJson != nil {
 			envArgs = append(envArgs, inJson...)
 		}
@@ -100,8 +99,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	if len(seed.Job.Resources.Scalar) > 0 {
 		inResources, diskSize, err := DefineResources(&seed, inputSize)
 		if err != nil {
-			util.PrintUtil("ERROR: Error occurred processing resources\n%s", err.Error())
-			return -1, err
+			errors = fmt.Errorf("%v\nERROR: Error occurred processing resources.\n%v", errors, err)
 		} else if inResources != nil {
 			resourceArgs = append(resourceArgs, inResources...)
 			outputSize = diskSize
@@ -124,8 +122,7 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	if seed.Job.Interface.Settings != nil {
 		inSettings, err := DefineSettings(&seed, settings)
 		if err != nil {
-			util.PrintUtil("ERROR: Error occurred processing settings arguments.\n%s", err.Error())
-			return -1, err
+			errors = fmt.Errorf("%v\nERROR: Error occurred processing settings arguments.\n%v", errors, err)
 		} else if inSettings != nil {
 			envArgs = append(envArgs, inSettings...)
 		}
@@ -135,11 +132,14 @@ func DockerRun(imageName, manifest, outputDir, metadataSchema string, inputs, js
 	if seed.Job.Interface.Mounts != nil {
 		inMounts, err := DefineMounts(&seed, mounts)
 		if err != nil {
-			util.PrintUtil("ERROR: Error occurred processing mount arguments.\n%s", err.Error())
-			return -1, err
+			errors = fmt.Errorf("%v\nERROR: Error occurred processing mount arguments.\n%v", errors, err)
 		} else if inMounts != nil {
 			mountsArgs = append(mountsArgs, inMounts...)
 		}
+	}
+
+	if errors != nil {
+		return -1, errors
 	}
 
 	// Build Docker command arguments:
@@ -273,7 +273,6 @@ func DefineInputs(seed *objects.Seed, inputs []string) ([]string, float64, map[s
 		for _, n := range keys {
 			buffer.WriteString("  " + n + "\n")
 		}
-		buffer.WriteString("\n")
 		return nil, 0.0, tempDirectories, errors.New(buffer.String())
 	}
 
