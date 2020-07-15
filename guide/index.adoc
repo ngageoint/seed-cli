@@ -74,7 +74,7 @@ The Seed CLI is heavily reliant on Docker to build and package Seed images (Dock
 
 [WARNING]
 ====
-If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2]. 
+If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2] in order to avoid incompatibilities between environments. 
 Algorithms must use a base Linux operating system to run in Scale.
 ====
 
@@ -818,7 +818,7 @@ Docker provides guidance on some additional {docker-best-practices-url}[best pra
 
 [WARNING]
 ====
-We strongly recommend using Seed with {wsl2-url}[WSL 2] rather than native Windows to avoid incompatibilities between environments. 
+We strongly recommend using Seed with {wsl2-url}[WSL 2] in order to avoid incompatibilities between environments. 
 Algorithms must use a base Linux operating system to run in Scale.
 ====
 
