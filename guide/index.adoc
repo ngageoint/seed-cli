@@ -74,7 +74,7 @@ The Seed CLI is heavily reliant on Docker to build and package Seed images (Dock
 
 [WARNING]
 ====
-If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2] rather than native Windows to avoid incompatibilities between environments. 
+If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2]. 
 Algorithms must use a base Linux operating system to run in Scale.
 ====
 
@@ -122,7 +122,7 @@ mv ./seed-linux-amd64 /path/to/seed-dir/seed  # e.g. mv ./seed-linux-amd64 /opt/
 
 [TIP]
 ====
-Use `seed-linux-amd64` for Linux or WSL 2 on Windows, `seed-darwin-amd64` for Mac, or `seed-windows-amd64` for native Windows.
+Use `seed-linux-amd64` for Linux or WSL 2 on Windows or `seed-darwin-amd64` for Mac.
 ====
 
 In order to run the `seed` command without needing to specify the full path to the binary, add it to your `$PATH` variable.
