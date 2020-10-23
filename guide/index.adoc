@@ -16,6 +16,8 @@ Emily Smith <emily.smith@appliedis.com>; Jonathan Meyer <jonathan.meyer@appliedi
 :docker-install-url: https://docs.docker.com/install/
 :docker-run-user-url: https://docs.docker.com/engine/reference/run/#user
 :docker-volumes-url: https://docs.docker.com/storage/volumes/
+:geoint-services-gitlab-url: https://gitlab.gs.mil
+:gitlab-access-token-docs-url: https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token
 :hashicorp-vault-url: https://www.vaultproject.io/
 :pillow-docs-url: https://pillow.readthedocs.io/en/stable/
 :python-beginners-guide-url: https://wiki.python.org/moin/BeginnersGuide/Download
@@ -485,7 +487,7 @@ We can see the `com.ngageoint.seed.manifest` LABEL that contains our serialized 
 INFO: Building image-rotate-1.0.0-seed:1.0.0
 dockerfile: .
 INFO: Running Docker command:
-docker build -t image-rotate-1.0.0-seed:1.0.0 /Users/matt/code/seed/guide/example --label com.ngageoint.seed.manifest="{\"seedVersion\":\"1.0.0\",\"job\":{\"name\":\"image-rotate\",\"jobVersion\":\"1.0.0\",\"packageVersion\":\"1.0.0\",\"title\":\"Image Rotate\",\"description\":\"Rotates an image a specified number of degrees\",\"tags\":[\"jpg\",\"png\",\"image processing\"],\"maintainer\":{\"name\":\"Matt Anderson\",\"organization\":\"AIS\",\"email\":\"matt.anderson@appliedis.com\"},\"timeout\":3600,\"interface\":{\"command\":\"sh image_rotate.sh \${INPUT_FILE} \${DEGREES} \${OUTPUT_DIR}\",\"inputs\":{\"files\":[{\"name\":\"INPUT_FILE\",\"required\":true,\"mediaTypes\":[\"image\/jpeg\",\"image\/jpg\",\"image\/png\"]}],\"json\":[{\"name\":\"DEGREES\",\"type\":\"integer\",\"required\":true}]},\"outputs\":{\"files\":[{\"name\":\"ROTATED_IMAGE\",\"multiple\":false,\"pattern\":\"ROTATED_*\"}]}},\"resources\":{\"scalar\":[{\"name\":\"cpus\",\"value\":0.1},{\"name\":\"mem\",\"value\":256,\"inputMultiplier\":4.0},{\"name\":\"disk\",\"value\":128}]}}}"
+docker build -t image-rotate-1.0.0-seed:1.0.0 /Users/user/code/seed/guide/example --label com.ngageoint.seed.manifest="{\"seedVersion\":\"1.0.0\",\"job\":{\"name\":\"image-rotate\",\"jobVersion\":\"1.0.0\",\"packageVersion\":\"1.0.0\",\"title\":\"Image Rotate\",\"description\":\"Rotates an image a specified number of degrees\",\"tags\":[\"jpg\",\"png\",\"image processing\"],\"maintainer\":{\"name\":\"Matt Anderson\",\"organization\":\"AIS\",\"email\":\"matt.anderson@appliedis.com\"},\"timeout\":3600,\"interface\":{\"command\":\"sh image_rotate.sh \${INPUT_FILE} \${DEGREES} \${OUTPUT_DIR}\",\"inputs\":{\"files\":[{\"name\":\"INPUT_FILE\",\"required\":true,\"mediaTypes\":[\"image\/jpeg\",\"image\/jpg\",\"image\/png\"]}],\"json\":[{\"name\":\"DEGREES\",\"type\":\"integer\",\"required\":true}]},\"outputs\":{\"files\":[{\"name\":\"ROTATED_IMAGE\",\"multiple\":false,\"pattern\":\"ROTATED_*\"}]}},\"resources\":{\"scalar\":[{\"name\":\"cpus\",\"value\":0.1},{\"name\":\"mem\",\"value\":256,\"inputMultiplier\":4.0},{\"name\":\"disk\",\"value\":128}]}}}"
 Sending build context to Docker daemon  18.23MB
 Step 1/8 : FROM python:3.8-alpine
  ---> db0e2316082c
@@ -644,6 +646,64 @@ Now that we understand the basics of running and testing our job, we can use mor
 
 After testing our job, we will typically want to share it so that it can used by others. 
 Seed supports several registry backends commonly used in the Docker ecosystem. 
+
+==== Using GitLab Container Registry
+
+GitLab repositories, such as those available through GEOINT Services {geoint-services-gitlab-url}[GitLab], have built-in Docker registries.
+Registry information can be found by going to Packages -> Container Registry in the Project navigation pane.
+
+In order to push to a GitLab Container registry using Seed CLI, it is necessary to first create a {gitlab-access-token-docs-url}[Personal Access Token].
+Be sure to check the box to give the token the "api" scope.
+The access token name will be used as the username and the token value as the password to log into the container registry.
+
+The following command will publish our Seed image that we built and tested to a GitLab Container Registry:
+
+```
+INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/user/go/src/github.com/ngageoint/seed-cli/guide/example/seed.manifest.json
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Docker login warning: WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+
+Login Succeeded
+INFO: Tagging image image-rotate-1.0.0-seed:1.0.0 as gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker tag image-rotate-1.0.0-seed:1.0.0 gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Performing docker push gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker push gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+The push refers to repository [gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed]
+6c309c48ba6f: Layer already exists
+6a5a6bdf35f9: Layer already exists
+bdd20120cfff: Layer already exists
+eba437426377: Layer already exists
+4180ca71c974: Layer already exists
+fffdb84c36f2: Layer already exists
+50205a7df19a: Layer already exists
+ef833453b9c7: Layer already exists
+408e53c5e3b2: Layer already exists
+50644c29ef5a: Layer already exists
+1.0.0: digest: sha256:53c7ebd219a195d2670b7cceb93daacbdc8a21789ed2fb1a791a3d0ad0372e78 size: 2415
+INFO: Removing local image gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker rmi gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+Untagged: gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+Untagged: gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed@sha256:53c7ebd219a195d2670b7cceb93daacbdc8a21789ed2fb1a791a3d0ad0372e78
+```
+
+[NOTE]
+====
+It may take several minutes for the `seed publish` command to complete.
+Do not be concerned if the console output pauses at `Login succeeded` for some time.
+====
+
+As can be seen from the output, we are internally performing a series of operations to publish the image. 
+We attach an appropriate tag to the Docker image to comply with the specification that reflects the remote registry `gitlab-registry.gs.mil` and organization `gitlab-group/gitlab-project`.
+In a GitLab Container Registry, the "organization" is a combination of the Group and Project names.
+This is followed by a push of the image to the repository and cleanup of the remote tags. 
+This leaves the local environment with only the image names built for publishing, which can be verified by running the `docker images` command.
+
+==== Using Docker Hub
+
 Docker Hub is a managed registry that makes it easy to publish your Seed image without configuring any additional services of your own.
 Before you can publish, you will need to register for an account at https://hub.docker.com.
 
@@ -682,7 +742,7 @@ Untagged: dockerhub-username/image-rotate-1.0.0-seed@sha256:fc29e2201b87bc32a94c
 As can be seen from the output, we are internally performing a series of operations to publish the image. 
 We attach an appropriate tag to the Docker image to comply with the specification that reflects the remote registry `index.docker.io` and organization `dockerhub-username`. 
 This is followed by a push of the image to the repository and cleanup of the remote tags. 
-This leaves our local environment with only the image names we built for our use, which can be verified by running the `docker images` command.
+This leaves the local environment with only the image names built for publishing, which can be verified by running the `docker images` command.
 
 [NOTE]
 ====
