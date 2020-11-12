@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.5">
+<meta name="author" content="Emily Smith, Jonathan Meyer, Matt Anderson">
+<title>Seed User Guide</title>
+<style>
+@import url("https://fonts.googleapis.com/css?family=Dosis:500,600,700|Roboto:100,100i,300,300i,700,700i");
+@import url("https://use.fontawesome.com/releases/v5.2.0/css/all.css");
+@import url("https://fonts.googleapis.com/css?family=Dosis:500,600,700|Roboto:100,100i,300,300i,700,700i");
+@import url("https://use.fontawesome.com/releases/v5.2.0/css/all.css");
+body {
+  background-color: transparent;
+  width: auto;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+  body.toc-left {
+    max-width: 1020px;
+    margin-left: 200px; }
+    @media screen and (max-width: 990px) {
+      body.toc-left {
+        margin-left: auto; } }
+
+html {
+  font-size: 10px;
+  background-color: #ECECEC; }
+
+a {
+  text-decoration: none;
+  color: #3096C3; }
+
+body {
+  color: #413D29;
+  font-family: "Roboto", Arial, sans-serif;
+  font-weight: 300; }
+
+h1 {
+  font-size: 4rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 500;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  padding-top: 4px;
+  padding-bottom: 6px;
+  line-height: 4rem; }
+
+h2 {
+  font-size: 2.8rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 500;
+  color: #74BA00;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 4rem; }
+
+h3 {
+  font-size: 2.1rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 600;
+  color: #74BA00;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding-top: 3px;
+  padding-bottom: 7px;
+  line-height: 2rem; }
+
+h4 {
+  font-size: 1.6rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1rem;
+  color: #74BA00;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  line-height: 2rem; }
+
+h5 {
+  font-size: 1.3rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+  color: #74BA00;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding-top: 6px;
+  padding-bottom: 4px;
+  line-height: 2rem; }
+
+h6,
+.paragraph > .title,
+.listingblock > .title {
+  font-size: 1.3rem;
+  font-family: Dosis, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.15rem;
+  text-transform: uppercase;
+  color: #74BA00;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 6px;
+  padding-bottom: 4px;
+  line-height: 2rem; }
+
+li {
+  font-size: 1.4rem;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  line-height: 2rem; }
+  li > *:first-child {
+    margin-top: 0;
+    padding-top: 0; }
+  li > *:last-child,
+  li > p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0; }
+
+p {
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  line-height: 2rem; }
+
+pre,
+.listingblock pre {
+  font-size: 1.4rem;
+  color: #DBDAD5;
+  background-color: #56523E;
+  border-radius: 4px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding-top: 14px;
+  padding-bottom: 16px;
+  line-height: 2rem;
+  padding-left: 20px;
+  padding-right: 20px; }
+  pre:not(.highlight),
+  .listingblock pre:not(.highlight) {
+    background-color: #56523E; }
+
+ul {
+  padding-top: 5px;
+  padding-bottom: 5px; }
+  ul ul {
+    padding-top: 0;
+    padding-bottom: 0; }
+
+table {
+  border-collapse: collapse;
+  margin-top: 10px;
+  margin-bottom: 20px; }
+
+td, th {
+  box-sizing: border-box;
+  border-bottom: 1px solid #DBDAD5;
+  font-size: 1.4rem;
+  vertical-align: top;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 5px;
+  padding-bottom: 4px;
+  line-height: 2rem; }
+  td > *:first-child,
+  td .paragraph:first-child p, th > *:first-child,
+  th .paragraph:first-child p {
+    margin-top: 0;
+    padding-top: 0; }
+  td > *:last-child,
+  td .paragraph:last-child p, th > *:last-child,
+  th .paragraph:last-child p {
+    margin-bottom: 0;
+    padding-bottom: 0; }
+  td .paragraph ~ .listingblock:last-child, th .paragraph ~ .listingblock:last-child {
+    margin-bottom: 9px; }
+  td pre,
+  td .listingblock pre, th pre,
+  th .listingblock pre {
+    margin-top: 6px;
+    margin-bottom: 4px; }
+  td .listingblock:first-child pre, th .listingblock:first-child pre {
+    margin-top: 15px;
+    margin-bottom: 5px; }
+  td table, th table {
+    margin-bottom: 19px; }
+  td td, th td {
+    border-bottom-color: transparent; }
+  td tr:first-child td, th tr:first-child td {
+    padding-top: 0; }
+  td tr:last-child td, th tr:last-child td {
+    padding-bottom: 0; }
+
+th {
+  font-weight: 700;
+  text-align: left; }
+
+#header {
+  position: relative;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 20px;
+  padding-right: 20px; }
+  #header > h1 {
+    padding-top: 6px;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    font-size: 5rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 5rem; }
+    #header > h1::before {
+      content: '';
+      display: block;
+      width: 64px;
+      height: 64px;
+      background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTI4cHgiIGhlaWdodD0iMTI3cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI3IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA1MS4xICg1NzUwMSkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+bG9nbzwvdGl0bGU+CiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4KICAgIDxkZWZzPjwvZGVmcz4KICAgIDxnIGlkPSJDb25jZXB0LTIiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgICAgIDxnIGlkPSJsb2dvIj4KICAgICAgICAgICAgPHBhdGggZD0iTTg5LjI2NjEwMTcsMjYuNzkxNTI1NCBDNzIuNzQxMDQ2OSwzMi40Njk2NDg5IDczLjY2MjcxMTksNzQuNDkwNzIxNSA2Ni4xMjg4MTM2LDg0LjQyNzExODYgQzU4LjU5NDkxNTMsOTQuMzYzNTE1OCA0MC44MzcyODgxLDEwNi40OTY2MSA0Ni41MjU0MjM3LDExOC41MTM1NTkgQzUyLjIxMzU1OTMsMTMwLjUzMDUwOCA5Mi44MjM4NzcsMTMyLjk4MTEwNCAxMTQuMjc2MjcxLDEwMC42NjQ0MDcgQzE0NS40NzQ1NzYsNTMuNjY2MTAxNyAxMTUuNTUyNTQyLDE3Ljc1OTMyMiA4OS4yNjYxMDE3LDI2Ljc5MTUyNTQgWiIgaWQ9IkJlYW4iIGZpbGw9IiM1MTRDNDUiPjwvcGF0aD4KICAgICAgICAgICAgPHBhdGggZD0iTTE4LjUxNzM3MjUsNDYuOTU2NDAxOSBDMTguNDc2OTUxOCw0NS43Njc4MzY4IDE4LjQ1Njc0MTUsNDQuNTQyNTM0NCAxOC40NTY3NDE1LDQzLjI4MDQ5NSBDMTguNDU2NzQxNSwyMi4wMzUwMDEyIDMzLjg0OTAwMDUsMy43NDQ1NjIxMyA1My43Nzc3NTcsMS4zODY0Njg3OCBDODYuMjA1NjgyNCwtMi40NTA2MDMzIDk2LjQ2NDUxMzUsNy4yNTA0MjAyOSAxMTEuOTU2MDA4LDMuODg5NjMwMDEgQzEyNy40NDc1MDMsMC41Mjg4Mzk3MjUgMTEwLjk0MzkwOSwxOC40MDY1NzA2IDk2Ljk0MTMzMTYsMTguNDA2NTcwNiBDODIuOTM4NzUzOSwxOC40MDY1NzA2IDczLjMwNDIzODEsMjcuMTYyMDAzMiA2Ni4wNDM5NjQxLDQ4LjY3MTM4MjggQzYxLjQyMTY1MzIsNjIuMzY1NDk5NiA0OS4wNjg2LDcwLjA0MDQxMDQgMjguOTg0ODA0NSw3MS42OTYxMTUxIEMyOS42MDUxNzQ0LDc2LjM1NTg2NjggMzAuOTA1NTU0LDgxLjkzMjQwOTYgMzUuNzE1MjEyMSw5MC40MTUyNTQyIEMyNS41NzI4ODE0LDkwLjQxNTI1NDIgMTEuODEwMTY5NSw5MC40MTUyNTQyIDQuMjEzNTU5MzIsNzcuNDU0MjM3MyBDLTMuMzgzMDUwODUsNjQuNDkzMjIwMyAxLjc0NDE4ODM2LDQzLjYwMzkyNjMgNC4yMTM1NTkzMiwzNS4xMjIwMzM5IEM2LjY4MjkzMDI5LDI2LjY0MDE0MTUgOC40Mjc1NzY1OSwzNi4zMDQ2NTQ1IDEwLjI2NDQwNjgsMzkuMDgxMzU1OSBDMTEuMzgyOTI3MSw0MC43NzIyMDIgMTQuNzkwMTE1OCw0My4wMzIxNCAxOC41MTczNzI1LDQ2Ljk1NjQwMTkgWiIgaWQ9IkNvbWJpbmVkLVNoYXBlIiBmaWxsPSIjNzRCQTAwIj48L3BhdGg+CiAgICAgICAgICAgIDxwYXRoIGQ9Ik03MC41ODgxMzU2LDcyLjg0NTc2MjcgQzY0LjIxODY0NDEsNzcuMjYzNTU5MyA2Mi41NTM4MTM2LDg4LjEwMzM4OTggNTIuNyw4OC4xMDMzODk4IEM0Mi4yMzg5ODMxLDg4LjEwMzM4OTggMjYuNTI1ODQ3NSw3Ni40OTE5NDkyIDI5LjUwNTA4NDcsNTcuNjYwMTY5NSBDMzIuNDg0MzIyLDM4LjgyODM4OTggNTEuMzExMDE2OSwyNS42OTM2NDQxIDY0LjgxMDE2OTUsMjEuMzUwODQ3NSBDNjcuMDI4MjY0OCwyMC42MzcyNjY2IDY3LjkzNDM4MDIsMTkuNzAzNTM0NiA2NC44MTAxNjk1LDE5Ljg4ODEzNTYgQzUyLjEzMTc3OTcsMjAuNjM3MjY2NiAyMS4yNDc0NTc2LDM2LjQ0ODMwNTEgMjEuMjQ3NDU3Niw2MS43MjExODY0IEMyMS4yNDc0NTc2LDg2Ljk5NDA2NzggMzkuMTkzMjIwMyw5OC41NTc2MjcxIDUyLjcsOTguNTU3NjI3MSBDNjYuMjA2Nzc5Nyw5OC41NTc2MjcxIDc2Ljk1NzYyNzEsNjguNDI3OTY2MSA3MC41ODgxMzU2LDcyLjg0NTc2MjcgWiIgaWQ9IlN0ZW0iIGZpbGw9IiM1QjkxMDIiPjwvcGF0aD4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==") left top no-repeat;
+      background-size: 64px;
+      border-radius: 4px;
+      float: left;
+      margin-right: 20px;
+      position: relative;
+      top: -8px;
+      margin-bottom: -4px; }
+    #header > h1::after {
+      content: '';
+      display: block;
+      width: auto;
+      height: auto;
+      clear: both; }
+  #header .details {
+    font-size: 1.4rem;
+    line-height: 2rem;
+    color: #959387;
+    max-width: 500px;
+    padding-top: 5px;
+    padding-bottom: 5px; }
+    #header .details br {
+      display: none; }
+    #header .details .author {
+      display: inline-block; }
+    #header .details .email {
+      display: inline-block;
+      padding-right: 10px; }
+      #header .details .email a {
+        color: #4DAED8; }
+
+#toc {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200px;
+  overflow: auto;
+  background-color: #DBDAD5;
+  padding: 2rem 20px; }
+  #toc ul {
+    padding-left: 1.25px;
+    padding-right: 0;
+    list-style: none; }
+    #toc ul li {
+      padding-left: 5px;
+      text-indent: -5px; }
+  #toc .sectlevel1 {
+    font-weight: 700;
+    padding-left: 0; }
+
+#toctitle {
+  font-size: 2.1rem;
+  font-family: Dosis, sans-serif;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 1px;
+  padding-bottom: 9px;
+  line-height: 2rem; }
+
+@media screen and (max-width: 990px) {
+  body {
+    padding-top: 100px; }
+  #header {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #ECECEC; }
+    #header > h1 {
+      font-size: 2.8rem;
+      line-height: 3rem;
+      padding-top: 4px;
+      padding-bottom: 6px; }
+      #header > h1::before {
+        content: '';
+        display: block;
+        width: 32px;
+        height: 32px;
+        background-size: 32px;
+        margin-right: 20px;
+        top: -1px;
+        margin-bottom: 8px; }
+    #header .details .email {
+      display: none; }
+    #header .details .author {
+      margin-right: 10px; }
+  .toc-left #header {
+    padding-left: 120px;
+    padding-top: 1rem; }
+  .toc-left #toc {
+    position: absolute;
+    overflow: visible;
+    width: 100px;
+    height: 110px;
+    padding-top: 34px; }
+    .toc-left #toc:hover .sectlevel1 {
+      display: block; }
+    .toc-left #toc .sectlevel1 {
+      display: none;
+      box-sizing: border-box;
+      padding-left: 20px;
+      padding-right: 20px;
+      width: 200px;
+      height: 80vh;
+      overflow: auto;
+      background-color: #DBDAD5;
+      position: absolute;
+      top: 10rem;
+      left: 0; }
+  .toc-left #toctitle {
+    font-size: 1.6rem;
+    font-family: Dosis, sans-serif;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 9px;
+    padding-bottom: 1px;
+    line-height: 2rem; } }
+
+@media screen and (max-width: 600px) {
+  #header > h1 {
+    font-size: 1.6rem;
+    line-height: 2rem; } }
+
+#footer-text {
+  font-size: 1.4rem;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  line-height: 2rem; }
+
+.conum[data-value] {
+  display: inline-block;
+  color: #413D29;
+  background-color: #94D627;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  text-align: center;
+  font-style: normal;
+  padding-top: 2px;
+  box-sizing: border-box;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  position: relative;
+  top: 1px; }
+  .conum[data-value]:after {
+    content: attr(data-value);
+    font-size: 1.3rem;
+    font-family: Dosis, sans-serif;
+    font-weight: 700; }
+  .conum[data-value] + b {
+    display: none; }
+
+.admonitionblock {
+  border-width: 2px;
+  border-style: solid;
+  border-color: #C3C0B5;
+  padding: 8px 10px 9px;
+  border-radius: 4px; }
+  .admonitionblock table {
+    margin-top: 0;
+    margin-bottom: 0; }
+  .admonitionblock tr:last-child td {
+    border-bottom: 0; }
+  .admonitionblock .icon {
+    font-size: 2.1rem;
+    vertical-align: middle; }
+  .admonitionblock.note {
+    border-color: #7D46D9;
+    background-color: #D6BEFF;
+    color: #40128E; }
+    .admonitionblock.note .icon {
+      color: #7D46D9; }
+  .admonitionblock.warning {
+    border-color: #D93C3C;
+    background-color: #FFC1C1;
+    color: #951111; }
+    .admonitionblock.warning .icon {
+      color: #D93C3C; }
+
+.icon-note::before {
+  content: "\f05a"; }
+
+.icon-warning::before {
+  content: "\f071"; }
+
+.image .image img {
+  position: relative;
+  top: 6px;
+  margin-top: -6px; }
+
+/*# sourceMappingURL=html.css.map */
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Seed User Guide</h1>
+<div class="details">
+<span id="author" class="author">Emily Smith</span><br>
+<span id="email" class="email"><a href="mailto:emily.smith@appliedis.com">emily.smith@appliedis.com</a></span><br>
+<span id="author2" class="author">Jonathan Meyer</span><br>
+<span id="email2" class="email"><a href="mailto:jonathan.meyer@appliedis.com">jonathan.meyer@appliedis.com</a></span><br>
+<span id="author3" class="author">Matt Anderson</span><br>
+<span id="email3" class="email"><a href="mailto:matt.anderson@appliedis.com">matt.anderson@appliedis.com</a></span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_purpose">1. Purpose</a></li>
+<li><a href="#_expectations">2. Expectations</a>
+<ul class="sectlevel2">
+<li><a href="#_docker_and_linux_fundamentals">2.1. Docker and Linux Fundamentals</a></li>
+<li><a href="#_algorithm_requirements">2.2. Algorithm Requirements</a></li>
+</ul>
+</li>
+<li><a href="#_docker_installation">3. Docker Installation</a>
+<ul class="sectlevel2">
+<li><a href="#_using_wsl_2_on_windows">3.1. Using WSL 2 on Windows</a></li>
+</ul>
+</li>
+<li><a href="#_seed_cli_installation">4. Seed CLI Installation</a></li>
+<li><a href="#_seed_tutorial">5. Seed Tutorial</a>
+<ul class="sectlevel2">
+<li><a href="#_seed_compliance">5.1. Seed Compliance</a></li>
+<li><a href="#_sample_algorithm">5.2. Sample Algorithm</a></li>
+<li><a href="#_initialization">5.3. Initialization</a></li>
+<li><a href="#_validate_build">5.4. Validate &amp; Build</a></li>
+<li><a href="#_run">5.5. Run</a></li>
+<li><a href="#_publish">5.6. Publish</a></li>
+</ul>
+</li>
+<li><a href="#_reference">6. Reference</a>
+<ul class="sectlevel2">
+<li><a href="#_use_cases">6.1. Use Cases</a></li>
+<li><a href="#_optimization">6.2. Optimization</a></li>
+<li><a href="#_best_practices">6.3. Best Practices</a></li>
+<li><a href="#_running_natively_on_windows">6.4. Running Natively on Windows</a></li>
+<li><a href="#_frequently_asked_questions_faqs">6.5. Frequently Asked Questions (FAQs)</a></li>
+<li><a href="#_troubleshooting">6.6. Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_purpose"><a class="link" href="#_purpose">1. Purpose</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Scale and Seed optimize algorithm development from proof of concept to operational execution within distributed processing clusters.
+This guide introduces data scientists and algorithm developers to these technologies developed at the Research directorate of the National Geospatial-Intelligence Agency (NGA).</p>
+</div>
+<div class="paragraph">
+<p><a href="https://ngageoint.github.io/scale/">Scale</a> is a distributed processing framework for near real-time processing of large data sets.
+It frees data scientists and algorithm developers from the complexity of distributed system concepts and offers an integration platform for highly parallel processing of data.
+Scale also ensures decision makers and system administrators are able to visually monitor data flows and ensure reliable data processing.
+It enables a true DevOps environment for algorithm development and cloud transition.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://ngageoint.github.io/seed">Seed</a> is a general <a href="https://ngageoint.github.io/seed/seed.html">standard</a> to aid in the discovery and consumption of a discrete unit of work contained within a Docker image.
+It is a JSON-defined manifest that is embedded into the Docker image as a label.
+Seed allows data scientists to focus their expertise on solving domain problems and provides tools to ensure their algorithm is packaged properly for operational use.
+Seed can be used throughout the development lifecycle to build, test and package within a simulated environment that closely emulates targeted operational environments.
+This reduces risk and allows the algorithm requirements to be explicitly defined by the developers who best understand their processing needs.
+Compliance with the Seed specification will be a requirement for algorithms to run in future versions of Scale.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/ngageoint/seed-silo">SILO</a> (Seed Images Location Operation) is a REST API provided by the Seed team for discovering Seed images.
+The API allows users to scan one or more repositories for Seed images and then search the resulting images and their manifests by keywords.
+Frameworks such as Scale can use these endpoints to assist users in finding algorithm images and creating jobs out of them.</p>
+</div>
+<div class="paragraph">
+<p>The Seed command-line interface (CLI) is a standalone tool for working with Seed jobs locally.
+This document will focus primarily on using the Seed CLI to build, test and publish your algorithm as a Seed-compliant Docker image.
+The Seed toolchain consists of the CLI, SILO, and a processing system that can consume Seed images, such as Scale.
+Our recommendation is to familiarize yourself with using Seed by working through this tutorial.
+Details on more advanced topics are provided in the <a href="#_reference">Reference</a> section.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Commands that can be run from the terminal are indicated in monospace font or as callouts; e.g.
+<code>mkdir test-dir &amp;&amp; cd test-dir</code> or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">mkdir test-dir &amp;&amp; cd test-dir</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_expectations"><a class="link" href="#_expectations">2. Expectations</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_docker_and_linux_fundamentals"><a class="link" href="#_docker_and_linux_fundamentals">2.1. Docker and Linux Fundamentals</a></h3>
+<div class="paragraph">
+<p>Before using Seed, you should have a working familiarity with developing code using modern tools; at minimum knowledge of Docker and Linux fundamentals.
+This guide is written with the assumption that you are using a Linux workstation.
+The Seed CLI is heavily reliant on Docker to build and package Seed images (Docker image with Seed metadata), so it is highly recommended that you have superuser (i.e. <code>sudo</code>) access.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_algorithm_requirements"><a class="link" href="#_algorithm_requirements">2.2. Algorithm Requirements</a></h3>
+<div class="paragraph">
+<p>It is beneficial to identify and understand the following characteristics of each algorithm you intend to package with Seed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Software requirements (e.g. libraries, frameworks, and/or software dependencies needed)</p>
+</li>
+<li>
+<p>Hardware requirements (e.g. CPU and memory requirements, GPUs, etc.)</p>
+</li>
+<li>
+<p>Reference material or other support data</p>
+</li>
+<li>
+<p>Licenses required</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_docker_installation"><a class="link" href="#_docker_installation">3. Docker Installation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Refer to the Docker documentation for instructions on how to <a href="https://docs.docker.com/install/">install Docker</a> for your platform.
+Depending on your IT environment, you may need to request an administrator install Docker for you.
+The current version of Seed (1.2.1) requires Docker version 18.09 or newer.
+To verify that installation was successful and confirm the Docker version, run the command <code>docker --version</code> from the terminal.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Depending on your environment, you may need superuser privileges to execute the <code>docker</code> command; e.g. <code>sudo docker</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Output should be similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>docker version 19.03.8, build afacb8b</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If this command fails, verify the Docker daemon is running using the <code>docker info</code> command. You can also use operating system
+utilities, such as <code>sudo systemctl is-active docker</code>, <code>sudo status docker</code> or <code>sudo service docker status</code>, or checking the
+service status using Windows utilities.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If using Windows, we strongly recommend using Seed with <a href="https://docs.microsoft.com/en-us/windows/wsl/wsl2-index">WSL 2</a> in order to avoid incompatibilities between environments.
+Algorithms must use a base Linux operating system to run in Scale.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_using_wsl_2_on_windows"><a class="link" href="#_using_wsl_2_on_windows">3.1. Using WSL 2 on Windows</a></h3>
+<div class="paragraph">
+<p>When using Seed on Windows, we recommend installing a Linux distro from the Micrsoft Store, such as <a href="https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71">Ubuntu 20.04 LTS</a>.
+After installing, check the Windows Docker Desktop settings under Resources &#8594; WSL Integration to ensure Docker integration is enabled for the distro.
+Open the application, follow the prompts to configure the environment, and proceed with <a href="#_seed_cli_installation">Seed CLI Installation</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_seed_cli_installation"><a class="link" href="#_seed_cli_installation">4. Seed CLI Installation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Seed CLI can be installed by downloading a binary from the <a href="https://github.com/ngageoint/seed-cli/releases/tag/1.2.1">releases</a> page on GitHub.
+Under each release, there is an "Assets" section with downloadable binaries for various operating systems.
+Download the appropriate version for your system and rename the downloaded binary file <code>seed</code> to match the usage in the rest of this guide.
+Move the binary to your desired location on your filesystem:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">mkdir /path/to/seed-dir  # e.g. mkdir /opt/seed
+mv ./seed-linux-amd64 /path/to/seed-dir/seed  # e.g. mv ./seed-linux-amd64 /opt/seed/seed</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Use <code>seed-linux-amd64</code> for Linux or WSL 2 on Windows or <code>seed-darwin-amd64</code> for Mac.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In order to run the <code>seed</code> command without needing to specify the full path to the binary, add it to your <code>$PATH</code> variable.
+The method for doing this will depend on the operating system or terminal shell you are using.
+On Linux or Mac OS, this typically involves adding an entry to a config file.
+Common config files include <code>~/.bash_profile</code>, <code>~/.bashrc</code>, <code>~/.profile</code>, or <code>~/.tcsh_profile</code>.
+Using <code>~/.bash_profile</code> as an example, if it does not exist, create it using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">touch ~/.bash_profile</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Open it in your desired text editor, and add the following line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">export PATH=$PATH:/path/to/seed-dir  # e.g. export PATH=$PATH:/opt/seed</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run <code>source ~/.bash_profile</code> to reload the profile.</p>
+</div>
+<div class="paragraph">
+<p>To verify that installation was successful, run the command <code>seed</code> from the terminal. The Seed logo, usage instructions, and a list of commands should be displayed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>       .',,;;;;,,''''.
+     .::::::::::;,,'.
+    ,c:;;;;;::. ....
+., .c;,;;::::. .,,,,,'.
+'c;,;,;:::::. .,'''''',.      ';;;;;.   .;;;;;;;.   ;;;;;;;,   ,;;;;;,.
+;:::,;::::;.  ,'''''''''     ::.   .    'c,        .::         ;c.   ;c'
+,:;;,,'..    .,''''''','     ;:,.       'c'        .:;         ;:.   .:,
+ ,:::,.     .,'''''''',.      .,;::,    ':;,,,     .::;,;.     ;:.   .c,
+   ....''..','''''''',.           '::   'c'        .:;         ;:.   .:,
+         .,'''''''','.      .;.   .c;   'c,        .c:.        ;c.  .;c.
+         ,,,,,,,,,'.         ';;;;;'    .;;;;;;;.   ;;;;;;;,   ';;;;;,.
+         ..'''...
+
+Usage:	seed COMMAND
+
+A tool for assisting in creating seed spec compliant algorithms
+
+Commands:
+  build 	Builds Seed compliant Docker image
+  batch 	Executes Seed compliant docker image over multiple iterations
+  init  	Initialize new project with example seed.manifest.json file
+  list  	Lists all Seed compliant images residing on the local system
+  publish	Publishes Seed compliant images to remote Docker registry
+  pull		Pulls images from remote Docker registry
+  run   	Executes Seed compliant Docker image
+  search	Allows for discovery of Seed compliant images hosted within a Docker registry (default is docker.io)
+  spec		Displays the specification for the current Seed version
+  unpublish	Removes images from remote Docker registry
+  validate	Validates a Seed spec
+  version	Prints the version of Seed spec
+
+Run 'seed COMMAND --help' for more information on a command.</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_seed_tutorial"><a class="link" href="#_seed_tutorial">5. Seed Tutorial</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Following this step-by-step tutorial will quickly get you up and running with Seed and demonstrate the steps needed to
+arrive at a complete Seed image. By the end of this guide, you will be able to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Build a Seed compliant algorithm</p>
+</li>
+<li>
+<p>Leverage the Seed CLI to ensure Seed compliance and build a Seed compliant Docker image</p>
+</li>
+<li>
+<p>Leverage the Seed CLI to test your Seed algorithm</p>
+</li>
+<li>
+<p>Leverage the Seed CLI to publish your Seed algorithm</p>
+</li>
+<li>
+<p>Understand next steps to automated distributed execution</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_seed_compliance"><a class="link" href="#_seed_compliance">5.1. Seed Compliance</a></h3>
+<div class="paragraph">
+<p>For your algorithm to be compatible with Seed, it must satisfy the following criteria:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Run on Linux.</strong> There is no language limitation other than it must be able to execute on Linux. You can use the Docker base image of your choice. Alpine and CentOS are the preferred Linux flavors.</p>
+</li>
+<li>
+<p><strong>Command-line Invocation.</strong> Seed provides input via either arguments or environment variables. If your algorithm is prompting for input from a user, the job will continue to wait until it times out. There are no display popups such as error dialogs, file selection menus, splash screens, etc. In the event where a display device is required for rendering data, a pseudo device must be used.</p>
+</li>
+<li>
+<p><strong>Configurable.</strong> Your algorithm will be run in a standalone container, therefore absolute file paths must not be embedded in the source code for your development environment. Necessary file paths should be passable into the algorithm either via an environment variable or from the command line.</p>
+</li>
+<li>
+<p><strong>Reporting.</strong> While this isn’t required, it is ideal if your algorithm outputs its progress and errors to the console and returns an appropriate exit code. Unique exit codes should be used for failures that can be anticipated. If failures are not captured appropriately, Seed will only be able to identify a general algorithm error, which may make debugging issues more difficult.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sample_algorithm"><a class="link" href="#_sample_algorithm">5.2. Sample Algorithm</a></h3>
+<div class="paragraph">
+<p>The foundation of a Seed image is the algorithm that it contains.
+Everything that follows is informed by the requirements of your unique algorithm: the inputs it requires, the outputs it generates and the resources that are required to perform the computations.
+For this guide, we are going to use a very simple algorithm, one which takes a single image file as input and rotates the image a specified number of degrees.
+We are going to output metadata about the algorithm both to the console and to a file. This example illustrates how to accomplish the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Accept a file input</p>
+</li>
+<li>
+<p>Accept an integer type input</p>
+</li>
+<li>
+<p>Write to the console</p>
+</li>
+<li>
+<p>Write to an output file</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_running_in_python"><a class="link" href="#_running_in_python">5.2.1. Running in Python</a></h4>
+<div class="paragraph">
+<p>This example assumes Python 3 is installed and uses the <a href="https://pillow.readthedocs.io/en/stable/">Pillow</a> library for image processing.
+For help installing Python, see the <a href="https://wiki.python.org/moin/BeginnersGuide/Download">Python Beginners Guide</a>.
+For help installing Pillow, see its <a href="https://pillow.readthedocs.io/en/stable//installation.html">installation instructions</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Using tools such as <a href="https://pipenv.pypa.io/en/latest/">pipenv</a> or <a href="https://docs.python.org/3/library/venv.html">venv</a> will help simplify environment and dependency management for Python programs.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>We are going to write our algorithm using basic Linux commands. Use your favorite text editor or IDE to create an <code>image_rotate.py</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import json
+import os
+import shutil
+import sys
+from PIL import Image
+
+def rotate_image(source_image_path, rotate_degrees, output_dir):
+    """Rotates an image a specified number of degrees"""
+    product_image_name =  f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
+
+    # Open source image
+    original_image = Image.open(source_image_path)
+
+    # Rotate it specified number of degrees
+    rotated_image = original_image.rotate(int(rotate_degrees), 0, 1)
+    rotated_image.save(product_image_name)
+
+    # Move saved image to output directory
+    product_image_path = os.path.join(output_dir, product_image_name)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    shutil.move(product_image_name, product_image_path)
+
+    return product_image_name
+
+if __name__ == "__main__":
+
+    source_image_path = sys.argv[1]
+    rotate_degrees = sys.argv[2]
+    output_dir = sys.argv[3]
+
+    product_image_path = rotate_image(source_image_path, rotate_degrees, output_dir)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you have cloned this repository, the image file <code>seed.png</code> will exist in the <code>guide/example</code> directory.
+If not, you will need to download the file or supply your own image file.
+Run the algorithm using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">python image_rotate.py seed.png 180 output</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A new image file named <code>ROTATED_180_seed.png</code> will be created in the <code>output</code> directory.</p>
+</div>
+<div class="paragraph">
+<p>If a <code>ModuleNotFound</code> error occurs, see the <a href="#_python_modulenotfound_errors">Python ModuleNotFound Errors</a> section.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_running_in_docker"><a class="link" href="#_running_in_docker">5.2.2. Running in Docker</a></h4>
+<div class="paragraph">
+<p>First, create a script called <code>image_rotate.sh</code> in the same directory as the Python file created above:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">#!/bin/sh
+
+INPUT=$1
+DEGREES=$2
+OUTPUT_DIR=$3
+
+echo ''
+echo '-----------------------------------------------------------------'
+echo 'Rotating image with arguments '${INPUT} ${DEGREES} ${OUTPUT_DIR}
+
+python ./image_rotate.py $INPUT $DEGREES $OUTPUT_DIR
+rc=$?
+
+echo 'Done rotating image'
+echo '-----------------------------------------------------------------'
+echo ''
+exit ${rc}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will use this script to invoke our image rotation algorithm.</p>
+</div>
+<div class="paragraph">
+<p>Create a file named <code>Dockerfile</code> in the same directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">FROM python:3.8-alpine
+
+RUN apk add build-base python3-dev py-pip jpeg-dev zlib-dev
+ENV LIBRARY_PATH=/lib:/usr/lib
+
+RUN pip install --upgrade pip &amp;&amp; \
+    pip install --upgrade Pillow &gt;= 7
+
+WORKDIR /algo
+
+ADD ./image_rotate.py .
+ADD ./image_rotate.sh .</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With these files, we can create our initial Docker containerized sample algorithm.
+Issue the following terminal commands to build the Docker image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">sudo docker build -t img-test .</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The image may take a minute or two to build.
+The <code>-t</code> flag is used to specify the name and optional tag for the Docker image in the 'name:tag' format.
+In this case, we have used the name <code>img-test</code>, but we could use any name.
+Once it completes successfully, you should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Successfully built 84dd346586d1
+Successfully tagged img-test:latest</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now run the Docker container using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">sudo docker run --rm -v ${PWD}:/algo img-test sh image_rotate.sh seed.png 45 output</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Output should be similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>-----------------------------------------------------------------
+Rotating image with arguments seed.png 45 output
+Done rotating image
+-----------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s recap what we&#8217;ve done:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>We wrote a simple Python algorithm that consumes three positional parameters: input file path, degrees of rotation, and output file directory.</p>
+</li>
+<li>
+<p>Our algorithm uses the <a href="https://pillow.readthedocs.io/en/stable/">Pillow</a> library to rotate the image a specified number of degrees.</p>
+</li>
+<li>
+<p>The algorithm saves the rotated image as a new file in the specified output directory.</p>
+</li>
+<li>
+<p>We wrote a simple shell script to launch our algorithm.</p>
+</li>
+<li>
+<p>We wrote a basic Dockerfile that identified a base image, installed dependencies, and copied our algorithm and launch script into it.</p>
+</li>
+<li>
+<p>We built a Docker image of our own and called it <code>img-test</code>.</p>
+</li>
+<li>
+<p>Finally, we ran a Docker container from our <code>img-test</code> image, mounted a volume, and passed it the command to run our algorithm with the required positional parameters.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>There are some observations we should make about what we just accomplished.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>We made our data accessible to the container in our <code>docker run</code> command by mounting a volume with <code>-v ${PWD}:/algo</code>. This maps our current working directory to the path <code>/algo</code> inside the container.</p>
+</li>
+<li>
+<p>We used the <code>WORKDIR</code> command in our Dockerfile to set the working directory to <code>/algo</code>.</p>
+</li>
+<li>
+<p>We prefixed our call to the script with <code>sh</code> so that we did not have to set the execute bit. Alternatively, we could set the execute bit in the Dockerfile with <code>RUN chmod +x ./image_rotate.sh</code>.</p>
+</li>
+<li>
+<p>We used our <code>rotate_image.sh</code> script to call our Python code. This is a common pattern when writing Dockerfiles.</p>
+</li>
+<li>
+<p>Because we mounted our current directory as a volume, our specified output directory <code>output</code> is created in our current directory, and the output of the algorithm is placed in this directory.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Further discussion of volume mounts and getting data into a container can be found in the <a href="#_reference_data">Reference Data</a> section.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>With the <code>img-test</code> Docker image created, we could share this with other people on our local machine.
+We could also tag it and push it to a remote registry (hub.docker.com, quay.io, etc.) and others would be able to run it.
+For a basic algorithm example, this is fairly simple, but what if we have a more complicated algorithm with specific resource requirements?
+What if our algorithm requires large supporting reference datasets?
+What if we need to leverage runtime licenses that must be carefully protected?
+What if we want all of these requirements to be explicitly documented and transparent to the consumers of your algorithm?
+Seed helps solve these problems.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_initialization"><a class="link" href="#_initialization">5.3. Initialization</a></h3>
+<div class="paragraph">
+<p>Building on our example algorithm, let&#8217;s define the Seed manifest.
+A Seed manifest is a JSON document that defines an algorithm&#8217;s purpose, who created it, the interface the algorithm provides, and its resource requirements.
+When you are building a Seed image, standard practice is to put the <code>seed.manifest.json</code> file in the same directory as the project&#8217;s <code>Dockerfile</code>.
+To simplify the initial construction of this file you can use the <code>seed init</code> command from the same directory as the algorithm code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>seed init
+Created Seed file: /Users/user/code/seed/guide/example/seed.manifest.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The newly-created <code>seed.manifest.json</code> file includes all common sections of the manifest and can be revised to reflect your specific algorithm.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The full Seed specification can be found at <a href="https://ngageoint.github.io/seed/seed.html" class="bare">https://ngageoint.github.io/seed/seed.html</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start by updating the manifest for our sample algorithm to match the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">{
+  "seedVersion": "1.0.0",
+  "job": {
+    "name": "image-rotate",
+    "jobVersion": "1.0.0",
+    "packageVersion": "1.0.0",
+    "title": "Image Rotate",
+    "description": "Rotates an image a specified number of degrees",
+    "tags": [
+      "jpg",
+      "png",
+      "image processing"
+    ],
+    "maintainer": {
+      "name": "Matt Anderson",
+      "organization": "AIS",
+      "email": "matt.anderson@appliedis.com"
+    },
+    "timeout": 3600,
+    "interface": {
+      "command": "sh image_rotate.sh ${INPUT_FILE} ${DEGREES} ${OUTPUT_DIR}",
+      "inputs": {
+        "files": [
+          {
+            "name": "INPUT_FILE",
+            "required": true,
+            "mediaTypes": [
+              "image/jpeg", "image/jpg", "image/png"
+            ]
+          }
+        ],
+        "json": [
+          {
+            "name": "DEGREES",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "outputs": {
+        "files": [
+          {
+            "name": "ROTATED_IMAGE",
+            "multiple": false,
+            "pattern": "ROTATED_*"
+          }
+        ]
+      }
+    },
+    "resources": {
+      "scalar": [
+        {
+          "name": "cpus",
+          "value": 0.5
+        },
+        {
+          "name": "mem",
+          "value": 512
+        }
+      ]
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In this example, we have named our output file <code>output.txt</code>. For an actual algorithm, we recommend using a more unique name
+or having the algorithm generate the name of the output file to help distinguish it from other outputs.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>There are a number of specific settings we made here that are worth highlighting:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>job.interface.command</code>. This setting defines exactly what command is issued on container launch. It mirrors the Docker command we ran in the previous section. The primary difference here is the use of environment variables.</p>
+</li>
+<li>
+<p><code>job.interface.command</code> environment variables. These variable names correspond to the <code>name</code> values within the <code>job.interface.inputs</code> and <code>job.interface.outputs</code> objects. If an <code>ENTRYPOINT</code> is specified in the Dockerfile, the contents of this setting will be passed to it.</p>
+</li>
+<li>
+<p><code>${INPUT_FILE}</code>. The Seed specification contract ensures that this variable will be populated with an absolute path to the input since we have marked it as a required input.</p>
+</li>
+<li>
+<p><code>${DEGREES}</code>. The Seed specification contract ensures that this variable will be populated with an integer value to the input since we have given it the explicit type "integer" and marked it as a required input.</p>
+</li>
+<li>
+<p><code>${OUTPUT_DIR}</code>. Seed provides some contextual values that ensure there are consistent locations for output capture. The <code>OUTPUT_DIR</code> environment variable is provided to all jobs and any file products must be placed under this location.</p>
+</li>
+<li>
+<p><code>OUTPUT_FILE</code> pattern expression. The expression is rooted at <code>OUTPUT_DIR</code> and all patterns defined are relative to that location. This is why we tell our job to write to <code>${OUTPUT_DIR}/output.txt</code> and our <code>pattern</code> is defined as <code>*.txt</code>.</p>
+</li>
+<li>
+<p><code>job.resources.scalar</code>.  We provided a fractional CPU requirement and an amount of memory. We can use the <code>inputMultiplier</code> setting to inform Seed to allocate memory (MiB) in proportion to the total size of input files (MiB). In other words, if our <code>INPUT_FILE</code> is 25 MiB the allocated memory will be: 256 MiB + (4.0 * 25 MiB) = 356 MiB.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>A significant advantage of using Seed CLI is that it can emulate the resource constraints that will be placed on your algorithm in a production cluster environment.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validate_build"><a class="link" href="#_validate_build">5.4. Validate &amp; Build</a></h3>
+<div class="paragraph">
+<p>Validation and injection of the Seed manifest into the final package ensures adherence to the <a href="https://ngageoint.github.io/seed/seed.html">specification</a>.
+The CLI allows you to validate a standalone manifest file, as well as apply validation as part of the build process.
+Let&#8217;s build our job to see this in action:</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Depending on your environment, you may need superuser privileges to execute the <code>seed</code> command; e.g. <code>sudo seed build</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">seed build</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>seed build</code> command will automatically detect and use a Dockerfile and Seed manifest file in the current directory.
+Alternatively, the <code>-D</code> or <code>-dockerfile</code> and <code>-M</code> or <code>-manifest</code> options can be used to specify a path to a Dockerfile
+and/or manifest file.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>INFO: Validating seed manifest file /Users/user/code/seed/guide/example/seed.manifest.json against schema...
+INFO: Checking for variable name collisions...
+WARNING: /Users/user/code/seed/guide/example/seed.manifest.json does not specify some recommended resources
+Specifying cpu, memory and disk requirements are highly recommended
+The following resources are not defined: [disk]
+SUCCESS: No errors found. /Users/user/code/seed/guide/example/seed.manifest.json is valid.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first step of the build is to apply validation.
+We can see the file that is being validated against the schema.
+We are also informed that our resources section does not contain all the recommended resource objects.
+Our build completed successfully.
+We can see the <code>com.ngageoint.seed.manifest</code> LABEL that contains our serialized manifest in Step 3/3 of the Docker build process, as well as the <code>seed run</code> command in the final line of the output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>INFO: Building image-rotate-1.0.0-seed:1.0.0
+dockerfile: .
+INFO: Running Docker command:
+docker build -t image-rotate-1.0.0-seed:1.0.0 /Users/user/code/seed/guide/example --label com.ngageoint.seed.manifest="{\"seedVersion\":\"1.0.0\",\"job\":{\"name\":\"image-rotate\",\"jobVersion\":\"1.0.0\",\"packageVersion\":\"1.0.0\",\"title\":\"Image Rotate\",\"description\":\"Rotates an image a specified number of degrees\",\"tags\":[\"jpg\",\"png\",\"image processing\"],\"maintainer\":{\"name\":\"Matt Anderson\",\"organization\":\"AIS\",\"email\":\"matt.anderson@appliedis.com\"},\"timeout\":3600,\"interface\":{\"command\":\"sh image_rotate.sh \${INPUT_FILE} \${DEGREES} \${OUTPUT_DIR}\",\"inputs\":{\"files\":[{\"name\":\"INPUT_FILE\",\"required\":true,\"mediaTypes\":[\"image\/jpeg\",\"image\/jpg\",\"image\/png\"]}],\"json\":[{\"name\":\"DEGREES\",\"type\":\"integer\",\"required\":true}]},\"outputs\":{\"files\":[{\"name\":\"ROTATED_IMAGE\",\"multiple\":false,\"pattern\":\"ROTATED_*\"}]}},\"resources\":{\"scalar\":[{\"name\":\"cpus\",\"value\":0.1},{\"name\":\"mem\",\"value\":256,\"inputMultiplier\":4.0},{\"name\":\"disk\",\"value\":128}]}}}"
+Sending build context to Docker daemon  18.23MB
+Step 1/8 : FROM python:3.8-alpine
+ ---&gt; db0e2316082c
+Step 2/8 : RUN apk add build-base python-dev py-pip jpeg-dev zlib-dev
+ ---&gt; Using cache
+ ---&gt; 427251dce74d
+Step 3/8 : ENV LIBRARY_PATH=/lib:/usr/lib
+ ---&gt; Using cache
+ ---&gt; 61111d74877b
+Step 4/8 : RUN pip install --upgrade pip &amp;&amp;     pip install --upgrade Pillow &gt;= 7
+ ---&gt; Using cache
+ ---&gt; af2fcca4e098
+Step 5/8 : WORKDIR /algo
+ ---&gt; Using cache
+ ---&gt; 40fd0aa70d58
+Step 6/8 : ADD ./image_rotate.py .
+ ---&gt; Using cache
+ ---&gt; fbdbd31a55e0
+Step 7/8 : ADD ./image_rotate.sh .
+ ---&gt; Using cache
+ ---&gt; 5bbd749f6360
+Step 8/8 : LABEL com.ngageoint.seed.manifest="{\"seedVersion\":\"1.0.0\",\"job\":{\"name\":\"image-rotate\",\"jobVersion\":\"1.0.0\",\"packageVersion\":\"1.0.0\",\"title\":\"Image Rotate\",\"description\":\"Rotates an image a specified number of degrees\",\"tags\":[\"jpg\",\"png\",\"image processing\"],\"maintainer\":{\"name\":\"Matt Anderson\",\"organization\":\"AIS\",\"email\":\"matt.anderson@appliedis.com\"},\"timeout\":3600,\"interface\":{\"command\":\"sh image_rotate.sh \${INPUT_FILE} \${DEGREES} \${OUTPUT_DIR}\",\"inputs\":{\"files\":[{\"name\":\"INPUT_FILE\",\"required\":true,\"mediaTypes\":[\"image\/jpeg\",\"image\/jpg\",\"image\/png\"]}],\"json\":[{\"name\":\"DEGREES\",\"type\":\"integer\",\"required\":true}]},\"outputs\":{\"files\":[{\"name\":\"ROTATED_IMAGE\",\"multiple\":false,\"pattern\":\"ROTATED_*\"}]}},\"resources\":{\"scalar\":[{\"name\":\"cpus\",\"value\":0.1},{\"name\":\"mem\",\"value\":256,\"inputMultiplier\":4.0},{\"name\":\"disk\",\"value\":128}]}}}"
+ ---&gt; Running in 6aa9a7b29fa1
+Removing intermediate container 6aa9a7b29fa1
+ ---&gt; 7c20874e1ba9
+Successfully built 7c20874e1ba9
+Successfully tagged image-rotate-1.0.0-seed:1.0.0
+INFO: Successfully built image. This image can be published with the following command:
+seed publish -in image-rotate-1.0.0-seed:1.0.0 -r my.registry.address
+This image can be run with the following command:
+seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=&lt;file&gt; -j DEGREES=&lt;json&gt; -o &lt;outdir&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s address the warning regarding disk resource by updating our manifest with a third object in the <code>job.resources.scalar</code> array:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">{
+  "seedVersion": "1.0.0",
+  "job": {
+    ...&lt;omitted for brevity&gt;...
+    "resources": {
+      "scalar": [
+        {
+          "name": "cpus",
+          "value": 0.1
+        },
+        {
+          "name": "mem",
+          "value": 256,
+          "inputMultiplier": 4.0
+        },
+        {
+          "name": "disk",
+          "value": 16
+        }
+      ]
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We added a disk requirement of 16 MiB to resolve the warning.
+This space is only to accommodate any temporary storage needed as part of the job execution.
+The storage required to write the input files to disk is already accounted for by Seed.
+Now that our manifest is updated, explicitly perform a validation to ensure the warning is resolved:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>seed validate</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>INFO: Validating seed manifest file /Users/user/code/seed/guide/example/seed.manifest.json against schema...
+INFO: Checking for variable name collisions...
+SUCCESS: No errors found. /Users/user/code/seed/guide/example/seed.manifest.json is valid.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With the warnings corrected, let&#8217;s create a new build:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>seed build</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If an <code>error getting credentials</code> on Windows occurs, see the <a href="#_error_getting_credentials">Error Getting Credentials</a> section.</p>
+</div>
+<div class="paragraph">
+<p>With a complete Seed image now created, we can now run our job using the Seed image.
+The last line of the console output shows us how we can use the Seed CLI to run our Seed job:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>seed run -rm -in image-rotate-1.0.0-seed:1.0.0 -i INPUT_FILE=&lt;file&gt; -j DEGREES=&lt;json&gt; -o &lt;outdir&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_run"><a class="link" href="#_run">5.5. Run</a></h3>
+<div class="paragraph">
+<p>The <code>seed run</code> command provides the bulk of the functionality within the CLI.
+This is how we ensure our job is ready to run in an operational environment.
+By leveraging <code>seed run</code> we can be confident that the job we publish behaves consistently with how we defined our interface and requirements in the <code>seed.manifest.json</code>.
+Let&#8217;s run our example to demonstrate the information the command can provide:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ seed run
+INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/users/code/seed/guide/example/seed.manifest.json
+INFO: Retrieving seed manifest from image-rotate-1.0.0-seed:1.0.0 LABEL=com.ngageoint.seed.manifest
+normalName: INPUT_FILE
+ERROR: Error occurred processing inputs arguments.
+ERROR: Incorrect input data files key/values provided. -i arguments should be in the form:
+  seed run -i KEY1=path/to/file1 -i KEY2=path/to/file2 ...
+The following input file keys are expected:
+  INPUT_FILE
+
+ERROR: Incorrect input data files key/values provided. -i arguments should be in the form:
+  seed run -i KEY1=path/to/file1 -i KEY2=path/to/file2 ...
+The following input file keys are expected:
+  INPUT_FILE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first three lines show how the <code>seed run</code> command inferred the image from our current directory because it contained a Seed manifest, which was then used to find the Seed image built from it.
+The next two lines beginning with <code>ERROR</code> show how the CLI is also able to identify the inputs that are required, but we failed to provide (in this case, <code>INPUT_FILE</code>).
+Let&#8217;s specify these inputs and try again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ seed run -i INPUT_FILE=seed.png -j DEGREES=180 -o output
+INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/user/code/seed/guide/example/seed.manifest.json
+INFO: Retrieving seed manifest from image-rotate-1.0.0-seed:1.0.0 LABEL=com.ngageoint.seed.manifest
+normalName: INPUT_FILE
+INFO: /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00 not found; creating directory...
+INFO: Running Docker command:
+docker run -v /Users/user/code/seed/guide/example/seed.png:/Users/user/code/seed/guide/example/seed.png -e INPUT_FILE=/Users/user/code/seed/guide/example/seed.png -v /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00:/Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00 -e OUTPUT_DIR=/Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00 -e DEGREES=180 -e ALLOCATED_CPUS=0.100000 -m 257m -e ALLOCATED_MEM=257 -e ALLOCATED_DISK=128.000000 image-rotate-1.0.0-seed:1.0.0 /Users/user/code/seed/guide/example/seed.png 180 /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00
+
+-----------------------------------------------------------------
+Rotating image with arguments /Users/user/code/seed/guide/example/seed.png 180 /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00
+Done rotating image
+-----------------------------------------------------------------
+
+INFO: image-rotate-1.0.0-seed:1.0.0 run took 531.131393ms
+INFO: Validating output files found under /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00...
+SUCCESS: 1 files found for output ROTATED_IMAGE:
+	/Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-05-19T15_10_22-04_00/ROTATED_180_seed.png</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A complete run of our job!  Let&#8217;s review what the CLI has accomplished for us:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A directory for output data was created prior to launch. If no output directory is provided, the CLI creates a timestamped directory to avoid any name collision during subsequent executions. This is mounted into the container from the host when the Docker container is launched.</p>
+</li>
+<li>
+<p><code>OUTPUT_DIR</code> environment variable is set on container launch to match the output volume that is being mounted at runtime to capture output.</p>
+</li>
+<li>
+<p>The input file <code>seed.png</code> we specified is explicitly mounted into the container at runtime. Unlike when we ran our algorithm using <code>docker run</code>, we do not have to explicitly mount the input file as a volume&#8212;&#8203;Seed handles that for us.</p>
+</li>
+<li>
+<p><code>INPUT_FILE</code> environment variable is set on container launch to inject the absolute file path relative to the container context. This is why we indicate inputs via environment variable syntax in our <code>job.interface.command</code> value of the <code>seed.manifest.json</code>.</p>
+</li>
+<li>
+<p><code>DEGREES</code> environment variable is set on container launch to inject the value we specify for our JSON input type.</p>
+</li>
+<li>
+<p>Complete <code>docker run</code> statement is output to help identify the exact invocation command Seed CLI uses to launch THE Seed image. You can see the resource requirements identified as environment variables as well. Typically resource requirements are not needed, but JVM applications may benefit from explict understanding of their memory constraints.</p>
+</li>
+<li>
+<p>Following the output of our job, we can see the CLI validated that an output file was written in a location that matches the pattern we defined under <code>job.interface.outputs.files</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Now that we understand the basics of running and testing our job, we can use more advanced features of the
+<code>seed run</code> command to further validate performance or exercise it against different test input datasets. See the
+<a href="#_use_cases">Use Cases</a> section for more examples.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_publish"><a class="link" href="#_publish">5.6. Publish</a></h3>
+<div class="paragraph">
+<p>After testing our job, we will typically want to share it so that it can used by others.
+Seed supports several registry backends commonly used in the Docker ecosystem.</p>
+</div>
+<div class="sect3">
+<h4 id="_using_gitlab_container_registry"><a class="link" href="#_using_gitlab_container_registry">5.6.1. Using GitLab Container Registry</a></h4>
+<div class="paragraph">
+<p>GitLab repositories, such as those available through GEOINT Services <a href="https://gitlab.gs.mil">GitLab</a>, have built-in Docker registries.
+Registry information can be found by going to Packages &#8594; Container Registry in the Project navigation pane.</p>
+</div>
+<div class="paragraph">
+<p>In order to push to a GitLab Container registry using Seed CLI, it is necessary to first create a <a href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token">Personal Access Token</a>.
+Be sure to check the box to give the token the "api" scope.
+The access token name will be used as the username and the token value as the password to log into the container registry.</p>
+</div>
+<div class="paragraph">
+<p>The following command will publish our Seed image that we built and tested to a GitLab Container Registry:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/user/go/src/github.com/ngageoint/seed-cli/guide/example/seed.manifest.json
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Docker login warning: WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+
+Login Succeeded
+INFO: Tagging image image-rotate-1.0.0-seed:1.0.0 as gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker tag image-rotate-1.0.0-seed:1.0.0 gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Performing docker push gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker push gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+The push refers to repository [gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed]
+6c309c48ba6f: Layer already exists
+6a5a6bdf35f9: Layer already exists
+bdd20120cfff: Layer already exists
+eba437426377: Layer already exists
+4180ca71c974: Layer already exists
+fffdb84c36f2: Layer already exists
+50205a7df19a: Layer already exists
+ef833453b9c7: Layer already exists
+408e53c5e3b2: Layer already exists
+50644c29ef5a: Layer already exists
+1.0.0: digest: sha256:53c7ebd219a195d2670b7cceb93daacbdc8a21789ed2fb1a791a3d0ad0372e78 size: 2415
+INFO: Removing local image gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker rmi gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+Untagged: gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed:1.0.0
+Untagged: gitlab-registry.gs.mil/gitlab-group/gitlab-project/image-rotate-1.0.0-seed@sha256:53c7ebd219a195d2670b7cceb93daacbdc8a21789ed2fb1a791a3d0ad0372e78</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>It may take several minutes for the <code>seed publish</code> command to complete.
+Do not be concerned if the console output pauses at <code>Login succeeded</code> for some time.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>As can be seen from the output, we are internally performing a series of operations to publish the image.
+We attach an appropriate tag to the Docker image to comply with the specification that reflects the remote registry <code>gitlab-registry.gs.mil</code> and organization <code>gitlab-group/gitlab-project</code>.
+In a GitLab Container Registry, the "organization" is a combination of the Group and Project names.
+This is followed by a push of the image to the repository and cleanup of the remote tags.
+This leaves the local environment with only the image names built for publishing, which can be verified by running the <code>docker images</code> command.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_docker_hub"><a class="link" href="#_using_docker_hub">5.6.2. Using Docker Hub</a></h4>
+<div class="paragraph">
+<p>Docker Hub is a managed registry that makes it easy to publish your Seed image without configuring any additional services of your own.
+Before you can publish, you will need to register for an account at <a href="https://hub.docker.com" class="bare">https://hub.docker.com</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Executing <code>docker login</code> before running <code>seed publish</code> eliminates the need to specify a username/password in the <code>seed publish</code> statement if you are publishing to your own registry.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following command will publish our Seed image that we built and tested to Docker Hub:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ seed publish -r index.docker.io -O dockerhub-username -u dockerhub-username -p "dockerhub-password"
+INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/user/code/seed/guide/example/seed.manifest.json
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Docker login warning: WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+
+Login Succeeded
+INFO: Tagging image image-rotate-1.0.0-seed:1.0.0 as index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker tag image-rotate-1.0.0-seed:1.0.0 index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+INFO: Performing docker push index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker push index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+The push refers to repository [docker.io/dockerhub-username/image-rotate-1.0.0-seed]
+156f2dc847e9: Pushed
+a6d503001157: Mounted from library/busybox
+1.0.0: digest: sha256:fc29e2201b87bc32a94c58afcebba45115bf930788c8d1b95f871a4de9356396 size: 734
+INFO: Removing local image index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+INFO: Running Docker command:
+docker rmi index.docker.io/dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+Untagged: dockerhub-username/image-rotate-1.0.0-seed:1.0.0
+Untagged: dockerhub-username/image-rotate-1.0.0-seed@sha256:fc29e2201b87bc32a94c58afcebba45115bf930788c8d1b95f871a4de9356396</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As can be seen from the output, we are internally performing a series of operations to publish the image.
+We attach an appropriate tag to the Docker image to comply with the specification that reflects the remote registry <code>index.docker.io</code> and organization <code>dockerhub-username</code>.
+This is followed by a push of the image to the repository and cleanup of the remote tags.
+This leaves the local environment with only the image names built for publishing, which can be verified by running the <code>docker images</code> command.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In the example above, we are pushing to our personal Docker hub account, where the organization is the same as the username.
+For other use cases, the organization may differ from the username; for example, where organization is <code>my-company</code> and
+username is <code>my-username</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reference"><a class="link" href="#_reference">6. Reference</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_use_cases"><a class="link" href="#_use_cases">6.1. Use Cases</a></h3>
+<div class="sect3">
+<h4 id="_reference_data"><a class="link" href="#_reference_data">6.1.1. Reference Data</a></h4>
+<div class="paragraph">
+<p>If a small amount of reference data (e.g. less than 100 MB) is needed for a Seed job, it can be included by adding the file to the Docker image.
+For larger amounts of reference data, avoid excessively increasing the size of the  Docker image by passing the reference data to the job as a mountable directory.
+For more details about mounting directories, see the Docker documentation about <a href="https://docs.docker.com/storage/bind-mounts/">bind mounts</a> and <a href="https://docs.docker.com/storage/volumes/">using volumes</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_secret_data"><a class="link" href="#_secret_data">6.1.2. Secret Data</a></h4>
+<div class="paragraph">
+<p>Although it is generally preferable to use the Inputs object to pass in data, the Settings object can be used to specify sensitive information for the job, such as a database password.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Sensitive information, such as passwords, private keys, or other credentials should never been included as files or code in the Seed job.
+Always use the Settings object to inject these values.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Update the <code>job.interface</code> object in our manifest from the <a href="#Tutorial">[Tutorial]</a> with a <code>settings</code> object:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>{
+  "seedVersion": "1.0.0",
+  "job": {
+    ...&lt;omitted for brevity&gt;...
+    "interface": {
+      ...&lt;omitted for brevity&gt;...
+      "settings": [
+        {
+          "name": "MY_SECRET_SETTING",
+          "secret": true
+        }
+      ]
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Re-build the Seed job using the <code>seed build</code> command.
+<code>MY_SECRET_SETTING</code> will be injected into the job as an environment variable at runtime.
+It can be specified as a environment variable when executing the job using <code>seed run</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>seed run -i INPUT_FILE=seed.png -j DEGREES=180 -e MY_SECRET_SETTING=&lt;secret-value&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the environment variable is ommitted from the <code>seed run</code> command, the Seed CLI will output an error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ seed run -i INPUT_FILE=seed.PNG  -j DEGREES=180
+INFO: Image name not specified. Attempting to use manifest: .
+INFO: Found manifest: /Users/user/code/seed/guide/example/seed.manifest.json
+INFO: Retrieving seed manifest from image-rotate-1.0.0-seed:1.0.0 LABEL=com.ngageoint.seed.manifest
+normalName: INPUT_FILE
+INFO: /Users/user/code/seed/guide/example/output-image-rotate-1.0.0-seed_1.0.0-2020-04-21T14_37_21-04_00 not found; creating directory...
+ERROR: Error occurred processing settings arguments.
+ERROR: Incorrect setting key/values provided. -e arguments should be in the form:
+  seed run -e SETTING=somevalue ...
+The following settings are expected:
+  MY_SECRET_SETTING
+
+ERROR: Incorrect setting key/values provided. -e arguments should be in the form:
+  seed run -e SETTING=somevalue ...
+The following settings are expected:
+  MY_SECRET_SETTING</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When running the Seed job on a Scale cluster, secret names and values are input as part of the JobType definition in Scale.
+Scale then stores the secrets in a {hashicorp-vault-url[HashiCorp Vault] secret store where they are only accessible by running jobs.
+The system will automatically retrieve any secrets defined in the Seed job and inject them at runtime.
+You can also contact the Scale team for assistance with adding JobTypes that contain secrets.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_jupyter_integration"><a class="link" href="#_jupyter_integration">6.1.3. Jupyter Integration</a></h4>
+<div class="paragraph">
+<p>Using a Jupyter Notebook algorithm to make a Seed job is possible, but it requires more steps than a standard script. This guide will assume a basic understanding of Jupyter Notebooks.</p>
+</div>
+<div class="sect4">
+<h5 id="_requirements"><a class="link" href="#_requirements">6.1.3.1. Requirements</a></h5>
+<div class="paragraph">
+<p>All the necessary software for creating a standard Seed image, seen in <a href="#_algorithm_requirements">Algorithm Requirements</a>, is also required for a Jupyter Notebook image. In addition, notebooks also require the Jupyter Notebook software. Once Python and pip is installed, Jupyter Notebooks can be installed by the following commands.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">pip3 install --upgrade pip
+pip3 install jupyter</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information, look at the <a href="https://jupyter.readthedocs.io/en/latest/install.html">Jupyter Installation Guide</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_sample_notebook"><a class="link" href="#_sample_notebook">6.1.3.2. Sample Notebook</a></h5>
+<div class="paragraph">
+<p>The sample Notebook will rotate an image a specified number of degrees just as in the sample algorithm in the Seed tutorial. Once the notebook is integrated into Docker the image process will be identical to the sample algorithm.</p>
+</div>
+<div class="sect5">
+<h6 id="_making_the_notebook"><a class="link" href="#_making_the_notebook">6.1.3.2.1. Making the Notebook</a></h6>
+<div class="paragraph">
+<p>Open the terminal or command line in your project folder and run the following</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">jupyter notebook</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After setting up the server, the application should open the default the browser to the Jupyter Notebook web application. Once there, select the <strong>New</strong> button at the top right and from the drop down click <strong>Python3</strong>. This will open a new tab with the notebook editor. Using the editor, create an <strong>image_rotate.ipynb</strong> file:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/jupyter/image_rotate.png" alt="image rotate" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>Currently the notebook will not run properly as the variables in the first code cell are set to <strong>None</strong>. To test the notebooks functionality, these variables can be set to real values like below.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/jupyter/image_rotate_test_values.png" alt="image rotate test values" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>The notebook can then be run by selecting <strong>Cell</strong> from the toolbar and then selecting <strong>Run All</strong> from the dropdown. Make sure to set the values of the variables back to <strong>None</strong> after testing.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_adding_arguments_to_the_notebook"><a class="link" href="#_adding_arguments_to_the_notebook">6.1.3.2.2. Adding Arguments to the Notebook</a></h6>
+<div class="paragraph">
+<p>Jupyter Notebooks by default do not support arguments. This is due to the interactive nature of the notebooks. To add parameterization to a notebook a third party tool is required. This guide will be using <a href="https://papermill.readthedocs.io/en/latest/">Papermill</a>. Papermill can also be used to execute notebooks as well, but this feature will not be utilized in this example.</p>
+</div>
+<div class="paragraph">
+<p>To add parameters to a notebook, it is necessary to add cells that contain variables whose names are the intended parameter names. In the case of the sample, the parameters are <code>input_file_path</code> and <code>output_directory</code> as seen in the second cell.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>It is not necessary to set the variable values to <strong>None</strong>, however it does allow for easy error checking as seen in the third cell.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To allow Papermill to be able to see these variables, the cell requires a special tag. To add tags they first must be editable: select <strong>Edit</strong> from the toolbar, from the dropdown select <strong>Cell Toolbar</strong>, and from that dropdown select <strong>Tags</strong>. If done correctly the cells will have an add tag bar as displayed below.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/jupyter/image_rotate_tags.png" alt="image rotate tags" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>From there in the text input next to the <strong>Add tag</strong> button type in "parameters" and click <strong>Add tag</strong>.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_adding_error_handling_the_notebook"><a class="link" href="#_adding_error_handling_the_notebook">6.1.3.2.3. Adding Error Handling the Notebook</a></h6>
+<div class="paragraph">
+<p>In case of unintended behavior, it is often necessary to exit an algorithm early. This is a problem in Jupyter Notebooks as commands used for graceful exits, such as <code>sys.exit(&lt;return-code&gt;)</code>, raise an exception instead of exiting. This does stop cell execution, but does not stop Jupyter&#8217;s kernel. Furthermore, all exceptions raised in a Jupyter Notebook are converted to the generic <strong>CellExecutionError</strong>. This ungraceful exit problem will be alleviated by the use of a script which will catch the exceptions. If an early exit is required raise an appropriate exception.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_implementing_return_codes"><a class="link" href="#_implementing_return_codes">6.1.3.2.4. Implementing Return Codes</a></h6>
+<div class="paragraph">
+<p>Another side effect of <code>sys.exit(&lt;return-code&gt;)</code> unwanted behavior is the inability to set a return code. To counter act this, the cell metadata will be changed to add a return code which can be read by another script. Editing cell metadata is similar to tags. Select <strong>Edit</strong> from the toolbar, from the dropdown select <strong>Cell Toolbar</strong>, and from that dropdown select <strong>Edit Metadata</strong>. If done correctly the cells will have an <strong>Edit Metadata</strong> button as displayed below.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/jupyter/image_rotate_meta.png" alt="image rotate meta" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>Click the <strong>Edit Metadata</strong> button for the intended cell and it will bring up a pop-up to edit the metadata. The format of the metadata is json. Some cells may have some metadata already, such as the second cell which will have the parameterize tag within the cell data. To add a return code to the cell use the following json.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">"code": &lt;return-code&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Name does not need to be named <code>"code"</code> for this pair, however for the rest of the guide this is how this pair will be referenced</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Currently the changes made by editing the metadata and adding the parameter tag have no effect on notebook execution. In order to give these metadata changes functionality, a python script to run the notebook is required.</p>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_python_script"><a class="link" href="#_python_script">6.1.3.3. Python Script</a></h5>
+<div class="paragraph">
+<p>A python script is used to execute the notebook, handle exceptions, add parameters and read the metadata. It leverages <strong>nbformat</strong>, <strong>nbcnvert</strong>, and <strong>Papermill</strong> tools.</p>
+</div>
+<div class="sect5">
+<h6 id="_sample_script"><a class="link" href="#_sample_script">6.1.3.3.1. Sample Script</a></h6>
+<div class="paragraph">
+<p>The script below will be what will be used with the sample Jupyter Notebook already provided. This script should work for most standard python3 notebooks provided that the <strong>parameters</strong> dictionary is given the correct pairs.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import os
+import sys
+import re
+import json
+import nbformat
+from nbconvert.preprocessors import (
+  ExecutePreprocessor,
+  CellExecutionError
+)
+from papermill import (
+    execute as mill,
+    PapermillException
+)
+from jupyter_client.kernelspec import NoSuchKernel
+
+def readNotebook(nb_file_path):
+  """
+  Opens a Jupyter Notbook to read
+   - Parameters: nb_file_path
+   - Returns: notebook, boolean
+  """
+  f = None
+  nb = None
+  success = False
+  try:
+    f = open(nb_file_path, "r")
+    nb = nbformat.read(f, as_version=4)
+    success = True
+  except (UnicodeDecodeError, FileNotFoundError) as err:
+    print(err, file=sys.stderr)
+  finally:
+    if f != None:
+      f.close()
+  return nb, success
+
+def writeNotebook(nb_file_path, nb):
+  """
+  Opens a Jupyter Notbook to write
+   - Parameters: nb_file_path, nb
+   - Returns: boolean
+  """
+  f = None
+  success = False
+  try:
+    f = open(nb_file_path, "w")
+    nbformat.write(nb, f)
+    success = True
+  except UnicodeDecodeError as err:
+    print(err, file=sys.stderr)
+  finally:
+    if f != None:
+      f.close()
+    return success
+
+def parameterize(nb_input_file_path, nb_output_file_name, parameters, nb):
+  """
+  Adds parameters to the Jupyter Notebook
+   - Parameters: nb_input_file_path, nb_output_file_name, parameters, nb
+   - Returns: notebook, boolean
+  """
+  success = False
+  try:
+    nb = mill.execute_notebook(
+      nb_input_file_path,
+      nb_output_file_name,
+      parameters=parameters,
+      prepare_only=True,
+      log_output=True
+    )
+    success = True
+  except FileNotFoundError as err:
+    print(err, file=sys.stderr)
+  finally:
+    return nb, success
+
+def startPreprocessor(kernel):
+  """
+  Opens a Jupyter Notbook to write
+   - Parameters: kernel
+   - Returns: preprocessor, boolean
+  """
+  ex = None
+  success = False
+  try:
+    ex = ExecutePreprocessor(kernel_name=kernel)
+    ex.km, ex.kc = ex.start_new_kernel()
+    success = True
+  except NoSuchKernel as err:
+    print(err, file=sys.stderr)
+    ex = None
+  finally:
+    return ex, success
+
+if __name__ == "__main__":
+  # Return Codes
+  ERROR_ARGUMENT     = 1
+  ERROR_INPUT        = 2
+  ERROR_PAPERMILL    = 3
+  ERROR_PREPROCESSOR = 4
+  ERROR_GENERIC_CELL = 5
+  ERROR_OUTPUT       = 6
+
+  # Arguments
+  if len(sys.argv) != 5:
+    print("ERROR&gt; Incorrect Usage")
+    print("Incorrect number of arguments", file=sys.stderr)
+    sys.exit(ERROR_ARGUMENT)
+  nb_input_file_path = sys.argv[1]
+  input_file_path = sys.argv[2]
+  rotate_degrees = sys.argv[3]
+  output_directory = sys.argv[4]
+
+  kernel = "python3"
+  nb_output_file_path = os.path.join(output_directory, f'EXECUTED_{os.path.basename(nb_input_file_path)}')
+
+  # Open Notebook
+  nb, is_read = readNotebook(nb_input_file_path)
+  if is_read == False:
+    print("ERROR&gt; Input File not Found or isn't Valid!")
+    sys.exit(ERROR_INPUT)
+  print("LOG&gt; Read in Notebook!")
+
+  # Parameters
+  parameters = dict(source_image_path=input_file_path, rotate_degrees=rotate_degrees, output_dir=output_directory)
+  nb, parameters_set = parameterize(nb_input_file_path, nb_output_file_path, parameters, nb)
+  if parameters_set == False:
+    print("ERROR&gt; Papermill Failed to Set to Parameters!")
+    sys.exit(ERROR_PAPERMILL)
+  print("LOG&gt; Parameters Set!")
+
+  # Setup Preprocessor
+  ex, is_start = startPreprocessor(kernel)
+  if is_start == False:
+    print("ERROR&gt; ExecutePreprocessor Failed to Start!")
+    sys.exit(ERROR_PREPROCESSOR)
+  print("LOG&gt; Kernel Started!")
+
+  # Execute Notebook
+  return_code = 0
+  cell_count = 0
+  try:
+    for cell in nb.cells:
+      ex.preprocess_cell(cell, None, cell_count)
+      cell_count += 1
+    print("LOG&gt; Execution Complete!")
+  except CellExecutionError as e:
+    # Clean Exception Info
+    ipyReturn = str(e)
+    ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    cleanedReturn = ansi_escape.sub('', ipyReturn)
+
+    # Find Error Code
+    metadata = cell.metadata
+    if "code" in metadata:
+      return_code = metadata["code"]
+    else:
+      return_code = ERROR_GENERIC_CELL
+
+    # Output
+    print(cleanedReturn, file=sys.stderr)
+    print("ERROR&gt; Execution Failed at Cell " + str(cell_count) + "!")
+  finally:
+    # Write Output to Notebook
+    if writeNotebook(nb_output_file_path, nb) == False:
+      print("ERROR&gt; Output File is Invalid or isn't Writeable!")
+      sys.exit(ERROR_OUTPUT)
+    print("LOG&gt; Writing Complete!")
+
+    # Shutdown Kernel and Exit
+    ex.km.shutdown_kernel()
+    print("LOG&gt; Quitting...")
+    sys.exit(return_code)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If it is necessary to create a custom script for your Jupyter Notebook, the following will go more in depth on the general process of how to make a script.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_reading_in_the_notebook"><a class="link" href="#_reading_in_the_notebook">6.1.3.3.2. Reading in the Notebook</a></h6>
+<div class="paragraph">
+<p>Reading in a notebook requires first opening up a notebook and then reading the json data that makes up the notebook to a variable, which in this case will be named <strong>nb</strong>. Opening the notebook is standard, reading it uses the <strong>nbformat</strong> tool. This will also be used later to write to an output notebook. Code to open a notebook is shown below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">f = open(nbFileName, "r")
+nb = nbformat.read(f, as_version=4)
+f.close()</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_papermill"><a class="link" href="#_papermill">6.1.3.3.3. Papermill</a></h6>
+<div class="paragraph">
+<p>As previously discussed, to add parameters to a Jupyter Notebook a "parameter" tag needs to be attached to a cell so that Papermill recognizes it. An example of how Papermill can be used is below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">nb = mill.execute_notebook(
+      nb_input_file_path,
+      nb_output_file_path,
+      parameters=dict(&lt;parameter&gt;=&lt;value&gt;, ...),
+      prepare_only=True,
+      log_output=True
+    )</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>nb_input_file_path</strong> and <strong>nb_output_file_path</strong> are the direct paths to the intended location and names of the input and output Jupyter Notebooks. The <code>parameters</code> parameter must be a dict containing pairs of parameters set in the Jupyter Notebook and their intended value. <strong>prepare_only=true</strong> only exports the parameter values to the Jupyter Notebook and does not execute the notebook. Execution of the notebook is done later in the script using Jupyter&#8217;s <strong>nbconvert</strong> tool.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_preprocessor"><a class="link" href="#_preprocessor">6.1.3.3.4. Preprocessor</a></h6>
+<div class="paragraph">
+<p>While its not entirely necessary to manually create a preprocessor to run the notebook, but doing so gives you a lot more customization including:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Cell-by-cell execution</p>
+</li>
+<li>
+<p>Specifying the Kernel used</p>
+</li>
+<li>
+<p>Custom Preprocessor</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Creating a custom preprocessor will require development, but will give the most control over execution. Cell-by-cell execution and specifying the kernel are easy to implement by comparison and are used in the sample script. To create a preprocessor to execute the notebook, look at the code displayed below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">ex = ExecutePreprocessor(kernel_name=&lt;kernel&gt;)
+ex.km, ex.kc = ex.start_new_kernel()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the value of <strong>kernel_name</strong> set it to python3. The python kernel is already required for any notebook, regardless of kernel, so nothing else extra is required.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Other non-python kernels may be supported in the future. For those, you would need to install them in your docker file like <strong>IPython</strong>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_execution"><a class="link" href="#_execution">6.1.3.3.5. Execution</a></h6>
+<div class="paragraph">
+<p>Execution is done on a cell-by-cell basis. This is done primarily to get better error checking out of the notebook. If the notebook is executed all at once, the only exception that can be caught is the <strong>CellExecutionError</strong> with a return code of 1. By running the cells sequentially, it is possible to get return codes based on individual cells as opposed to the notebook as a whole. Doing this is as simple as a try-catch and a for loop.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">return_code = 0
+cell_count = 0
+try:
+for cell in nb.cells:
+    ex.preprocess_cell(cell, None, cell_count)
+    cell_count += 1
+except CellExecutionError as error:
+    error_string = str(error)
+    ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    cleaned_error_string = ansi_escape.sub('', error_string)
+    print(cleaned_error_string, file=sys.stderr)
+
+    #&lt;generate-return-code&gt;
+finally:
+    ex.km.shutdown_kernel()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Generation of the return code can be done a variety of ways. This is up to the discretion of the developer. One way is to look at the cell&#8217;s metadata and base it off the json data stored within it. An example of this can be seen below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">metadata = cell.metadata
+if "code" in metadata:
+    return_code = metadata["code"]
+else:
+    return_code = ERROR_GENERIC_CELL</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_write_to_notebook"><a class="link" href="#_write_to_notebook">6.1.3.3.6. Write to Notebook</a></h6>
+<div class="paragraph">
+<p>Writing to a notebook is very similar in implementation to reading a notebook. As before, a output notebook must first be opened (and created) and then the <strong>nbformat</strong> tool is used to write the executed cells to the output notebook.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">f = open(nbFileName, "w")
+nbformat.write(nb, f)
+f.close()</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_running_in_docker_2"><a class="link" href="#_running_in_docker_2">6.1.3.4. Running in Docker</a></h5>
+<div class="paragraph">
+<p>First, create a script called image_rotate.sh in the same directory as the Python file created above:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">#!/bin/sh
+
+NOTEBOOK="image_rotate.ipynb"
+INPUT=$1
+DEGREES=$2
+OUTPUT_DIR=$3
+
+echo ''
+echo '-----------------------------------------------------------------'
+echo 'Rotating image with arguments '${INPUT} ${DEGREES} ${OUTPUT_DIR}
+
+python3 ./run_notebook.py $NOTEBOOK $INPUT $DEGREES $OUTPUT_DIR
+rc=$?
+
+echo 'Done rotating image'
+echo '-----------------------------------------------------------------'
+echo ''
+exit ${rc}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will use the script to invoke our Jupyter algorithm</p>
+</div>
+<div class="paragraph">
+<p>Create a file named Dockerfile in the same directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>FROM alpine:3.12
+
+RUN apk update &amp;&amp; \
+    apk add --no-cache build-base libzmq musl-dev zeromq-dev python3 python3-dev py-pip jpeg-dev zlib-dev
+
+RUN pip install --upgrade pip &amp;&amp; \
+    pip install nbconvert &amp;&amp; \
+    pip install papermill &amp;&amp; \
+    pip install jupyter_client &amp;&amp; \
+    pip install Pillow &gt;= 7 &amp;&amp; \
+    python3 -m pip install ipykernel &amp;&amp; \
+    python3 -m ipykernel install --user
+
+WORKDIR /usr/algo
+
+COPY ./run_notebook.py .
+COPY ./image_rotate.sh .
+COPY ./image_rotate.ipynb .
+RUN chmod +x ./image_rotate.sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With these files, we can create our initial Docker containerized sample algorithm. Issue the following terminal commands to build the Docker image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">sudo docker build -t nb-img-test .</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The image may take a minute or two to build. The -t flag is used to specify the name and optional tag for the Docker image in the 'name:tag' format. In this case, we have used the name img-test, but we could use any name. Once it completes successfully, you should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">Successfully built 84dd346586d1
+Successfully tagged nb-img-test:latest</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now run the Docker container using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">jupyter % docker container run --rm -it -v ${PWD}:/usr/algo nb-img-test:latest ./image_rotate.sh seed.png 45 output</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Output should be similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">-----------------------------------------------------------------
+Rotating image with arguments seed.png 180 output
+LOG&gt; Read in Notebook!
+LOG&gt; Parameters Set!
+LOG&gt; Kernel Started!
+LOG&gt; Execution Complete!
+LOG&gt; Writing Complete!
+LOG&gt; Quitting...
+Done rotating image
+-----------------------------------------------------------------</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_initialization_2"><a class="link" href="#_initialization_2">6.1.3.5. Initialization</a></h5>
+<div class="paragraph">
+<p>the rest of the process is identical to the included example, go to the <a href="#_initialization">Initialization</a> section and follow the rest of the tutorial.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_optimization"><a class="link" href="#_optimization">6.2. Optimization</a></h3>
+<div class="sect3">
+<h4 id="_image_optimization"><a class="link" href="#_image_optimization">6.2.1. Image Optimization</a></h4>
+<div class="paragraph">
+<p>Use of Anaconda and other large libraries associated with data science and machine learning jobs is common.
+This makes sense for development on Windows or other environments that make compilation of complex scientific and math libraries challenging but should not be used in a Seed job.
+As a rule of thumb, in order to avoid excessive strain on Docker registry and image cache resources, Docker images in Seed jobs should be kept under 500 MB.
+Docker images should be based on minimal operating systems, such as <a href="https://hub.docker.com/_/alpine">Alpine</a> or <a href="https://hub.docker.com/_/busybox">Busybox</a>, and layer optimization techniques should be applied.
+Docker recommends a number of <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/">best practices</a> for writing Dockerfiles.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_image_clean_up"><a class="link" href="#_image_clean_up">6.2.2. Image Clean-up</a></h4>
+<div class="paragraph">
+<p>Another strategy for optimizing the size of the Docker image associated with the Seed job is to add commands to clean up after any package installations.
+Consult the documentation for any package management system used by the operating system (e.g <code>apk</code> or <code>yum</code>) and/or language (e.g. <code>pip</code> or <code>mpm</code>), as the exact clean-up commands will vary depending on the environment and tools being used.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_best_practices"><a class="link" href="#_best_practices">6.3. Best Practices</a></h3>
+<div class="sect3">
+<h4 id="_workflow_decomposition"><a class="link" href="#_workflow_decomposition">6.3.1. Workflow Decomposition</a></h4>
+<div class="paragraph">
+<p>Breaking down larger processing chains into separate jobs will yield benefits throughout the algorithm development lifecycle.
+Problems can be discovered sooner and component algorithms can be built and tested independently, helping to minimize any single person or team being a bottleneck.
+The greatest benefits can be realized when extracting general purpose, reusable jobs that can be applied to multiple data types, such as a job for generating a tile pyramid within a GeoTIFF.
+This also helps ensure that commonly used jobs are both optimized and thoroughly proven by reuse.
+Of course, there are always exceptions, and some algorithms (e.g. those that are I/O bound) may benefit from combining several processing steps into a single job.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_log_everything"><a class="link" href="#_log_everything">6.3.2. Log Everything</a></h4>
+<div class="paragraph">
+<p>Not having direct access to the file system of your job means the only method for feedback on what is happening inside the container is through console output.
+Use standard output and/or standard error to indicate any progress or errors for your algorithm.
+Some languages (such as Python) may require specifying that output should not be buffered until the process exits.
+This will facilitate live viewing of output for long-running processes.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_meaningful_errors"><a class="link" href="#_meaningful_errors">6.3.3. Meaningful Errors</a></h4>
+<div class="paragraph">
+<p>Specific error conditions represented by unique process exit codes should be used to give clear feedback when a known error has occurred.
+These can be used to distinguish between data errors (where the data arrived but contained an error that could not be automatically addressed by the job) and errors that occurred within the job execution itself.
+See also <a href="#_why_should_i_define_error_codes">Why should I define error codes?</a> in the FAQ section.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_runtime_configuration"><a class="link" href="#_runtime_configuration">6.3.4. Runtime Configuration</a></h4>
+<div class="paragraph">
+<p>Most jobs have configuration values that are desirable to change at runtime.
+These could be anything from confidence values for feature detection, to a band number within a multi-band image.
+Ensure that your job can consume its configuration as either environment variables or command-line arguments.
+This makes it possible to define your job as a configurable Docker image and avoid requiring the creation of new Docker images for common changes.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_privilege_minimization"><a class="link" href="#_privilege_minimization">6.3.5. Privilege Minimization</a></h4>
+<div class="paragraph">
+<p>Docker images often are set to use the <code>root</code> user by default.
+Avoid this unless absolutely necessary.
+Instead of using the <code>root</code> user, add a non-privileged user to the Docker image and set the <a href="https://docs.docker.com/engine/reference/run/#user">USER</a> for the image to this non-privileged user.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_dockerfiles"><a class="link" href="#_dockerfiles">6.3.6. Dockerfiles</a></h4>
+<div class="paragraph">
+<p>Docker provides guidance on some additional <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/">best practices</a> for writing Dockerfiles.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_natively_on_windows"><a class="link" href="#_running_natively_on_windows">6.4. Running Natively on Windows</a></h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>We strongly recommend using Seed with <a href="https://docs.microsoft.com/en-us/windows/wsl/wsl2-index">WSL 2</a> in order to avoid incompatibilities between environments.
+Algorithms must use a base Linux operating system to run in Scale.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_add_seed_cli_to_path_on_windows"><a class="link" href="#_add_seed_cli_to_path_on_windows">6.4.1. Add Seed CLI to PATH on Windows</a></h4>
+<div class="paragraph">
+<p>On Windows, search for <code>Edit environment variables for your account</code>.
+This will open a dialog showing the user environment variables for your account.
+Select "Path", then click the "Edit" button, which will open another dialog.
+Click "New", and enter the path to the folder containing the <code>seed.exe</code> binary file on your system.
+Ensure the path does not end in a slash and specify only the containing folder, not the full path to <code>seed.exe</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example, if the full path to <code>seed.exe</code> is <code>C:\Program Files\Seed-CLI\seed.exe</code>, the Path value should be the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>C:\Program Files\Seed-CLI</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_line_endings"><a class="link" href="#_line_endings">6.4.2. Line Endings</a></h4>
+<div class="paragraph">
+<p>When using Docker for Windows with a Linux Docker container, the files added to the Docker image must have Unix-style line endings.
+These can be changed using a text editor such as NotePad++ or a command-line utility such as dos2unix.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_paths"><a class="link" href="#_file_paths">6.4.3. File Paths</a></h4>
+<div class="paragraph">
+<p>On Windows, we recommend to manually specify host paths using forward slashes rather than backsplashes, which are typically used for Windows paths.
+For example, use "//C/Users/Username/path/to/seed-test" instead of "C:\Users\Username\path\to\seed-test".</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_frequently_asked_questions_faqs"><a class="link" href="#_frequently_asked_questions_faqs">6.5. Frequently Asked Questions (FAQs)</a></h3>
+<div class="sect3">
+<h4 id="_what_is_this_seed_image"><a class="link" href="#_what_is_this_seed_image">6.5.1. What is this Seed image?</a></h4>
+<div class="paragraph">
+<p><a href="https://ngageoint.github.io/seed">Seed</a> is a general <a href="https://ngageoint.github.io/seed/seed.html">standard</a> that was developed to aid in the discovery and running of self-contained algorithms.
+It is a JSON-defined manifest that is embedded into the Docker image as a label.
+It defines:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Algorithm - name, version, description</p>
+</li>
+<li>
+<p>Developer - name, company, contact info</p>
+</li>
+<li>
+<p>Inputs/Outputs - how many, what type</p>
+</li>
+<li>
+<p>Hardware Requirements - CPUs, memory, disk</p>
+</li>
+<li>
+<p>Error handling - data vs. algorithm errors</p>
+</li>
+<li>
+<p>Environment variables</p>
+</li>
+<li>
+<p>Mounts</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_how_do_i_use_docker"><a class="link" href="#_how_do_i_use_docker">6.5.2. How do I use Docker?</a></h4>
+<div class="paragraph">
+<p>Many resources for learning about Docker can be found on the <a href="https://www.docker.com">Docker website</a>.
+The primary goal of this guide is to explain how to integrate an algorithm with Seed and not focus on how to build a Docker container.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_why_not_just_add_all_the_files_in_my_directory_to_the_docker_image"><a class="link" href="#_why_not_just_add_all_the_files_in_my_directory_to_the_docker_image">6.5.3. Why not just add all the files in my directory to the Docker image?</a></h4>
+<div class="paragraph">
+<p>The image should be as small as possibly and only include the necessary files.
+It is pulled across the network each time it runs on a node, so smaller images result in less network traffic.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_why_not_just_increase_the_hardware_resources_as_much_as_possible_i_want_it_to_run_fast"><a class="link" href="#_why_not_just_increase_the_hardware_resources_as_much_as_possible_i_want_it_to_run_fast">6.5.4. Why not just increase the hardware resources as much as possible?  I want it to run fast.</a></h4>
+<div class="paragraph">
+<p>It is critical to strike a balance between the minimum resources required to run the algorithm and acceptable runtimes.
+Scale depends on accurate requirements in order to efficiently schedule jobs on the cluster.
+If a job requests more resources than it uses, these resources are wasted as they cannot not be allocated to other jobs.
+In a cloud environment, wasted resources equate to wasted money.
+When job requirements depend on the input, the Seed manifest supports specifying a multiplicative value for the resource requests via the <code>inputMultiplier</code> property.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_my_algorithm_requires_some_reference_data_should_i_just_embed_it_into_the_docker_image"><a class="link" href="#_my_algorithm_requires_some_reference_data_should_i_just_embed_it_into_the_docker_image">6.5.5. My algorithm requires some reference data, should I just embed it into the Docker image?</a></h4>
+<div class="paragraph">
+<p>It depends.
+If the total size of the file(s) is sufficiently small (e.g. less than 100 MB), add it into the Docker image.
+If it has larger requirements, such as a lookup directory, please work with the Scale team to create a mountable directory.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_how_to_secure_sensitive_information_like_passwords_inside_my_docker_image"><a class="link" href="#_how_to_secure_sensitive_information_like_passwords_inside_my_docker_image">6.5.6. How to secure sensitive information like passwords inside my Docker image?</a></h4>
+<div class="paragraph">
+<p>The Seed manifest allows the developer to define "Settings", which will be defined as environment variables at runtime.
+These "Settings" can be marked as "secret" and will be stored in <a href="https://www.vaultproject.io/">HashiCorp Vault</a> when running the job in a processing system that consumes Seed images, such as Scale.
+The values for these environment variables are hidden and only injected at runtime.
+See <a href="#_secret_data">Secret Data</a> for more details.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_why_should_i_define_error_codes"><a class="link" href="#_why_should_i_define_error_codes">6.5.7. Why should I define error codes?</a></h4>
+<div class="paragraph">
+<p>The developer should properly capture and define errors in their code using exit codes.
+The Seed manifest allows the developer to define specific error codes with name, description, and type (job vs. data).
+A data error indicates that the input data was invalid and the job <strong>will never</strong> be able to run it.
+All other errors are job errors and could potentially be resolved on future executions (re-queues/re-process).
+A third type, "System" errors, are reserved for the Scale framework.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_how_do_i_use_exit_codes_in_python_matlab_java_etc"><a class="link" href="#_how_do_i_use_exit_codes_in_python_matlab_java_etc">6.5.8. How do I use exit codes in Python/Matlab/Java/etc.?</a></h4>
+<div class="paragraph">
+<p>Code should use proper try/catch or if/else statements to identify the type of error.
+The code can exit with any value between 0-255.
+<strong>The zero value indicates successful run.</strong>
+The exit code can be checked after a program finishes with "echo $?".</p>
+</div>
+<div class="paragraph">
+<p>Common examples exiting with code 42:</p>
+</div>
+<div class="paragraph">
+<p>Python: <code>sys.exit(42)</code></p>
+</div>
+<div class="paragraph">
+<p>Matlab: <code>exit(42)</code></p>
+</div>
+<div class="paragraph">
+<p>Java: <code>System.exit(42)</code></p>
+</div>
+<div class="paragraph">
+<p>C/C++: <code>exit(42)</code></p>
+</div>
+<div class="paragraph">
+<p>Shell: <code>exit 42</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_my_algorithm_involves_running_python_code_followed_by_matlab_code_and_finally_c_code_should_i_put_it_all_in_one_docker_image"><a class="link" href="#_my_algorithm_involves_running_python_code_followed_by_matlab_code_and_finally_c_code_should_i_put_it_all_in_one_docker_image">6.5.9. My algorithm involves running Python code, followed by Matlab code, and finally C code. Should I put it all in one Docker image?</a></h4>
+<div class="paragraph">
+<p>It depends.
+Does each step involve heavy processing or create time-consuming intermediate products?
+If so, they would be better as their own standalone jobs with its output products being passed to a subsequent step in a workflow.
+If the individual steps are relatively small (in runtime and resources), it can all run within a single container using a shell script or similar to execute each step.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting"><a class="link" href="#_troubleshooting">6.6. Troubleshooting</a></h3>
+<div class="sect3">
+<h4 id="_python_modulenotfound_errors"><a class="link" href="#_python_modulenotfound_errors">6.6.1. Python ModuleNotFound Errors</a></h4>
+<div class="paragraph">
+<p>If the following <code>ModuleNotFound</code> error occurs, it likely means the Pillow library is not installed correctly.
+Please refer to the Pillow <a href="https://pillow.readthedocs.io/en/stable//installation.html">installation instructions</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Traceback (most recent call last):
+  File "image_rotate.py", line 5, in &lt;module&gt;
+    from PIL import Image
+ModuleNotFoundError: No module named 'PIL'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the following <code>SyntaxError</code> occurs, it likely means you are using Python 2 instead of Python 3.
+Please refer to these <a href="https://wiki.python.org/moin/BeginnersGuide/Download/">instructions</a> for installing Python.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>File "image_rotate.py", line 9
+  product_image_name =
+    f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
+                                                                    ^
+SyntaxError: invalid syntax</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_error_getting_credentials"><a class="link" href="#_error_getting_credentials">6.6.2. Error Getting Credentials</a></h4>
+<div class="paragraph">
+<p>When using WSL 2 on Windows, some users have reported the following error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>ERROR: rpc error: code = Unknown desc = error getting credentials - err: exec: "docker-credential-desktop.exe": executable file not found in $PATH, out: ``</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If this occurs, add a symlink to <code>docker-credential-desktop.exe</code>; e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo  ln -s /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-credential-desktop.exe /usr/bin/docker-credential-desktop.exe</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2020-11-12 20:05:03 UTC
+</div>
+</div>
+</body>
+</html>
