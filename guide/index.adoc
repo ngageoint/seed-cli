@@ -1,7 +1,7 @@
 = Seed User Guide
 Emily Smith <emily.smith@appliedis.com>; Jonathan Meyer <jonathan.meyer@appliedis.com>; Matt Anderson <matt.anderson@appliedis.com>
 :toc: left
-:toclevels: 5
+:toclevels: 2
 :stylesheet: styles/html.css
 :sectlinks:
 :sectnums:
@@ -28,6 +28,7 @@ Emily Smith <emily.smith@appliedis.com>; Jonathan Meyer <jonathan.meyer@appliedi
 :silo-url: https://github.com/ngageoint/seed-silo
 :pipenv-url: https://pipenv.pypa.io/en/latest/
 :venv-url: https://docs.python.org/3/library/venv.html
+:windows-store-ubuntu-url: https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71
 :wsl2-url: https://docs.microsoft.com/en-us/windows/wsl/wsl2-index
 
 == Purpose
@@ -74,12 +75,6 @@ Before using Seed, you should have a working familiarity with developing code us
 This guide is written with the assumption that you are using a Linux workstation.
 The Seed CLI is heavily reliant on Docker to build and package Seed images (Docker image with Seed metadata), so it is highly recommended that you have superuser (i.e. `sudo`) access.
 
-[WARNING]
-====
-If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2] in order to avoid incompatibilities between environments. 
-Algorithms must use a base Linux operating system to run in Scale.
-====
-
 === Algorithm Requirements
 
 It is beneficial to identify and understand the following characteristics of each algorithm you intend to package with Seed:
@@ -109,6 +104,20 @@ docker version 19.03.8, build afacb8b
 If this command fails, verify the Docker daemon is running using the `docker info` command. You can also use operating system 
 utilities, such as `sudo systemctl is-active docker`, `sudo status docker` or `sudo service docker status`, or checking the 
 service status using Windows utilities.
+
+[WARNING]
+====
+If using Windows, we strongly recommend using Seed with {wsl2-url}[WSL 2] in order to avoid incompatibilities between environments. 
+Algorithms must use a base Linux operating system to run in Scale.
+====
+
+=== Using WSL 2 on Windows
+
+When using Seed on Windows, we recommend installing a Linux distro from the Micrsoft Store, such as {windows-store-ubuntu-url}[Ubuntu 20.04 LTS].
+After installing, check the Windows Docker Desktop settings under Resources -> WSL Integration to ensure Docker integration is enabled for the distro.
+Open the application, follow the prompts to configure the environment, and proceed with <<Seed CLI Installation>>.
+
+
 
 == Seed CLI Installation
 
@@ -241,27 +250,7 @@ python image_rotate.py seed.png 180 output
 
 A new image file named `ROTATED_180_seed.png` will be created in the `output` directory.
 
-===== Python Troubleshooting
-
-If the following `ModuleNotFound` error occurs, it likely means the Pillow library is not installed correctly. 
-Please refer to the Pillow {pillow-docs-url}/installation.html[installation instructions].
-```
-Traceback (most recent call last):
-  File "image_rotate.py", line 5, in <module>
-    from PIL import Image
-ModuleNotFoundError: No module named 'PIL'
-```
-
-If the following `SyntaxError` occurs, it likely means you are using Python 2 instead of Python 3. 
-Please refer to these {python-beginners-guide-url}/[instructions] for installing Python.
-
-```
-File "image_rotate.py", line 9
-  product_image_name =  
-    f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
-                                                                    ^
-SyntaxError: invalid syntax
-```
+If a `ModuleNotFound` error occurs, see the <<Python ModuleNotFound Errors>> section.
 
 ==== Running in Docker
 
@@ -569,6 +558,8 @@ With the warnings corrected, let's create a new build:
 ```
 seed build
 ```
+
+If an `error getting credentials` on Windows occurs, see the <<Error Getting Credentials>> section.
 
 With a complete Seed image now created, we can now run our job using the Seed image. 
 The last line of the console output shows us how we can use the Seed CLI to run our Seed job:
@@ -978,3 +969,38 @@ Does each step involve heavy processing or create time-consuming intermediate pr
 If so, they would be better as their own standalone jobs with its output products being passed to a subsequent step in a workflow. 
 If the individual steps are relatively small (in runtime and resources), it can all run within a single container using a shell script or similar to execute each step.
 
+=== Troubleshooting
+
+==== Python ModuleNotFound Errors
+
+If the following `ModuleNotFound` error occurs, it likely means the Pillow library is not installed correctly. 
+Please refer to the Pillow {pillow-docs-url}/installation.html[installation instructions].
+```
+Traceback (most recent call last):
+  File "image_rotate.py", line 5, in <module>
+    from PIL import Image
+ModuleNotFoundError: No module named 'PIL'
+```
+
+If the following `SyntaxError` occurs, it likely means you are using Python 2 instead of Python 3. 
+Please refer to these {python-beginners-guide-url}/[instructions] for installing Python.
+
+```
+File "image_rotate.py", line 9
+  product_image_name =  
+    f'ROTATED_{rotate_degrees}_{os.path.basename(source_image_path)}'
+                                                                    ^
+SyntaxError: invalid syntax
+```
+
+==== Error Getting Credentials
+
+When using WSL 2 on Windows, some users have reported the following error:
+```
+ERROR: rpc error: code = Unknown desc = error getting credentials - err: exec: "docker-credential-desktop.exe": executable file not found in $PATH, out: ``
+```
+
+If this occurs, add a symlink to `docker-credential-desktop.exe`; e.g.
+```
+sudo  ln -s /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-credential-desktop.exe /usr/bin/docker-credential-desktop.exe
+```
